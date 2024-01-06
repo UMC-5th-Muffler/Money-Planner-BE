@@ -1,6 +1,6 @@
 package com.umc5th.muffler.entity;
 
-import com.umc5th.muffler.domain.base.BaseTimeEntity;
+import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import java.time.LocalDate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.Nullable;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor

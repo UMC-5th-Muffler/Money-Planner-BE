@@ -1,6 +1,5 @@
 package com.umc5th.muffler.entity;
 
-import com.umc5th.muffler.domain.base.BaseTimeEntity;
 import com.umc5th.muffler.entity.constant.AlarmType;
 import java.time.LocalDate;
 import java.time.LocalTime;

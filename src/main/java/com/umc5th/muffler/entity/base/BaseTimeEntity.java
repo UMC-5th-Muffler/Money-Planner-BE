@@ -1,4 +1,4 @@
-package com.umc5th.muffler.domain.base;
+package com.umc5th.muffler.entity.base;
 
 import java.time.LocalDateTime;
 import javax.persistence.Column;
