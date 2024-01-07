@@ -14,6 +14,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = CustomException.class)
     public ResponseEntity<Object> handleCustomException(CustomException e) {
+        log.error("Error occurs {}", e.toString());
         ErrorCode errorCode = e.getErrorCode();
         String message = e.getMessage();
         return handleExceptionInternal(errorCode, message);
