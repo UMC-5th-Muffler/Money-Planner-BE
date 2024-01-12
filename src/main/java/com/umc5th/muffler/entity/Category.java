@@ -6,9 +6,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +24,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Getter
+@Table(uniqueConstraints = {
+        @UniqueConstraint(
+            name = "category_name_member_unique",
+            columnNames = {"member_id", "name"}
+        )
+})
 public class Category extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,4 +43,8 @@ public class Category extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String icon;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Column(nullable = false, name = "member_id")
+    private Member member;
 }
