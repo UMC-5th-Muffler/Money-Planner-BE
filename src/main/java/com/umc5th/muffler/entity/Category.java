@@ -45,6 +45,5 @@ public class Category extends BaseTimeEntity {
     private String icon;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(nullable = false, name = "member_id")
     private Member member;
 }
