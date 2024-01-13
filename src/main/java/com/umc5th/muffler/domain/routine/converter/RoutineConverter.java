@@ -19,6 +19,7 @@ public class RoutineConverter {
                 .member(member)
                 .cost(request.getCost())
                 .term(request.getTerm())
+                .endDate(request.getEndDate())
                 .build();
 
         request.getDaysOfWeek().forEach(day -> {

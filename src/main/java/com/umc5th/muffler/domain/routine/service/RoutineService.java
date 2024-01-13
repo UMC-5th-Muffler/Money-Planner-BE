@@ -34,6 +34,14 @@ public class RoutineService {
 
         Long memberId = 1L;
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if(request.getEndDate() != null) {
+            List<Goal> goals = goalRepository.findByMemberId(memberId);
+            if(goals.isEmpty() || goals.stream().noneMatch(goal -> isDateWithinGoalPeriod(request.getEndDate(), goal))) {
+                throw new RoutineException(ErrorCode.GOAL_NOT_FOUND);
+            }
+        }
+
         WeeklyRoutineExpense newWeeklyRoutineExpense = RoutineConverter.toWeeklyRoutine(request, member);
 
         return weeklyRoutineRepository.save(newWeeklyRoutineExpense);
@@ -45,9 +53,11 @@ public class RoutineService {
         Long memberId = 1L;
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        List<Goal> goals = goalRepository.findByMemberId(memberId);
-        if(goals.isEmpty() || goals.stream().noneMatch(goal -> isDateWithinGoalPeriod(request.getEndDate(), goal))) {
-            throw new RoutineException(ErrorCode.GOAL_NOT_FOUND);
+        if(request.getEndDate() != null) {
+            List<Goal> goals = goalRepository.findByMemberId(memberId);
+            if(goals.isEmpty() || goals.stream().noneMatch(goal -> isDateWithinGoalPeriod(request.getEndDate(), goal))) {
+                throw new RoutineException(ErrorCode.GOAL_NOT_FOUND);
+            }
         }
 
         MonthlyRoutineExpense newMonthlyRoutineExpense = RoutineConverter.toMonthlyRoutine(request, member);
