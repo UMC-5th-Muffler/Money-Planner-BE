@@ -15,8 +15,10 @@ public enum ErrorCode {
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
 
     // Member 에러
-    MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER4001", "존재하지 않는 사용자입니다.");
+    MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER4001", "존재하지 않는 사용자입니다."),
 
+    // Routine 에러
+    GOAL_NOT_FOUND(HttpStatus.BAD_REQUEST, "ROUTINE4001", "목표가 존재하지 않는 날이 포함되어 있습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

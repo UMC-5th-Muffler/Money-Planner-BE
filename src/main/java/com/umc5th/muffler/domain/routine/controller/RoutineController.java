@@ -1,9 +1,12 @@
 package com.umc5th.muffler.domain.routine.controller;
 
 import com.umc5th.muffler.domain.routine.converter.RoutineConverter;
+import com.umc5th.muffler.domain.routine.dto.MonthlyRoutineRequest;
+import com.umc5th.muffler.domain.routine.dto.MonthlyRoutineResponse;
 import com.umc5th.muffler.domain.routine.dto.WeeklyRoutineRequest;
 import com.umc5th.muffler.domain.routine.dto.WeeklyRoutineResponse;
 import com.umc5th.muffler.domain.routine.service.RoutineService;
+import com.umc5th.muffler.entity.MonthlyRoutineExpense;
 import com.umc5th.muffler.entity.WeeklyRoutineExpense;
 import com.umc5th.muffler.global.response.Response;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +29,14 @@ public class RoutineController {
         WeeklyRoutineResponse weeklyRoutineResponse = RoutineConverter.toAddWeeklyRoutineResult(weeklyRoutineExpense);
 
         return Response.success(weeklyRoutineResponse);
+    }
+
+    @PostMapping("/monthly")
+    public Response<MonthlyRoutineResponse> addMonthlyRoutine(@RequestBody MonthlyRoutineRequest request) {
+
+        MonthlyRoutineExpense monthlyRoutineExpense = routineService.addMonthlyRoutine(request);
+        MonthlyRoutineResponse monthlyRoutineResponse = RoutineConverter.toAddMonthlyRoutineResult(monthlyRoutineExpense);
+
+        return Response.success(monthlyRoutineResponse);
     }
 }

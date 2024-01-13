@@ -3,17 +3,16 @@ package com.umc5th.muffler.domain.routine.dto;
 import com.sun.istack.NotNull;
 import lombok.Getter;
 
-import java.util.List;
+import java.time.LocalDate;
 
 @Getter
-public class WeeklyRoutineRequest {
+public class MonthlyRoutineRequest {
 
     @NotNull
     private Long memberId;
     @NotNull
-    private Integer cost;
+    private Long cost;
     @NotNull
-    private Integer term;
-    @NotNull
-    private List<Integer> daysOfWeek;
+    private Integer day;
+    private LocalDate endDate;
 }
