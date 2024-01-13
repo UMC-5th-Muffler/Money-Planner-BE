@@ -17,4 +17,5 @@ public class DailyExpenseDetailsResponse {
     private LocalDate date;
     private Long dailyTotalCost;
     private List<ExpenseDetail> expenseDetailList;
+    private boolean hasNext;
 }
