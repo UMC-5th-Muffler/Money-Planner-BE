@@ -30,7 +30,7 @@ public class WeeklyRoutineExpense {
     private Integer term;
 
     @Column(nullable = false)
-    private Integer expense;
+    private Integer cost;
 
     @ManyToOne
     private Member member;

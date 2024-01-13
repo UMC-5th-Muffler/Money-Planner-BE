@@ -26,7 +26,7 @@ public class MonthlyRoutineExpense {
     private Integer day;
 
     @Column(nullable = false)
-    private Long expense;
+    private Long cost;
 
     @Column(nullable = true)
     private LocalDate endDate;
