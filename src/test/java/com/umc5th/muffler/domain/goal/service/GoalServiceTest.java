@@ -126,4 +126,23 @@ class GoalServiceTest {
                 .hasFieldOrPropertyWithValue("errorCode", _MEMBER_NOT_FOUND);
     }
 
+    @Test
+    void 전체_목표조회가_성공한경우() {
+        Long memberId = 1L;
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mock(Member.class)));
+
+        assertThatCode(() -> goalService.getGoals(memberId)).doesNotThrowAnyException();
+
+        verify(memberRepository).findById(memberId);
+    }
+
+    @Test
+    void 전체목표조회시_요청한유저가_존재하지않는경우() {
+        Long memberId = 1L;
+        when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> goalService.getGoals(memberId))
+                .isInstanceOf(MemberException.class)
+                .hasFieldOrPropertyWithValue("errorCode", _MEMBER_NOT_FOUND);
+    }
 }
