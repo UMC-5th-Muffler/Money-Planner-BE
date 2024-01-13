@@ -145,4 +145,69 @@ class GoalServiceTest {
                 .isInstanceOf(MemberException.class)
                 .hasFieldOrPropertyWithValue("errorCode", _MEMBER_NOT_FOUND);
     }
+
+    @Test
+    void 목표삭제에_성공할경우() {
+        Long memberId = 1L;
+        Long goalId = 1L;
+
+        Member mockMember = mock(Member.class);
+        when(mockMember.getId()).thenReturn(memberId);
+
+        Goal mockGoal = mock(Goal.class);
+        when(mockGoal.getMember()).thenReturn(mockMember);
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
+        when(goalRepository.findById(goalId)).thenReturn(Optional.of(mockGoal));
+
+        goalService.delete(goalId, memberId);
+
+        verify(goalRepository).delete(mockGoal);
+        verify(mockMember).removeGoal(mockGoal);
+    }
+
+    @Test
+    void 목표삭제시_요청한유저가_존재하지않는경우() {
+        Long memberId = 1L;
+        Long goalId = 1L;
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> goalService.delete(goalId, memberId))
+                .isInstanceOf(MemberException.class)
+                .hasFieldOrPropertyWithValue("errorCode", _MEMBER_NOT_FOUND);
+    }
+
+    @Test
+    void 목표삭제시_해당목표가_존재하지않는경우() {
+        Long memberId = 1L;
+        Long goalId = 1L;
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mock(Member.class)));
+        when(goalRepository.findById(goalId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> goalService.delete(goalId, memberId))
+                .isInstanceOf(GoalException.class)
+                .hasFieldOrPropertyWithValue("errorCode", _GOAL_NOT_FOUND);
+    }
+
+    @Test
+    void 목표삭제시_등록한유저가_아닌경우() {
+        Long memberId = 1L;
+        Long goalId = 1L;
+
+        Member mockMember = mock(Member.class);
+        when(mockMember.getId()).thenReturn(memberId);
+
+        Goal mockGoal = mock(Goal.class);
+        when(mockGoal.getMember()).thenReturn(mock(Member.class));
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
+        when(goalRepository.findById(goalId)).thenReturn(Optional.of(mockGoal));
+
+        assertThatThrownBy(() -> goalService.delete(goalId, memberId))
+                .isInstanceOf(CommonException.class)
+                .hasFieldOrPropertyWithValue("errorCode", _INVALID_PERMISSION);
+    }
+
 }
