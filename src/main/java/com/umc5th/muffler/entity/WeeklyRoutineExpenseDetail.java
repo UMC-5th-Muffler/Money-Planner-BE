@@ -1,23 +1,16 @@
 package com.umc5th.muffler.entity;
 
 import java.time.DayOfWeek;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import javax.persistence.*;
+
+import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 @Entity
 @Getter
+@Setter
 public class WeeklyRoutineExpenseDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +19,12 @@ public class WeeklyRoutineExpenseDetail {
     @Column(nullable = false)
     private DayOfWeek dayOfWeek;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "routine_id")
     private WeeklyRoutineExpense weeklyRoutineExpense;
+
+    public void setDetail(WeeklyRoutineExpense weeklyRoutineExpense) {
+        this.weeklyRoutineExpense = weeklyRoutineExpense;
+        weeklyRoutineExpense.getDetailList().add(this);
+    }
 }

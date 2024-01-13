@@ -1,11 +1,7 @@
 package com.umc5th.muffler.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -32,6 +31,16 @@ public class WeeklyRoutineExpense {
     @Column(nullable = false)
     private Integer cost;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
     private Member member;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "weeklyRoutineExpense", cascade = CascadeType.ALL)
+    private List<WeeklyRoutineExpenseDetail> detailList = new ArrayList<>();
+
+    public void addDetail(WeeklyRoutineExpenseDetail detail) {
+        detailList.add(detail);
+        detail.setWeeklyRoutineExpense(this);
+    }
 }
