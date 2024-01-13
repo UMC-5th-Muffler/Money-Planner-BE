@@ -6,6 +6,7 @@ import com.umc5th.muffler.domain.expense.service.ExpenseService;
 import com.umc5th.muffler.global.response.Response;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class ExpenseController {
     private final ExpenseService expenseService;
 
+    @PostMapping("/")
     public Response<NewExpenseResponse> enrollNewExpense(@RequestBody @Valid NewExpenseRequest request) {
-        return Response.success(new NewExpenseResponse(0L));
+        NewExpenseResponse result = expenseService.enrollExpense(request);
+        return Response.success(result);
     }
 }
