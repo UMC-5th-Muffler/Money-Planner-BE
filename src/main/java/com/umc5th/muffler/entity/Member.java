@@ -37,9 +37,13 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private SocialType socialType;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member")
+    private List<Goal> goals;
+
+      @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @Builder.Default
     private List<Category> categories = new ArrayList<>();
+
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST)
     private List<Expense> expenses;
@@ -50,9 +54,16 @@ public class Member extends BaseTimeEntity {
         this.expenses.add(expense);
     }
 
-    //연관 관계 메서드
     public void addCategory(Category category) {
         category.setMember(this);
         this.categories.add(category);
+    }
+
+    public void addGoal(Goal goal) {
+        this.goals.add(goal);
+    }
+
+    public void removeGoal(Goal goal) {
+        this.goals.remove(goal);
     }
 }

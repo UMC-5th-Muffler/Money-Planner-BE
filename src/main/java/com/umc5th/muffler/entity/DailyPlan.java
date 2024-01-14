@@ -4,9 +4,12 @@ import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import java.time.LocalDate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,4 +32,19 @@ public class DailyPlan extends BaseTimeEntity {
 
     @Column(nullable = false)
     private Long budget;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "goal_id")
+    private Goal goal;
+
+    public static DailyPlan of(LocalDate date, Long budget) {
+        return DailyPlan.builder()
+                .date(date)
+                .budget(budget)
+                .build();
+    }
+
+    public void setGoal(Goal goal) {
+        this.goal = goal;
+    }
 }

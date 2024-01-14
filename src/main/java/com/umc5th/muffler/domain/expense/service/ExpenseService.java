@@ -12,10 +12,7 @@ import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.global.response.code.ErrorCode;
-import com.umc5th.muffler.global.response.exception.CustomException;
 import com.umc5th.muffler.global.response.exception.ExpenseException;
-import com.umc5th.muffler.global.response.exception.MemberException;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +29,7 @@ public class ExpenseService {
     public NewExpenseResponse enrollExpense(NewExpenseRequest request) {
         // TODO :: 해당하는 error code가 develop 에 들어간 후 pull 받아서 그것에 맞게 고칠 예정
         Member member = memberRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ExpenseException(ErrorCode.NOT_FOUND_MEMBER));
+                .orElseThrow(() -> new ExpenseException(ErrorCode._MEMBER_NOT_FOUND));
         Category category = categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), member.getId())
                 .orElseThrow(() -> new ExpenseException(ErrorCode._BAD_REQUEST));
         Goal goal = goalRepository.findByDateBetween(request.getExpenseDate())
