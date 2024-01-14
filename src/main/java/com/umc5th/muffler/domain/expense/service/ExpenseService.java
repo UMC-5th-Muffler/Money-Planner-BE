@@ -24,17 +24,17 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ExpenseService {
     private final MemberRepository memberRepository;
-    private CategoryRepository categoryRepository;
-    private ExpenseRepository expenseRepository;
-    private GoalRepository goalRepository;
+    private final CategoryRepository categoryRepository;
+    private final ExpenseRepository expenseRepository;
+    private final GoalRepository goalRepository;
 
     @Transactional
     public NewExpenseResponse enrollExpense(NewExpenseRequest request) {
         // TODO :: 해당하는 error code가 develop 에 들어간 후 pull 받아서 그것에 맞게 고칠 예정
         Member member = memberRepository.findById(request.getUserId())
-                .orElseThrow(() -> new MemberException(ErrorCode._BAD_REQUEST));
+                .orElseThrow(() -> new ExpenseException(ErrorCode.NOT_FOUND_MEMBER));
         Category category = categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), member.getId())
-                .orElseThrow(() -> new CustomException(ErrorCode._BAD_REQUEST));
+                .orElseThrow(() -> new ExpenseException(ErrorCode._BAD_REQUEST));
         Goal goal = goalRepository.findByDateBetween(request.getExpenseDate())
                 .orElseThrow(() -> new ExpenseException(ErrorCode._NO_GOAL_IN_GIVEN_DATE));
 

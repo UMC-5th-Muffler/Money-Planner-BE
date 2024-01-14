@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ExpenseController {
     private final ExpenseService expenseService;
 
-    @PostMapping("/")
+    @PostMapping("")
     public Response<NewExpenseResponse> enrollNewExpense(@RequestBody @Valid NewExpenseRequest request) {
         NewExpenseResponse result = expenseService.enrollExpense(request);
         return Response.success(result);
