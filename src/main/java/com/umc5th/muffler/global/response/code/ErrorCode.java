@@ -27,6 +27,7 @@ public enum ErrorCode {
     _NO_GOAL_IN_GIVEN_DATE(HttpStatus.BAD_REQUEST, "GOAL400", "해당 날짜에 일치하는 목표가 없습니다"),
 
     // Category 에러
+    _CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "CATEGORY404", "등록되지 않은 카테고리 입니다."),
     DUPLICATED_CATEGORY_NAME(HttpStatus.BAD_REQUEST, "CATEGORY400", "카테고리 이름이 중복되었습니다.");
 
     private final HttpStatus httpStatus;
