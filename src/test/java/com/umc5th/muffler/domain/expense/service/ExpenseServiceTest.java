@@ -1,33 +1,64 @@
 package com.umc5th.muffler.domain.expense.service;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
+import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseResponse;
+import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
+import com.umc5th.muffler.domain.goal.repository.GoalRepository;
+import com.umc5th.muffler.domain.member.repository.MemberRepository;
+import com.umc5th.muffler.entity.Category;
+import com.umc5th.muffler.entity.Expense;
+import com.umc5th.muffler.entity.Goal;
+import com.umc5th.muffler.entity.Member;
+import com.umc5th.muffler.fixture.CategoryFixture;
+import com.umc5th.muffler.fixture.ExpenseFixture;
+import com.umc5th.muffler.fixture.MemberFixture;
+import com.umc5th.muffler.global.response.exception.CategoryException;
 import com.umc5th.muffler.global.response.exception.CustomException;
+import com.umc5th.muffler.global.response.exception.ExpenseException;
 import java.time.LocalDate;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest
-@ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 class ExpenseServiceTest {
-    private final ExpenseService expenseService;
-
-    @Autowired
-    public ExpenseServiceTest(ExpenseService expenseService) {
-        this.expenseService = expenseService;
-    }
+    @Mock
+    private MemberRepository memberRepository;
+    @Mock
+    private CategoryRepository categoryRepository;
+    @Mock
+    private ExpenseRepository expenseRepository;
+    @Mock
+    private GoalRepository goalRepository;
+    @InjectMocks
+    private ExpenseService expenseService;
 
     @Test
-    @Transactional
     public void 정상_입력() {
+        Member member = MemberFixture.MEMBER_ONE;
+        Category category = CategoryFixture.CATEGORY_ONE;
+        Expense expense = ExpenseFixture.EXPENSE_ONE;
+        Goal goal = Goal.builder().build();
+
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(Long.class)))
+                .willReturn(Optional.of(category));
+        given(goalRepository.findByDateBetween(any(LocalDate.class))).willReturn(Optional.of(goal));
+        given(expenseRepository.save(any(Expense.class))).willReturn(expense);
+
         // given
-        NewExpenseRequest req = new NewExpenseRequest(1L, "하이", 100L,
-                LocalDate.of(2024, 1, 13), null, "카테고리");
+        NewExpenseRequest req = new NewExpenseRequest(member.getId(), expense.getTitle(), expense.getCost(),
+                expense.getDate(), null, category.getName());
         // when
         NewExpenseResponse res = expenseService.enrollExpense(req);
         // then
@@ -35,28 +66,55 @@ class ExpenseServiceTest {
     }
 
     @Test
-    @Transactional
     public void 등록_안된_카테고리의_경우() {
-        // given
-        NewExpenseRequest req = new NewExpenseRequest(1L, "하이", 100L,
-                LocalDate.of(2024, 1, 13), null, "카테고리1");
+        Member member = MemberFixture.MEMBER_ONE;
+        Category category = CategoryFixture.CATEGORY_ONE;
+        Expense expense = ExpenseFixture.EXPENSE_ONE;
+        Goal goal = Goal.builder().build();
 
-        //then
-        assertThrows(CustomException.class, () -> {
-            expenseService.enrollExpense(req);
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(Long.class)))
+                .willReturn(Optional.empty());
+
+        NewExpenseRequest req = new NewExpenseRequest(member.getId(), expense.getTitle(), expense.getCost(),
+                expense.getDate(), null, category.getName());
+        assertThrows(ExpenseException.class, () -> {
+            NewExpenseResponse res = expenseService.enrollExpense(req);
         });
     }
 
     @Test
-    @Transactional
     public void 멤버가_등록_안된_경우() {
-        // given
-        NewExpenseRequest req = new NewExpenseRequest(2L, "하이", 100L,
-                LocalDate.of(2024, 1, 13), null, "카테고리1");
+        Member member = MemberFixture.MEMBER_ONE;
+        Category category = CategoryFixture.CATEGORY_ONE;
+        Expense expense = ExpenseFixture.EXPENSE_ONE;
+        Goal goal = Goal.builder().build();
 
-        //then
-        assertThrows(CustomException.class, () -> {
-            expenseService.enrollExpense(req);
+        given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
+
+        NewExpenseRequest req = new NewExpenseRequest(member.getId(), expense.getTitle(), expense.getCost(),
+                expense.getDate(), null, category.getName());
+        assertThrows(ExpenseException.class, () -> {
+            NewExpenseResponse res = expenseService.enrollExpense(req);
+        });
+    }
+
+    @Test
+    public void 목표가_등록_안된_경우() {
+        Member member = MemberFixture.MEMBER_ONE;
+        Category category = CategoryFixture.CATEGORY_ONE;
+        Expense expense = ExpenseFixture.EXPENSE_ONE;
+        Goal goal = Goal.builder().build();
+
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(Long.class)))
+                .willReturn(Optional.of(category));
+        given(goalRepository.findByDateBetween(any(LocalDate.class))).willReturn(Optional.empty());
+
+        NewExpenseRequest req = new NewExpenseRequest(member.getId(), expense.getTitle(), expense.getCost(),
+                expense.getDate(), null, category.getName());
+        assertThrows(ExpenseException.class, () -> {
+            NewExpenseResponse res = expenseService.enrollExpense(req);
         });
     }
 
