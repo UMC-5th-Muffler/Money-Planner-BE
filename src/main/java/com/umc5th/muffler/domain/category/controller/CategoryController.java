@@ -19,8 +19,7 @@ public class CategoryController {
 
     @PostMapping("/")
     public Response<CategoryDto> createCategory(@RequestBody @Valid NewCategoryRequest request) {
-        Long memberId = 1L; // 회원 관리에 따라 달라질 예정임.
-        CategoryDto newCategory = categoryService.createNewCategory(memberId, request);
+        CategoryDto newCategory = categoryService.createNewCategory(request.getMemberId(), request);
         return Response.success(newCategory);
     }
 }
