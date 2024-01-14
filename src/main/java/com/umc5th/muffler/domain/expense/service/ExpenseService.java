@@ -12,6 +12,7 @@ import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.MemberException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -28,12 +29,12 @@ public class ExpenseService {
     private final MemberRepository memberRepository;
     private final CategoryRepository categoryRepository;
 
-    public DailyExpenseDetailsResponse getDailyExpenseDetails(LocalDate date, Integer page){
+    public DailyExpenseDetailsResponse getDailyExpenseDetails(LocalDate date, Pageable pageable){
         Long memberId = 1L; // 임시
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(member, date, PageRequest.of(page, 20, Sort.by("createdAt").ascending()));
+        Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(member, date, pageable);
         
         List<Category> categoriesByMember = categoryRepository.findAllByMember(member); // member 자체 제작 카테고리 리스트
         List<Category> commonCategories = categoryRepository.findAllWithNoMember(); // 기본 카테고리 리스트
