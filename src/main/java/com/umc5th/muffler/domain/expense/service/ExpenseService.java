@@ -11,14 +11,11 @@ import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.MemberException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,11 +33,7 @@ public class ExpenseService {
 
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(member, date, pageable);
         
-        List<Category> categoriesByMember = categoryRepository.findAllByMember(member); // member 자체 제작 카테고리 리스트
-        List<Category> commonCategories = categoryRepository.findAllWithNoMember(); // 기본 카테고리 리스트
-
-        List<Category> categoryList = new ArrayList<>(commonCategories);
-        categoryList.addAll(categoriesByMember); // 하나의 카테고리 리스트로 합치기
+        List<Category> categoryList = categoryRepository.findAllByMember(member); // member와 연관된 카테고리 리스트
 
         DailyExpenseDetailsResponse response = ExpenseConverter.toDailyExpenseDetail(expenseList, categoryList, date);
 
