@@ -45,7 +45,7 @@ class CategoryServiceTest {
                 .willReturn(Optional.empty());
         given(memberRepository.findById(request.getMemberId()))
                 .willReturn(Optional.ofNullable(member));
-        given(memberRepository.save(any(Member.class))).willReturn(member);
+        given(categoryRepository.save(any(Category.class))).willReturn(category);
 
         // when
         CategoryDto newCategory = categoryService.createNewCategory(1L, request);
@@ -67,9 +67,7 @@ class CategoryServiceTest {
                 .willReturn(Optional.of(haveCategory));
 
         // then
-        Assertions.assertThrows(CategoryException.class, () -> {
-            categoryService.createNewCategory(member.getId(), request);
-        });
+        Assertions.assertThrows(CategoryException.class, () -> categoryService.createNewCategory(member.getId(), request));
     }
 
     @Test
@@ -82,8 +80,6 @@ class CategoryServiceTest {
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
         // when
-        Assertions.assertThrows(CategoryException.class, () -> {
-           categoryService.createNewCategory(request.getMemberId(), request);
-        });
+        Assertions.assertThrows(CategoryException.class, () -> categoryService.createNewCategory(request.getMemberId(), request));
     }
 }

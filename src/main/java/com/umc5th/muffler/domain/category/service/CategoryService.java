@@ -11,10 +11,12 @@ import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.CategoryException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 public class CategoryService {
@@ -31,7 +33,7 @@ public class CategoryService {
             throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
         Category newCategory = CategoryConverter.toEntity(request);
         member.addCategory(newCategory);
-        memberRepository.save(member);
+        newCategory = categoryRepository.save(newCategory);
         return new CategoryDto(newCategory.getId(), newCategory.getName());
     }
 }
