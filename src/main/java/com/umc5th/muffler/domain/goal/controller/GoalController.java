@@ -41,4 +41,10 @@ public class GoalController {
         );
         return Response.success(response);
     }
+
+    @DeleteMapping("/{goalId}")
+    public Response<Void> delete(@PathVariable Long goalId, @RequestParam Long memberId) {
+        goalService.delete(goalId, memberId);
+        return Response.success();
+    }
 }

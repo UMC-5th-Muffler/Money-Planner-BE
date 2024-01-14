@@ -51,6 +51,22 @@ public class GoalService {
                 .orElseThrow(() -> new MemberException(_MEMBER_NOT_FOUND));
         return member.getGoals();
     }
+
+    @Transactional
+    public void delete(Long goalId, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(_MEMBER_NOT_FOUND));
+        Goal goal = goalRepository.findById(goalId)
+                .orElseThrow(() -> new GoalException(_GOAL_NOT_FOUND));
+
+        if (!Objects.equals(member.getId(), goal.getMember().getId())) {
+            throw new CommonException(_INVALID_PERMISSION);
+        }
+
+        goalRepository.delete(goal);
+        member.removeGoal(goal);
+    }
+
     private void validateDailyPlans(LocalDate startDate, LocalDate endDate, List<Long> dailyBudgets, Long totalBudget) {
         if (!startDate.isBefore(endDate)
                 || dailyBudgets.size() != (ChronoUnit.DAYS.between(startDate, endDate) + 1)
