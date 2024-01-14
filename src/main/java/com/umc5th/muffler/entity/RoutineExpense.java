@@ -20,31 +20,46 @@ import java.util.List;
 @Entity
 @Getter
 @DynamicInsert
-public class WeeklyRoutineExpense {
+public class RoutineExpense {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
+    private Integer day;
+
+    @Column(nullable = true)
     @ColumnDefault("1")
     private Integer term;
 
     @Column(nullable = false)
     private Long cost;
 
+    @Column(nullable = false)
+    private LocalDate startDate;
+
     @Column(nullable = true)
     private LocalDate endDate;
+
+    @Column(nullable = false)
+    private String title;
+
+    private String memo;
+
+    @Column(nullable = false)
+    private Long categoryId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
     @Builder.Default
-    @OneToMany(mappedBy = "weeklyRoutineExpense", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "routineExpense", cascade = CascadeType.ALL)
     private List<WeeklyRoutineExpenseDetail> detailList = new ArrayList<>();
 
+    /* 연관 관계 메서드 */
     public void addDetail(WeeklyRoutineExpenseDetail detail) {
+        detail.setRoutineExpense(this);
         detailList.add(detail);
-        detail.setWeeklyRoutineExpense(this);
     }
 }

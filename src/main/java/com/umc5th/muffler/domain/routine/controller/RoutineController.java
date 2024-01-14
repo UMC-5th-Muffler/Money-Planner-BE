@@ -3,8 +3,7 @@ package com.umc5th.muffler.domain.routine.controller;
 import com.umc5th.muffler.domain.routine.converter.RoutineConverter;
 import com.umc5th.muffler.domain.routine.dto.*;
 import com.umc5th.muffler.domain.routine.service.RoutineService;
-import com.umc5th.muffler.entity.MonthlyRoutineExpense;
-import com.umc5th.muffler.entity.WeeklyRoutineExpense;
+import com.umc5th.muffler.entity.RoutineExpense;
 import com.umc5th.muffler.global.response.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,8 +21,9 @@ public class RoutineController {
     @PostMapping("/weekly")
     public Response<AddRoutineResponse> addWeeklyRoutine(@RequestBody AddWeeklyRoutineRequest request) {
 
-        WeeklyRoutineExpense weeklyRoutineExpense = routineService.addWeeklyRoutine(request);
-        AddRoutineResponse weeklyAddRoutineResponse = RoutineConverter.toAddWeeklyRoutineResult(weeklyRoutineExpense);
+        RoutineExpense routineExpense = routineService.addWeeklyRoutine(request);
+        routineService.addPastExpenses(request);
+        AddRoutineResponse weeklyAddRoutineResponse = RoutineConverter.toAddRoutineResult(routineExpense);
 
         return Response.success(weeklyAddRoutineResponse);
     }
@@ -31,8 +31,8 @@ public class RoutineController {
     @PostMapping("/monthly")
     public Response<AddRoutineResponse> addMonthlyRoutine(@RequestBody AddMonthlyRoutineRequest request) {
 
-        MonthlyRoutineExpense monthlyRoutineExpense = routineService.addMonthlyRoutine(request);
-        AddRoutineResponse monthlyAddRoutineResponse = RoutineConverter.toAddMonthlyRoutineResult(monthlyRoutineExpense);
+        RoutineExpense routineExpense = routineService.addMonthlyRoutine(request);
+        AddRoutineResponse monthlyAddRoutineResponse = RoutineConverter.toAddRoutineResult(routineExpense);
 
         return Response.success(monthlyAddRoutineResponse);
     }

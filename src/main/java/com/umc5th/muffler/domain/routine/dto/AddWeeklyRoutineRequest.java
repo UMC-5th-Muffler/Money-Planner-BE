@@ -12,12 +12,18 @@ import java.util.List;
 public class AddWeeklyRoutineRequest {
 
     @NotNull
-    private Long memberId;
+    private Integer term;
     @NotNull
     private Long cost;
     @NotNull
-    private Integer term;
+    private LocalDate startDate;
     private LocalDate endDate;
     @NotNull
-    private List<Integer> daysOfWeek;
+    private String title;
+    private String memo;
+    @NotNull
+    private Long categoryId;
+    private Long memberId;
+    @NotNull
+    private List<Integer> dayOfWeek;
 }

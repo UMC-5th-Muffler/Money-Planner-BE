@@ -11,10 +11,16 @@ import java.time.LocalDate;
 public class AddMonthlyRoutineRequest {
 
     @NotNull
-    private Long memberId;
+    private Integer day;
     @NotNull
     private Long cost;
     @NotNull
-    private Integer day;
+    private LocalDate startDate;
     private LocalDate endDate;
+    @NotNull
+    private String title;
+    private String memo;
+    @NotNull
+    private Long categoryId;
+    private Long memberId;
 }

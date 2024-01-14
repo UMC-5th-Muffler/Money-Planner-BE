@@ -10,7 +10,6 @@ import lombok.*;
 @Builder
 @Entity
 @Getter
-@Setter
 public class WeeklyRoutineExpenseDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,10 +20,9 @@ public class WeeklyRoutineExpenseDetail {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "routine_id")
-    private WeeklyRoutineExpense weeklyRoutineExpense;
+    private RoutineExpense routineExpense;
 
-    public void setDetail(WeeklyRoutineExpense weeklyRoutineExpense) {
-        this.weeklyRoutineExpense = weeklyRoutineExpense;
-        weeklyRoutineExpense.getDetailList().add(this);
+    public void setRoutineExpense(RoutineExpense routineExpense) {
+        this.routineExpense = routineExpense;
     }
 }
