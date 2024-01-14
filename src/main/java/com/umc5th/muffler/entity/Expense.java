@@ -32,9 +32,6 @@ public class Expense extends BaseTimeEntity {
     @Column(nullable = false)
     private Long cost;
 
-    @Column(nullable = false)
-    private Long budget;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;

@@ -25,8 +25,8 @@ public class ExpenseController {
             @RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
             @RequestParam(name = "page") Integer page){
 
-        Slice<Expense> expenseList = expenseService.getDailyExpenseDetails(date, page);
-        return Response.success(ExpenseConverter.toDailyExpenseDetail(expenseList, date));
+        DailyExpenseDetailsResponse response = expenseService.getDailyExpenseDetails(date, page);
+        return Response.success(response);
     }
 
 }
