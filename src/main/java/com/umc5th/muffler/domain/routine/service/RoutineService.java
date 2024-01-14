@@ -3,8 +3,8 @@ package com.umc5th.muffler.domain.routine.service;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.domain.routine.converter.RoutineConverter;
-import com.umc5th.muffler.domain.routine.dto.MonthlyRoutineRequest;
-import com.umc5th.muffler.domain.routine.dto.WeeklyRoutineRequest;
+import com.umc5th.muffler.domain.routine.dto.AddMonthlyRoutineRequest;
+import com.umc5th.muffler.domain.routine.dto.AddWeeklyRoutineRequest;
 import com.umc5th.muffler.domain.routine.repository.MonthlyRoutineRepository;
 import com.umc5th.muffler.domain.routine.repository.WeeklyRoutineRepository;
 import com.umc5th.muffler.entity.Goal;
@@ -16,6 +16,7 @@ import com.umc5th.muffler.global.response.exception.MemberException;
 import com.umc5th.muffler.global.response.exception.RoutineException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -30,7 +31,8 @@ public class RoutineService {
     private final GoalRepository goalRepository;
 
     // 반복 소비 내역(요일) 추가
-    public WeeklyRoutineExpense addWeeklyRoutine(WeeklyRoutineRequest request) {
+    @Transactional
+    public WeeklyRoutineExpense addWeeklyRoutine(AddWeeklyRoutineRequest request) {
 
         Long memberId = 1L;
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
@@ -48,7 +50,8 @@ public class RoutineService {
     }
 
     // 반복 소비 내역(날짜) 추가
-    public MonthlyRoutineExpense addMonthlyRoutine(MonthlyRoutineRequest request) {
+    @Transactional
+    public MonthlyRoutineExpense addMonthlyRoutine(AddMonthlyRoutineRequest request) {
 
         Long memberId = 1L;
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));

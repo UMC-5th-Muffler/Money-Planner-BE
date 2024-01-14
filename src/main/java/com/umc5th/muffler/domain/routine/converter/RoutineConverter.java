@@ -1,9 +1,6 @@
 package com.umc5th.muffler.domain.routine.converter;
 
-import com.umc5th.muffler.domain.routine.dto.MonthlyRoutineRequest;
-import com.umc5th.muffler.domain.routine.dto.MonthlyRoutineResponse;
-import com.umc5th.muffler.domain.routine.dto.WeeklyRoutineRequest;
-import com.umc5th.muffler.domain.routine.dto.WeeklyRoutineResponse;
+import com.umc5th.muffler.domain.routine.dto.*;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.MonthlyRoutineExpense;
 import com.umc5th.muffler.entity.WeeklyRoutineExpense;
@@ -14,7 +11,7 @@ import java.time.DayOfWeek;
 public class RoutineConverter {
 
     // WeeklyRoutineRequest(dto) -> WeeklyRoutineExpense(entity)
-    public static WeeklyRoutineExpense toWeeklyRoutine(WeeklyRoutineRequest request, Member member) {
+    public static WeeklyRoutineExpense toWeeklyRoutine(AddWeeklyRoutineRequest request, Member member) {
         WeeklyRoutineExpense weeklyRoutineExpense = WeeklyRoutineExpense.builder()
                 .member(member)
                 .cost(request.getCost())
@@ -34,15 +31,15 @@ public class RoutineConverter {
         return weeklyRoutineExpense;
     }
 
-    // WeeklyRoutineExpense(entity) -> WeeklyRoutineResponse(dto)
-    public static WeeklyRoutineResponse toAddWeeklyRoutineResult(WeeklyRoutineExpense weeklyRoutineExpense) {
-        return WeeklyRoutineResponse.builder()
-                .weeklyRoutineId(weeklyRoutineExpense.getId())
+    // WeeklyRoutineExpense(entity) -> RoutineResponse(dto)
+    public static AddRoutineResponse toAddWeeklyRoutineResult(WeeklyRoutineExpense weeklyRoutineExpense) {
+        return AddRoutineResponse.builder()
+                .routineId(weeklyRoutineExpense.getId())
                 .build();
     }
 
     // MonthlyRoutineRequest(dto) -> MonthlyRoutineExpense(entity)
-    public static MonthlyRoutineExpense toMonthlyRoutine(MonthlyRoutineRequest request, Member member) {
+    public static MonthlyRoutineExpense toMonthlyRoutine(AddMonthlyRoutineRequest request, Member member) {
         MonthlyRoutineExpense monthlyRoutineExpense = MonthlyRoutineExpense.builder()
                 .member(member)
                 .cost(request.getCost())
@@ -53,10 +50,10 @@ public class RoutineConverter {
         return monthlyRoutineExpense;
     }
 
-    // MonthlyRoutineExpense(entity) -> MonthlyRoutineResponse(dto)
-    public static MonthlyRoutineResponse toAddMonthlyRoutineResult(MonthlyRoutineExpense monthlyRoutineExpense) {
-        return MonthlyRoutineResponse.builder()
-                .monthlyRoutineId(monthlyRoutineExpense.getId())
+    // MonthlyRoutineExpense(entity) -> RoutineResponse(dto)
+    public static AddRoutineResponse toAddMonthlyRoutineResult(MonthlyRoutineExpense monthlyRoutineExpense) {
+        return AddRoutineResponse.builder()
+                .routineId(monthlyRoutineExpense.getId())
                 .build();
     }
 

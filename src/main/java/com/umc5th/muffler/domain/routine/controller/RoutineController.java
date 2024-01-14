@@ -1,10 +1,7 @@
 package com.umc5th.muffler.domain.routine.controller;
 
 import com.umc5th.muffler.domain.routine.converter.RoutineConverter;
-import com.umc5th.muffler.domain.routine.dto.MonthlyRoutineRequest;
-import com.umc5th.muffler.domain.routine.dto.MonthlyRoutineResponse;
-import com.umc5th.muffler.domain.routine.dto.WeeklyRoutineRequest;
-import com.umc5th.muffler.domain.routine.dto.WeeklyRoutineResponse;
+import com.umc5th.muffler.domain.routine.dto.*;
 import com.umc5th.muffler.domain.routine.service.RoutineService;
 import com.umc5th.muffler.entity.MonthlyRoutineExpense;
 import com.umc5th.muffler.entity.WeeklyRoutineExpense;
@@ -23,20 +20,20 @@ public class RoutineController {
     private final RoutineService routineService;
 
     @PostMapping("/weekly")
-    public Response<WeeklyRoutineResponse> addWeeklyRoutine(@RequestBody WeeklyRoutineRequest request) {
+    public Response<AddRoutineResponse> addWeeklyRoutine(@RequestBody AddWeeklyRoutineRequest request) {
 
         WeeklyRoutineExpense weeklyRoutineExpense = routineService.addWeeklyRoutine(request);
-        WeeklyRoutineResponse weeklyRoutineResponse = RoutineConverter.toAddWeeklyRoutineResult(weeklyRoutineExpense);
+        AddRoutineResponse weeklyAddRoutineResponse = RoutineConverter.toAddWeeklyRoutineResult(weeklyRoutineExpense);
 
-        return Response.success(weeklyRoutineResponse);
+        return Response.success(weeklyAddRoutineResponse);
     }
 
     @PostMapping("/monthly")
-    public Response<MonthlyRoutineResponse> addMonthlyRoutine(@RequestBody MonthlyRoutineRequest request) {
+    public Response<AddRoutineResponse> addMonthlyRoutine(@RequestBody AddMonthlyRoutineRequest request) {
 
         MonthlyRoutineExpense monthlyRoutineExpense = routineService.addMonthlyRoutine(request);
-        MonthlyRoutineResponse monthlyRoutineResponse = RoutineConverter.toAddMonthlyRoutineResult(monthlyRoutineExpense);
+        AddRoutineResponse monthlyAddRoutineResponse = RoutineConverter.toAddMonthlyRoutineResult(monthlyRoutineExpense);
 
-        return Response.success(monthlyRoutineResponse);
+        return Response.success(monthlyAddRoutineResponse);
     }
 }

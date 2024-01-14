@@ -1,21 +1,20 @@
 package com.umc5th.muffler.domain.routine.dto;
 
 import com.sun.istack.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Getter
-public class WeeklyRoutineRequest {
+@AllArgsConstructor
+public class AddMonthlyRoutineRequest {
 
     @NotNull
     private Long memberId;
     @NotNull
-    private Integer cost;
+    private Long cost;
     @NotNull
-    private Integer term;
+    private Integer day;
     private LocalDate endDate;
-    @NotNull
-    private List<Integer> daysOfWeek;
 }

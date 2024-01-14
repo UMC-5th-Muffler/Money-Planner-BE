@@ -30,7 +30,7 @@ public class WeeklyRoutineExpense {
     private Integer term;
 
     @Column(nullable = false)
-    private Integer cost;
+    private Long cost;
 
     @Column(nullable = true)
     private LocalDate endDate;
