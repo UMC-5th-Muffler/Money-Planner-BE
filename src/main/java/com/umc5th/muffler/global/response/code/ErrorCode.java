@@ -21,7 +21,13 @@ public enum ErrorCode {
     // Goal 에러
     _GOAL_NOT_FOUND(HttpStatus.NOT_FOUND, "GOAL404", "존재하지 않는 목표입니다."),
     _INVALID_GOAL_DATE(HttpStatus.BAD_REQUEST, "GOAL404", "올바르지 않은 목표 기간 입력입니다."),
-    _INVALID_DAILY_PLAN(HttpStatus.BAD_REQUEST, "GOAL404", "올바르지 않은 일일 계획 입력입니다.");
+    _INVALID_DAILY_PLAN(HttpStatus.BAD_REQUEST, "GOAL404", "올바르지 않은 일일 계획 입력입니다."),
+
+    // Member 에러
+    NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, "MEMBER400", "등록된 회원이 없습니다."),
+
+    // Category 에러
+    DUPLICATED_CATEGORY_NAME(HttpStatus.BAD_REQUEST, "CATEGORY400", "카테고리 이름이 중복되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -194,5 +194,9 @@ templates/
 config.json
 package.json
 
+## environment variable file ##
+.env
+
+
 
 # End of https://www.toptal.com/developers/gitignore/api/java,macos,wintersmith,intellij+all

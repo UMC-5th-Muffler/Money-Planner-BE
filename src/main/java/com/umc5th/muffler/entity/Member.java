@@ -2,7 +2,9 @@ package com.umc5th.muffler.entity;
 
 import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import com.umc5th.muffler.entity.constant.SocialType;
+import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -37,6 +39,10 @@ public class Member extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "member")
     private List<Goal> goals;
+  
+      @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Category> categories = new ArrayList<>();
 
     public void addGoal(Goal goal) {
         this.goals.add(goal);
@@ -44,5 +50,10 @@ public class Member extends BaseTimeEntity {
 
     public void removeGoal(Goal goal) {
         this.goals.remove(goal);
+
+    public void addCategory(Category category) {
+        category.setMember(this);
+        this.categories.add(category);
+
     }
 }
