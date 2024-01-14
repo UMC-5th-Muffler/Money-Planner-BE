@@ -18,9 +18,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@DynamicInsert
+@DynamicUpdate
 @Builder
 @Entity
 @Getter
@@ -46,4 +50,9 @@ public class Category extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
+    
+    // 연관관계 메서드
+    public void setMember(Member member) {
+        this.member = member;
+    }
 }

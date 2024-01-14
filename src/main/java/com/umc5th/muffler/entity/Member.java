@@ -40,4 +40,10 @@ public class Member extends BaseTimeEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST)
     @Builder.Default
     private List<Category> categories = new ArrayList<>();
+
+    //연관 관계 메서드
+    public void addCategory(Category category) {
+        category.setMember(this);
+        this.categories.add(category);
+    }
 }
