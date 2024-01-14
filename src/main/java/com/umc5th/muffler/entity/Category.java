@@ -11,17 +11,29 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@DynamicInsert
+@DynamicUpdate
 @Builder
 @Entity
 @Getter
+@Table(uniqueConstraints = {
+        @UniqueConstraint(
+            name = "category_name_member_unique",
+            columnNames = {"member_id", "name"}
+        )
+})
 public class Category extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,4 +50,9 @@ public class Category extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
+
+    // 연관관계 메서드
+    public void setMember(Member member) {
+        this.member = member;
+    }
 }

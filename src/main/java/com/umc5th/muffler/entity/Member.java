@@ -2,6 +2,7 @@ package com.umc5th.muffler.entity;
 
 import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import com.umc5th.muffler.entity.constant.SocialType;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,7 +12,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -37,8 +37,9 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private SocialType socialType;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST)
-    private List<Category> categories;
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Category> categories = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST)
     private List<Expense> expenses;
@@ -47,5 +48,11 @@ public class Member extends BaseTimeEntity {
     public void addExpense(Expense expense) {
         expense.setMember(this);
         this.expenses.add(expense);
+    }
+
+    //연관 관계 메서드
+    public void addCategory(Category category) {
+        category.setMember(this);
+        this.categories.add(category);
     }
 }
