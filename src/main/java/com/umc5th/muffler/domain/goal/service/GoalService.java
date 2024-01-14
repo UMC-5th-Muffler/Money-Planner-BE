@@ -46,6 +46,11 @@ public class GoalService {
         member.addGoal(savedGoal);
     }
 
+    public List<Goal> getGoals(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(_MEMBER_NOT_FOUND));
+        return member.getGoals();
+    }
     private void validateDailyPlans(LocalDate startDate, LocalDate endDate, List<Long> dailyBudgets, Long totalBudget) {
         if (!startDate.isBefore(endDate)
                 || dailyBudgets.size() != (ChronoUnit.DAYS.between(startDate, endDate) + 1)

@@ -31,4 +31,14 @@ public class GoalController {
         return Response.success();
     }
 
+    @GetMapping("/previous")
+    public Response<GoalPreviousResponse> getPrevious(@RequestParam Long memberId) {
+        List<Goal> goals = goalService.getGoals(memberId);
+        GoalPreviousResponse response = new GoalPreviousResponse(
+                goals.stream()
+                        .map(goal -> new GoalTerm(goal.getStartDate(), goal.getEndDate()))
+                        .collect(Collectors.toList())
+        );
+        return Response.success(response);
+    }
 }
