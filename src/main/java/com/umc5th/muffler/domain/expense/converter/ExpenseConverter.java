@@ -3,7 +3,6 @@ package com.umc5th.muffler.domain.expense.converter;
 import com.umc5th.muffler.domain.expense.dto.CategoryDetailDto;
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
 import com.umc5th.muffler.domain.expense.dto.ExpenseDetailDto;
-import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseDetailsResponse;
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Expense;
 import org.springframework.data.domain.Slice;
