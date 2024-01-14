@@ -50,6 +50,7 @@ public class Member extends BaseTimeEntity {
 
     public void removeGoal(Goal goal) {
         this.goals.remove(goal);
+    }
 
     public void addCategory(Category category) {
         category.setMember(this);
