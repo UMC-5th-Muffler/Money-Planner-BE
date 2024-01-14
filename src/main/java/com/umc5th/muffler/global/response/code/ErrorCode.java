@@ -17,6 +17,9 @@ public enum ErrorCode {
     // Member 에러
     NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, "MEMBER400", "등록된 회원이 없습니다."),
 
+    //Goal 에러
+    _NO_GOAL_IN_GIVEN_DATE(HttpStatus.BAD_REQUEST, "GOAL400", "해당 날짜에 일치하는 목표가 없습니다"),
+
     // Category 에러
     DUPLICATED_CATEGORY_NAME(HttpStatus.BAD_REQUEST, "CATEGORY400", "카테고리 이름이 중복되었습니다.");
 
