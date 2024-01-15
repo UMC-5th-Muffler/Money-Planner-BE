@@ -2,7 +2,6 @@ package com.umc5th.muffler.domain.routine.service;
 
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
-import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.domain.routine.converter.RoutineConverter;
 import com.umc5th.muffler.domain.routine.dto.AddMonthlyRoutineRequest;
@@ -18,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,87 +26,33 @@ public class RoutineService {
 
     private final MemberRepository memberRepository;
     private final RoutineRepository routineRepository;
-    private final GoalRepository goalRepository;
     private final CategoryRepository categoryRepository;
     private final ExpenseRepository expenseRepository;
 
     // 반복 소비 내역(요일) 추가
     @Transactional
-    public RoutineExpense addWeeklyRoutine(AddWeeklyRoutineRequest request) {
+    public Routine addWeeklyRoutine(AddWeeklyRoutineRequest request) {
 
         Long memberId = 1L;
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        for (int day : request.getDayOfWeek()) {
-            if (day < 1 || day > 7) {
-                throw new IllegalArgumentException("daysOfWeek의 원소 값은 1부터 7까지의 정수여야 합니다.");
-            }
-        }
+        validateWeeklyRoutine(request);
 
-        if (request.getTerm() < 1 || request.getTerm() > 3) {
-            throw new IllegalArgumentException("term은 1, 2, 3 중 하나이어야 합니다.");
-        }
-
-        if (request.getEndDate() != null) {
-            List<Goal> goals = goalRepository.findByMemberId(memberId);
-
-            if (goals.isEmpty()) {
-                throw new RoutineException(ErrorCode.GOAL_NOT_FOUND);
-            }
-
-            boolean isEndDateWithinAnyGoal = goals.stream()
-                    .noneMatch(goal -> isDateWithinGoalPeriod(request.getEndDate(), goal));
-
-            if (isEndDateWithinAnyGoal) {
-                LocalDate nearestGoalEndDate = goals.stream()
-                        .map(Goal::getEndDate)
-                        .filter(endDate -> endDate.isBefore(request.getEndDate()))
-                        .max(LocalDate::compareTo)
-                        .orElse(null);
-
-                if (nearestGoalEndDate != null) {
-                    int maxWeekOffset = request.getTerm() - 1;
-                    for (int weekOffset = 0; weekOffset <= maxWeekOffset; weekOffset++) {
-                        for (Integer dayOfWeek : request.getDayOfWeek()) {
-                            LocalDate checkedDate = request.getStartDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.of(dayOfWeek)))
-                                    .plusWeeks(weekOffset);
-
-                            if (checkedDate.isAfter(nearestGoalEndDate) && checkedDate.isBefore(request.getEndDate())) {
-                                throw new RoutineException(ErrorCode.INVALID_ROUTINE_END_DATE);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        RoutineExpense newRoutineExpense = RoutineConverter.toWeeklyRoutine(request, member);
-
-        return routineRepository.save(newRoutineExpense);
+        Routine newRoutine = RoutineConverter.toWeeklyRoutine(request, member);
+        return routineRepository.save(newRoutine);
     }
 
     // 반복 소비 내역(날짜) 추가
     @Transactional
-    public RoutineExpense addMonthlyRoutine(AddMonthlyRoutineRequest request) {
+    public Routine addMonthlyRoutine(AddMonthlyRoutineRequest request) {
 
         Long memberId = 1L;
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        if (request.getEndDate() != null) {
-            List<Goal> goals = goalRepository.findByMemberId(memberId);
-            if (goals.isEmpty() || goals.stream().noneMatch(goal -> isDateWithinGoalPeriod(request.getEndDate(), goal))) {
-                throw new RoutineException(ErrorCode.INVALID_ROUTINE_END_DATE);
-            }
-        }
+        validateMonthlyRoutine(request.getStartDate(), request.getDay());
 
-        RoutineExpense newMonthlyRoutineExpense = RoutineConverter.toMonthlyRoutine(request, member);
-
-        return routineRepository.save(newMonthlyRoutineExpense);
-    }
-
-    // 반복 종료 일이 목표 기간 내에 존재하는지 확인
-    private boolean isDateWithinGoalPeriod(LocalDate date, Goal goal) {
-        return !(date.isBefore(goal.getStartDate()) || date.isAfter(goal.getEndDate()));
+        Routine newMonthlyRoutine = RoutineConverter.toMonthlyRoutine(request, member);
+        return routineRepository.save(newMonthlyRoutine);
     }
 
     // 지난 소비 내역 등록
@@ -119,7 +64,7 @@ public class RoutineService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         Long categoryId = 1L;
-        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new IllegalArgumentException("category")); // TODO: CustomException 사용
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new IllegalArgumentException("category")); // TODO: CategoryException 사용
 
         for (Integer dayOfWeek : request.getDayOfWeek()) {
             LocalDate nextDate = request.getStartDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.of(dayOfWeek)));
@@ -128,7 +73,7 @@ public class RoutineService {
                     ? currentDate : request.getEndDate();
 
             while (!nextDate.isAfter(effectiveEndDate)) {
-                if (nextDate.isBefore(currentDate) || nextDate.equals(currentDate)) {
+                if ((nextDate.isBefore(currentDate) || nextDate.equals(currentDate)) && !nextDate.equals(request.getStartDate())) {
                     Expense expense = Expense.builder()
                             .date(nextDate)
                             .title(request.getTitle())
@@ -143,6 +88,37 @@ public class RoutineService {
 
                 nextDate = nextDate.plusWeeks(1);
             }
+        }
+    }
+
+
+    // 요일 반복 유효성 검증
+    private void validateWeeklyRoutine(AddWeeklyRoutineRequest request) {
+        for (int day : request.getDayOfWeek()) {
+            if (day < 1 || day > 7) {
+                throw new RoutineException(ErrorCode.INVALID_ROUTINE_INPUT, "daysOfWeek의 원소 값은 1부터 7까지의 정수여야 합니다.");
+            }
+        }
+
+        if (request.getTerm() < 1 || request.getTerm() > 3) {
+            throw new RoutineException(ErrorCode.INVALID_ROUTINE_INPUT, "term은 1, 2, 3 중 하나여야 합니다.");
+        }
+
+        if (request.getEndDate() != null) {
+            if(!request.getEndDate().isAfter(request.getStartDate())) {
+                throw new RoutineException(ErrorCode.INVALID_ROUTINE_INPUT, "반복 종료일은 반복 시작일 이후여야 합니다.");
+            }
+        }
+    }
+
+    // 날짜 반복 유효성 검증
+    private void validateMonthlyRoutine(LocalDate startDate, Integer day) {
+        YearMonth monthOfStartDate = YearMonth.from(startDate);
+
+        if (day != 1 && day != 31) {
+            if(!(day >= 1 && day <= monthOfStartDate.lengthOfMonth())) {
+                throw new RoutineException(ErrorCode.INVALID_ROUTINE_INPUT, "유효한 날짜가 아닙니다.");
+            };
         }
     }
 }

@@ -2,6 +2,7 @@ package com.umc5th.muffler.entity;
 
 import javax.persistence.*;
 
+import com.umc5th.muffler.entity.constant.RoutineType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,7 @@ import java.util.List;
 @Entity
 @Getter
 @DynamicInsert
-public class RoutineExpense {
+public class Routine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -49,17 +50,20 @@ public class RoutineExpense {
     @Column(nullable = false)
     private Long categoryId;
 
+    @Enumerated(EnumType.STRING)
+    private RoutineType routineType;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
     @Builder.Default
-    @OneToMany(mappedBy = "routineExpense", cascade = CascadeType.ALL)
-    private List<WeeklyRoutineExpenseDetail> detailList = new ArrayList<>();
+    @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL)
+    private List<WeeklyRoutineDetail> detailList = new ArrayList<>();
 
     /* 연관 관계 메서드 */
-    public void addDetail(WeeklyRoutineExpenseDetail detail) {
-        detail.setRoutineExpense(this);
+    public void addDetail(WeeklyRoutineDetail detail) {
+        detail.setRoutine(this);
         detailList.add(detail);
     }
 }

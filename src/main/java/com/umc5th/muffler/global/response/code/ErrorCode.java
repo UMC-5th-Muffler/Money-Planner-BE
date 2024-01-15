@@ -18,7 +18,8 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER4001", "존재하지 않는 사용자입니다."),
 
     // Routine 에러
-    INVALID_ROUTINE_END_DATE(HttpStatus.BAD_REQUEST, "ROUTINE4001", "루틴 설정이 불가능한 날이 포함되어 있습니다."),
+    INVALID_ROUTINE_INPUT(HttpStatus.BAD_REQUEST, "ROUTINE4001", "올바르지 않은 입력값입니다."),
+
 
     // Goal 에러
     GOAL_NOT_FOUND(HttpStatus.BAD_REQUEST, "GOAL4001", "존재하지 않는 목표입니다.");
