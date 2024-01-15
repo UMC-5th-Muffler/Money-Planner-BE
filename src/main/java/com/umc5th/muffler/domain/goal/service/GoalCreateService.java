@@ -113,7 +113,7 @@ public class GoalCreateService {
                 .mapToLong(Long::longValue)
                 .sum();
         if (dailyBudgetSum != totalBudget) {
-            throw new GoalException(INVALID_GOAL_INPUT, "일일 계획 금액의 총 합이 목표 전체 금액과 같지 않습니다.");
+            throw new GoalException(INVALID_GOAL_INPUT, "일일 계획 금액의 총 합이 목표 전체 금액과 같아야 합니다.");
         }
     }
 }
