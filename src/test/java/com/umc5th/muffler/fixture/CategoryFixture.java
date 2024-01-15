@@ -4,6 +4,12 @@ import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.constant.Status;
 
 public class CategoryFixture {
+    public static final Category CATEGORY_ZERO = Category.builder()
+            .id(1L)
+            .name("카테고리0")
+            .icon("ICON")
+            .status(Status.ACTIVE)
+            .build();
     public static final Category CATEGORY_ONE = Category.builder()
             .id(2L)
             .name("카테고리1")

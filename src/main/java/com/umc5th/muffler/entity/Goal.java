@@ -4,6 +4,7 @@ import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import java.time.LocalDate;
 import javax.persistence.*;
 
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,4 +42,24 @@ public class Goal extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL)
+    private List<DailyPlan> dailyPlans;
+
+    public static Goal of(LocalDate startDate, LocalDate endDate, String title, String detail, String icon, Long totalBudget, Member member) {
+        return Goal.builder()
+                .startDate(startDate)
+                .endDate(endDate)
+                .title(title)
+                .detail(detail)
+                .icon(icon)
+                .totalBudget(totalBudget)
+                .member(member)
+                .build();
+    }
+
+    public void setDailyPlans(List<DailyPlan> dailyPlans) {
+        this.dailyPlans = dailyPlans;
+        dailyPlans.forEach(dailyPlan -> dailyPlan.setGoal(this));
+    }
 }

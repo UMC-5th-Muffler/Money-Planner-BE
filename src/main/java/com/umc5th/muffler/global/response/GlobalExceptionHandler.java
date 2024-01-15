@@ -22,10 +22,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private ResponseEntity<Object> handleExceptionInternal(ErrorCode errorCode, String message) {
         return ResponseEntity.status(errorCode.getHttpStatus())
-                .body(makeErrorResponse(errorCode, message));
+                .body(Response.error(message));
     }
 
-    private Response<?> makeErrorResponse(ErrorCode errorCode, String message) {
-        return Response.error(errorCode.getCode(), message);
-    }
 }
