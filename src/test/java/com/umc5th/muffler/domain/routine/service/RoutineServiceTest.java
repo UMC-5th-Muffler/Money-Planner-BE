@@ -1,5 +1,8 @@
 package com.umc5th.muffler.domain.routine.service;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.given;
+
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.domain.routine.dto.AddWeeklyRoutineRequest;
 import com.umc5th.muffler.entity.Category;
@@ -8,19 +11,15 @@ import com.umc5th.muffler.fixture.CategoryFixture;
 import com.umc5th.muffler.fixture.MemberFixture;
 import com.umc5th.muffler.global.response.exception.MemberException;
 import com.umc5th.muffler.global.response.exception.RoutineException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.BDDMockito.given;
 
 
 @SpringBootTest
