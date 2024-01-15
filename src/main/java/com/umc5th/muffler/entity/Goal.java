@@ -52,6 +52,9 @@ public class Goal extends BaseTimeEntity {
     private Member member;
 
     @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL)
+    private List<CategoryGoal> categoryGoals;
+
+    @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL)
     private List<DailyPlan> dailyPlans;
 
     public static Goal of(LocalDate startDate, LocalDate endDate, String title, String memo, String icon, Long totalBudget, Member member) {
@@ -69,5 +72,10 @@ public class Goal extends BaseTimeEntity {
     public void setDailyPlans(List<DailyPlan> dailyPlans) {
         this.dailyPlans = dailyPlans;
         dailyPlans.forEach(dailyPlan -> dailyPlan.setGoal(this));
+    }
+
+    public void setCategoryGoals(List<CategoryGoal> categoryGoals) {
+        this.categoryGoals = categoryGoals;
+        categoryGoals.forEach(categoryGoal -> categoryGoal.setGoal(this));
     }
 }
