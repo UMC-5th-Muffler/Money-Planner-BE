@@ -6,6 +6,7 @@ import com.umc5th.muffler.domain.goal.dto.GoalTerm;
 import com.umc5th.muffler.domain.goal.service.GoalService;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.global.response.Response;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class GoalController {
         List<Goal> goals = goalService.getGoals(memberId);
         GoalPreviousResponse response = new GoalPreviousResponse(
                 goals.stream()
+                        .sorted(Comparator.comparing(Goal::getStartDate).reversed())
                         .map(goal -> new GoalTerm(goal.getStartDate(), goal.getEndDate()))
                         .collect(Collectors.toList())
         );
