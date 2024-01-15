@@ -1,7 +1,6 @@
 package com.umc5th.muffler.domain.goal.service;
 
-import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_DAILY_PLAN;
-import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_GOAL_DATE;
+import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_GOAL_INPUT;
 import static com.umc5th.muffler.global.response.code.ErrorCode.MEMBER_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -62,7 +61,7 @@ class GoalCreateServiceTest {
 
         assertThatThrownBy(() -> goalCreateService.create(request, memberId))
                 .isInstanceOf(GoalException.class)
-                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_DATE);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT);
     }
 
     @Test
@@ -74,7 +73,7 @@ class GoalCreateServiceTest {
 
         assertThatThrownBy(() -> goalCreateService.create(request, memberId))
                 .isInstanceOf(GoalException.class)
-                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_DATE);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT);
     }
 
     @Test
@@ -90,7 +89,7 @@ class GoalCreateServiceTest {
 
         assertThatThrownBy(() -> goalCreateService.create(request, memberId))
                 .isInstanceOf(GoalException.class)
-                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_DATE);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT);
     }
 
     @Test
@@ -107,7 +106,7 @@ class GoalCreateServiceTest {
 
         assertThatThrownBy(() -> goalCreateService.create(request, memberId))
                 .isInstanceOf(GoalException.class)
-                .hasFieldOrPropertyWithValue("errorCode", INVALID_DAILY_PLAN);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT);
     }
 
     @Test
