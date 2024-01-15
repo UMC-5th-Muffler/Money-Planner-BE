@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/routine")
@@ -17,7 +19,7 @@ public class RoutineController {
     private final RoutineService routineService;
 
     @PostMapping("/weekly")
-    public Response<Void> addWeeklyRoutine(@RequestBody AddWeeklyRoutineRequest request) { // TODO: @Valid 추가
+    public Response<Void> addWeeklyRoutine(@RequestBody @Valid AddWeeklyRoutineRequest request) {
 
         routineService.addWeeklyRoutine(request);
         routineService.addPastExpenses(request);
@@ -25,7 +27,7 @@ public class RoutineController {
     }
 
     @PostMapping("/monthly")
-    public Response<Void> addMonthlyRoutine(@RequestBody AddMonthlyRoutineRequest request) { // TODO: @Valid 추가
+    public Response<Void> addMonthlyRoutine(@RequestBody @Valid AddMonthlyRoutineRequest request) {
 
         routineService.addMonthlyRoutine(request);
         return Response.success();

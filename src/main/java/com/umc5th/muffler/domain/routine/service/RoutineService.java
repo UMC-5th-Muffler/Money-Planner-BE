@@ -9,6 +9,7 @@ import com.umc5th.muffler.domain.routine.dto.AddWeeklyRoutineRequest;
 import com.umc5th.muffler.domain.routine.repository.RoutineRepository;
 import com.umc5th.muffler.entity.*;
 import com.umc5th.muffler.global.response.code.ErrorCode;
+import com.umc5th.muffler.global.response.exception.CategoryException;
 import com.umc5th.muffler.global.response.exception.MemberException;
 import com.umc5th.muffler.global.response.exception.RoutineException;
 import lombok.RequiredArgsConstructor;
@@ -64,7 +65,7 @@ public class RoutineService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         Long categoryId = 1L;
-        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new IllegalArgumentException("category")); // TODO: CategoryException 사용
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
 
         for (Integer dayOfWeek : request.getDayOfWeek()) {
             LocalDate nextDate = request.getStartDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.of(dayOfWeek)));

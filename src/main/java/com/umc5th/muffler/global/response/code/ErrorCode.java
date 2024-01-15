@@ -28,6 +28,7 @@ public enum ErrorCode {
 
     // Category 에러
     DUPLICATED_CATEGORY_NAME(HttpStatus.BAD_REQUEST, "카테고리 이름이 중복되었습니다."),
+    CATEGORY_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 카테고리입니다."),
 
 
     // Routine 에러
