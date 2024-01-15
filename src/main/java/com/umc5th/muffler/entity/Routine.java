@@ -66,4 +66,8 @@ public class Routine {
         detail.setRoutine(this);
         detailList.add(detail);
     }
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
 }

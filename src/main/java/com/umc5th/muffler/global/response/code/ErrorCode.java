@@ -32,6 +32,7 @@ public enum ErrorCode {
 
 
     // Routine 에러
+    ROUTINE_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 루틴입니다."),
     INVALID_ROUTINE_INPUT(HttpStatus.BAD_REQUEST, "올바르지 않은 입력값입니다.");
   
   

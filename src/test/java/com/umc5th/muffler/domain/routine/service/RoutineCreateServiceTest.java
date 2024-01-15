@@ -25,16 +25,16 @@ import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
 @Transactional
-public class RoutineServiceTest {
+public class RoutineCreateServiceTest {
 
     @Mock
     private MemberRepository memberRepository;
     @InjectMocks
-    private final RoutineService routineService;
+    private final RoutineCreateService routineCreateService;
 
     @Autowired
-    public RoutineServiceTest(RoutineService routineService) {
-        this.routineService = routineService;
+    public RoutineCreateServiceTest(RoutineCreateService routineCreateService) {
+        this.routineCreateService = routineCreateService;
     }
 
 
@@ -49,7 +49,7 @@ public class RoutineServiceTest {
 
         // then
         assertThrows(MemberException.class, () -> {
-            routineService.addWeeklyRoutine(request);
+            routineCreateService.addWeeklyRoutine(request);
         });
     }
 }
