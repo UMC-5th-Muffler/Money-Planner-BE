@@ -3,7 +3,7 @@ package com.umc5th.muffler.domain.routine.service;
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
-import com.umc5th.muffler.domain.routine.converter.RoutineConverter;
+import com.umc5th.muffler.domain.routine.dto.RoutineConverter;
 import com.umc5th.muffler.domain.routine.dto.AddMonthlyRoutineRequest;
 import com.umc5th.muffler.domain.routine.dto.AddWeeklyRoutineRequest;
 import com.umc5th.muffler.domain.routine.repository.RoutineRepository;

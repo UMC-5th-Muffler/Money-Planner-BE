@@ -1,6 +1,5 @@
-package com.umc5th.muffler.domain.routine.converter;
+package com.umc5th.muffler.domain.routine.dto;
 
-import com.umc5th.muffler.domain.routine.dto.*;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.Routine;
 import com.umc5th.muffler.entity.WeeklyRoutineDetail;
