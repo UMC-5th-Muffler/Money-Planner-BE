@@ -49,11 +49,4 @@ public class RoutineConverter {
 
         return monthlyRoutineExpense;
     }
-
-    // RoutineExpense(entity) -> RoutineResponse(dto)
-    public static AddRoutineResponse toAddRoutineResult(RoutineExpense routineExpense) {
-        return AddRoutineResponse.builder()
-                .routineId(routineExpense.getId())
-                .build();
-    }
 }

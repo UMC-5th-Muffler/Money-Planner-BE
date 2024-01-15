@@ -38,34 +38,27 @@ public class RoutineService {
         Long memberId = 1L;
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        // dayOfWeek - 1 ~ 7 확인
         for (int day : request.getDayOfWeek()) {
             if (day < 1 || day > 7) {
                 throw new IllegalArgumentException("daysOfWeek의 원소 값은 1부터 7까지의 정수여야 합니다.");
             }
         }
 
-        // term - 1 ~ 3 확인
         if (request.getTerm() < 1 || request.getTerm() > 3) {
             throw new IllegalArgumentException("term은 1, 2, 3 중 하나이어야 합니다.");
         }
 
-        // 반복 종료일 설정되어 있을 때
         if (request.getEndDate() != null) {
             List<Goal> goals = goalRepository.findByMemberId(memberId);
 
-            // 목표 존재하는지 확인
             if (goals.isEmpty()) {
                 throw new RoutineException(ErrorCode.GOAL_NOT_FOUND);
             }
 
-            // 반복 종료일이 목표 기간 내에 존재하는지 확인
             boolean isEndDateWithinAnyGoal = goals.stream()
                     .noneMatch(goal -> isDateWithinGoalPeriod(request.getEndDate(), goal));
 
-            // 반복 요일이 목표 종료일과 반복 종료일 사이에 존재하는지 확인
             if (isEndDateWithinAnyGoal) {
-                // nearestGoalEndDate: 반복 종료일 이전에 존재하는 가장 가까운 목표의 종료일
                 LocalDate nearestGoalEndDate = goals.stream()
                         .map(Goal::getEndDate)
                         .filter(endDate -> endDate.isBefore(request.getEndDate()))
@@ -73,8 +66,7 @@ public class RoutineService {
                         .orElse(null);
 
                 if (nearestGoalEndDate != null) {
-                    // term에 따른 날짜 확인
-                    int maxWeekOffset = request.getTerm() - 1; // term이 1, 2, 3일 때 각각 0, 1, 2주차를 확인
+                    int maxWeekOffset = request.getTerm() - 1;
                     for (int weekOffset = 0; weekOffset <= maxWeekOffset; weekOffset++) {
                         for (Integer dayOfWeek : request.getDayOfWeek()) {
                             LocalDate checkedDate = request.getStartDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.of(dayOfWeek)))
@@ -121,8 +113,7 @@ public class RoutineService {
     // 지난 소비 내역 등록
     @Transactional
     public void addPastExpenses(AddWeeklyRoutineRequest request) {
-//        LocalDate currentDate = LocalDate.now();
-        LocalDate currentDate = LocalDate.of(2024, 1, 25);
+        LocalDate currentDate = LocalDate.now();
 
         Long memberId = 1L;
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
@@ -133,7 +124,6 @@ public class RoutineService {
         for (Integer dayOfWeek : request.getDayOfWeek()) {
             LocalDate nextDate = request.getStartDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.of(dayOfWeek)));
 
-            // endDate가 null이거나 currentDate 이후인 경우, currentDate를 사용
             LocalDate effectiveEndDate = (request.getEndDate() == null || request.getEndDate().isAfter(currentDate))
                     ? currentDate : request.getEndDate();
 

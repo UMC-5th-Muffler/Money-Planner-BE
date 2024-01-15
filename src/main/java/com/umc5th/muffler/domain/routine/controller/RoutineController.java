@@ -19,21 +19,17 @@ public class RoutineController {
     private final RoutineService routineService;
 
     @PostMapping("/weekly")
-    public Response<AddRoutineResponse> addWeeklyRoutine(@RequestBody AddWeeklyRoutineRequest request) {
+    public Response<Void> addWeeklyRoutine(@RequestBody AddWeeklyRoutineRequest request) {
 
-        RoutineExpense routineExpense = routineService.addWeeklyRoutine(request);
+        routineService.addWeeklyRoutine(request);
         routineService.addPastExpenses(request);
-        AddRoutineResponse weeklyAddRoutineResponse = RoutineConverter.toAddRoutineResult(routineExpense);
-
-        return Response.success(weeklyAddRoutineResponse);
+        return Response.success();
     }
 
     @PostMapping("/monthly")
-    public Response<AddRoutineResponse> addMonthlyRoutine(@RequestBody AddMonthlyRoutineRequest request) {
+    public Response<Void> addMonthlyRoutine(@RequestBody AddMonthlyRoutineRequest request) {
 
-        RoutineExpense routineExpense = routineService.addMonthlyRoutine(request);
-        AddRoutineResponse monthlyAddRoutineResponse = RoutineConverter.toAddRoutineResult(routineExpense);
-
-        return Response.success(monthlyAddRoutineResponse);
+        routineService.addMonthlyRoutine(request);
+        return Response.success();
     }
 }
