@@ -30,7 +30,6 @@ public class RoutineCreateService {
     private final CategoryRepository categoryRepository;
     private final ExpenseRepository expenseRepository;
 
-    // 반복 소비 내역(요일) 추가
     @Transactional
     public Routine addWeeklyRoutine(AddWeeklyRoutineRequest request) {
 
@@ -44,7 +43,6 @@ public class RoutineCreateService {
         return routineRepository.save(newWeeklyRoutine);
     }
 
-    // 반복 소비 내역(날짜) 추가
     @Transactional
     public Routine addMonthlyRoutine(AddMonthlyRoutineRequest request) {
 
@@ -58,9 +56,8 @@ public class RoutineCreateService {
         return routineRepository.save(newMonthlyRoutine);
     }
 
-    // 지난 소비 내역 등록
     @Transactional
-    public void addPastExpenses(AddWeeklyRoutineRequest request) {
+    public void addPastWeeklyExpenses(AddWeeklyRoutineRequest request) {
         LocalDate currentDate = LocalDate.now();
 
         Long memberId = 1L;
@@ -95,8 +92,42 @@ public class RoutineCreateService {
         }
     }
 
+    @Transactional
+    public void addPastMonthlyExpense(AddMonthlyRoutineRequest request) {
+        LocalDate today = LocalDate.now();
 
-    // 요일 반복 유효성 검증
+        Long memberId = 1L;
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Long categoryId = 1L;
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        LocalDate nextDate = getNextDate(request.getStartDate(), request.getDay());
+        while (!nextDate.isAfter(today)) {
+            Expense expense = Expense.builder()
+                    .date(nextDate)
+                    .title(request.getTitle())
+                    .memo(request.getMemo())
+                    .cost(request.getCost())
+                    .member(member)
+                    .category(category)
+                    .build();
+
+            // TODO: member.addExpense(expense); 추가
+            expenseRepository.save(expense);
+
+            nextDate = getNextDate(nextDate, request.getDay());
+        }
+    }
+
+    private LocalDate getNextDate(LocalDate startDate, int day) {
+        LocalDate nextDate = startDate.withDayOfMonth(day);
+        if (!nextDate.isAfter(startDate)) {
+            nextDate = nextDate.plusMonths(1);
+        }
+        return nextDate;
+    }
+
     private void validateWeeklyRoutine(AddWeeklyRoutineRequest request) {
         for (int day : request.getDayOfWeek()) {
             if (day < 1 || day > 7) {
@@ -115,7 +146,6 @@ public class RoutineCreateService {
         }
     }
 
-    // 날짜 반복 유효성 검증
     private void validateMonthlyRoutine(LocalDate startDate, Integer day) {
         YearMonth monthOfStartDate = YearMonth.from(startDate);
 

@@ -21,7 +21,7 @@ public class RoutineController {
     public Response<Void> addWeeklyRoutine(@RequestBody @Valid AddWeeklyRoutineRequest request) {
 
         routineCreateService.addWeeklyRoutine(request);
-        routineCreateService.addPastExpenses(request);
+        routineCreateService.addPastWeeklyExpenses(request);
         return Response.success();
     }
 
@@ -29,6 +29,7 @@ public class RoutineController {
     public Response<Void> addMonthlyRoutine(@RequestBody @Valid AddMonthlyRoutineRequest request) {
 
         routineCreateService.addMonthlyRoutine(request);
+        routineCreateService.addPastMonthlyExpense(request);
         return Response.success();
     }
 
