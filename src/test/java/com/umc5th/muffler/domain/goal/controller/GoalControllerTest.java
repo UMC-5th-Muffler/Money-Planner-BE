@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.umc5th.muffler.domain.goal.dto.GoalCreateRequest;
+import com.umc5th.muffler.domain.goal.service.GoalCreateService;
 import com.umc5th.muffler.domain.goal.service.GoalService;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.fixture.GoalCreateRequestFixture;
@@ -37,6 +38,9 @@ class GoalControllerTest {
     private ObjectMapper objectMapper;
     @MockBean
     private GoalService goalService;
+    @MockBean
+    private GoalCreateService goalCreateService;
+
 
     @Test
     void 이전_목표기간들을_조회한다() throws Exception {
@@ -66,7 +70,7 @@ class GoalControllerTest {
                 ).andDo(print())
                 .andExpect(status().isOk());
 
-        verify(goalService).create(any(GoalCreateRequest.class), any());
+        verify(goalCreateService).create(any(GoalCreateRequest.class), any());
     }
 
     @Test

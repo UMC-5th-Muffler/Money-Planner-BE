@@ -3,6 +3,7 @@ package com.umc5th.muffler.domain.goal.controller;
 import com.umc5th.muffler.domain.goal.dto.GoalCreateRequest;
 import com.umc5th.muffler.domain.goal.dto.GoalPreviousResponse;
 import com.umc5th.muffler.domain.goal.dto.GoalTerm;
+import com.umc5th.muffler.domain.goal.service.GoalCreateService;
 import com.umc5th.muffler.domain.goal.service.GoalService;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.global.response.Response;
@@ -25,10 +26,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class GoalController {
 
     private final GoalService goalService;
+    private final GoalCreateService goalCreateService;
 
     @PostMapping
     public Response<Void> create(@RequestBody GoalCreateRequest request, @RequestParam Long memberId) {
-        goalService.create(request, memberId);
+        goalCreateService.create(request, memberId);
         return Response.success();
     }
 
