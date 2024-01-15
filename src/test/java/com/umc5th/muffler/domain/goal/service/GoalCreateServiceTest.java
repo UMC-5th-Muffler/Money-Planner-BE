@@ -44,7 +44,7 @@ class GoalCreateServiceTest {
 
     @Test
     void 목표등록이_성공한경우() {
-        GoalCreateRequest request = GoalCreateRequestFixture.create(LocalDate.of(2024, 1, 3), LocalDate.of(2024, 1, 4));
+        GoalCreateRequest request = GoalCreateRequestFixture.create();
         Member member = MemberEntityFixture.create();
         Goal mockGoal = mock(Goal.class);
 
@@ -79,31 +79,34 @@ class GoalCreateServiceTest {
 
         assertThatThrownBy(() -> goalCreateService.create(request, memberId))
                 .isInstanceOf(GoalException.class)
-                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT)
+                .hasMessage("시작 날짜는 종료 날짜보다 이전이어야 합니다.");
     }
 
     @Test
     void 목표등록시_시작기간이_끝기간보다_느린경우() {
         Long memberId = 1L;
-        GoalCreateRequest request = GoalCreateRequestFixture.create(LocalDate.of(2024, 1, 1), LocalDate.of(2023, 1, 1));
+        GoalCreateRequest request = GoalCreateRequestFixture.create(LocalDate.of(2024, 1, 2), LocalDate.of(2024, 1, 1));
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mock(Member.class)));
 
         assertThatThrownBy(() -> goalCreateService.create(request, memberId))
                 .isInstanceOf(GoalException.class)
-                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT)
+                .hasMessage("시작 날짜는 종료 날짜보다 이전이어야 합니다.");
     }
 
     @Test
     void 등록할목표기간이_기존목표기간과_겹치는경우() {
-        GoalCreateRequest request = GoalCreateRequestFixture.create(LocalDate.of(2024, 1, 2), LocalDate.of(2024, 1, 4));
+        GoalCreateRequest request = GoalCreateRequestFixture.create(LocalDate.of(2024, 1, 2), LocalDate.of(2024, 1, 3));
         Member member = MemberEntityFixture.create();
 
         when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
 
         assertThatThrownBy(() -> goalCreateService.create(request, member.getId()))
                 .isInstanceOf(GoalException.class)
-                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT)
+                .hasMessage("기존 목표 기간과 겹칠 수 없습니다.");
     }
 
     @Test
@@ -115,7 +118,8 @@ class GoalCreateServiceTest {
 
         assertThatThrownBy(() -> goalCreateService.create(request, member.getId()))
                 .isInstanceOf(GoalException.class)
-                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT)
+                .hasMessage("똑같은 카테고리의 목표를 만들 수 없습니다.");
     }
 
     @Test
@@ -127,7 +131,8 @@ class GoalCreateServiceTest {
 
         assertThatThrownBy(() -> goalCreateService.create(request, member.getId()))
                 .isInstanceOf(GoalException.class)
-                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT)
+                .hasMessage("카테고리 목표 금액 총 합은 전체 목표 금액을 초과할 수 없습니다.");
     }
 
     @Test
@@ -139,7 +144,8 @@ class GoalCreateServiceTest {
 
         assertThatThrownBy(() -> goalCreateService.create(request, member.getId()))
                 .isInstanceOf(GoalException.class)
-                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT)
+                .hasMessage("전체 목표 기간 내 각각의 일일 계획이 존재해야 합니다.");
     }
 
     @Test
@@ -151,7 +157,8 @@ class GoalCreateServiceTest {
 
         assertThatThrownBy(() -> goalCreateService.create(request, member.getId()))
                 .isInstanceOf(GoalException.class)
-                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_INPUT)
+                .hasMessage("일일 계획 금액의 총 합이 목표 전체 금액과 같아야 합니다.");
     }
 
     @Test
