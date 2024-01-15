@@ -12,11 +12,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class GoalCreateRequest {
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private String icon;
     private String title;
     private String detail;
-    private String icon;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private Long totalBudget;
+
+    private List<CategoryGoalRequest> categoryGoals;
+
     private List<Long> dailyBudgets;
 }
