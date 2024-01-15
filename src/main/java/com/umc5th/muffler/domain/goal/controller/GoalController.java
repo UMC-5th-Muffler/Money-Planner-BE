@@ -28,7 +28,7 @@ public class GoalController {
     private final GoalCreateService goalCreateService;
 
     @PostMapping
-    public Response<Void> create(@RequestBody GoalCreateRequest request, @RequestParam Long memberId) {
+    public Response<Void> create(@Valid @RequestBody GoalCreateRequest request, @RequestParam Long memberId) {
         goalCreateService.create(request, memberId);
         return Response.success();
     }
