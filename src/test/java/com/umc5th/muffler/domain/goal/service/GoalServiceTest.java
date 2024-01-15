@@ -1,10 +1,10 @@
 package com.umc5th.muffler.domain.goal.service;
 
-import static com.umc5th.muffler.global.response.code.ErrorCode._GOAL_NOT_FOUND;
-import static com.umc5th.muffler.global.response.code.ErrorCode._INVALID_DAILY_PLAN;
-import static com.umc5th.muffler.global.response.code.ErrorCode._INVALID_GOAL_DATE;
-import static com.umc5th.muffler.global.response.code.ErrorCode._INVALID_PERMISSION;
-import static com.umc5th.muffler.global.response.code.ErrorCode._MEMBER_NOT_FOUND;
+import static com.umc5th.muffler.global.response.code.ErrorCode.GOAL_NOT_FOUND;
+import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_DAILY_PLAN;
+import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_GOAL_DATE;
+import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_PERMISSION;
+import static com.umc5th.muffler.global.response.code.ErrorCode.MEMBER_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -66,7 +66,7 @@ class GoalServiceTest {
 
         assertThatThrownBy(() -> goalService.create(request, memberId))
                 .isInstanceOf(GoalException.class)
-                .hasFieldOrPropertyWithValue("errorCode", _INVALID_GOAL_DATE);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_DATE);
     }
 
     @Test
@@ -78,7 +78,7 @@ class GoalServiceTest {
 
         assertThatThrownBy(() -> goalService.create(request, memberId))
                 .isInstanceOf(GoalException.class)
-                .hasFieldOrPropertyWithValue("errorCode", _INVALID_GOAL_DATE);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_DATE);
     }
 
     @Test
@@ -94,7 +94,7 @@ class GoalServiceTest {
 
         assertThatThrownBy(() -> goalService.create(request, memberId))
                 .isInstanceOf(GoalException.class)
-                .hasFieldOrPropertyWithValue("errorCode", _INVALID_GOAL_DATE);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_GOAL_DATE);
     }
 
     @Test
@@ -111,7 +111,7 @@ class GoalServiceTest {
 
         assertThatThrownBy(() -> goalService.create(request, memberId))
                 .isInstanceOf(GoalException.class)
-                .hasFieldOrPropertyWithValue("errorCode", _INVALID_DAILY_PLAN);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_DAILY_PLAN);
     }
 
     @Test
@@ -123,7 +123,7 @@ class GoalServiceTest {
 
         assertThatThrownBy(() -> goalService.create(request, memberId))
                 .isInstanceOf(MemberException.class)
-                .hasFieldOrPropertyWithValue("errorCode", _MEMBER_NOT_FOUND);
+                .hasFieldOrPropertyWithValue("errorCode", MEMBER_NOT_FOUND);
     }
 
     @Test
@@ -143,7 +143,7 @@ class GoalServiceTest {
 
         assertThatThrownBy(() -> goalService.getGoals(memberId))
                 .isInstanceOf(MemberException.class)
-                .hasFieldOrPropertyWithValue("errorCode", _MEMBER_NOT_FOUND);
+                .hasFieldOrPropertyWithValue("errorCode", MEMBER_NOT_FOUND);
     }
 
     @Test
@@ -175,7 +175,7 @@ class GoalServiceTest {
 
         assertThatThrownBy(() -> goalService.delete(goalId, memberId))
                 .isInstanceOf(MemberException.class)
-                .hasFieldOrPropertyWithValue("errorCode", _MEMBER_NOT_FOUND);
+                .hasFieldOrPropertyWithValue("errorCode", MEMBER_NOT_FOUND);
     }
 
     @Test
@@ -188,7 +188,7 @@ class GoalServiceTest {
 
         assertThatThrownBy(() -> goalService.delete(goalId, memberId))
                 .isInstanceOf(GoalException.class)
-                .hasFieldOrPropertyWithValue("errorCode", _GOAL_NOT_FOUND);
+                .hasFieldOrPropertyWithValue("errorCode", GOAL_NOT_FOUND);
     }
 
     @Test
@@ -207,7 +207,7 @@ class GoalServiceTest {
 
         assertThatThrownBy(() -> goalService.delete(goalId, memberId))
                 .isInstanceOf(CommonException.class)
-                .hasFieldOrPropertyWithValue("errorCode", _INVALID_PERMISSION);
+                .hasFieldOrPropertyWithValue("errorCode", INVALID_PERMISSION);
     }
 
 }

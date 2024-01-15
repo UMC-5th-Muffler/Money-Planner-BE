@@ -29,7 +29,7 @@ public class ExpenseService {
     public DailyExpenseDetailsResponse getDailyExpenseDetails(LocalDate date, Pageable pageable){
         Long memberId = 1L; // 임시
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(ErrorCode._MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(member, date, pageable);
         
