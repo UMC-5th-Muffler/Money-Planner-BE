@@ -1,10 +1,10 @@
 package com.umc5th.muffler.domain.goal.service;
 
-import static com.umc5th.muffler.global.response.code.ErrorCode._GOAL_NOT_FOUND;
-import static com.umc5th.muffler.global.response.code.ErrorCode._INVALID_DAILY_PLAN;
-import static com.umc5th.muffler.global.response.code.ErrorCode._INVALID_GOAL_DATE;
-import static com.umc5th.muffler.global.response.code.ErrorCode._INVALID_PERMISSION;
-import static com.umc5th.muffler.global.response.code.ErrorCode._MEMBER_NOT_FOUND;
+import static com.umc5th.muffler.global.response.code.ErrorCode.GOAL_NOT_FOUND;
+import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_DAILY_PLAN;
+import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_GOAL_DATE;
+import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_PERMISSION;
+import static com.umc5th.muffler.global.response.code.ErrorCode.MEMBER_NOT_FOUND;
 
 import com.umc5th.muffler.domain.goal.dto.GoalCreateRequest;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
@@ -35,7 +35,7 @@ public class GoalService {
     @Transactional
     public void create(GoalCreateRequest request, Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(_MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
         validateDailyPlans(request.getStartDate(), request.getEndDate(), request.getDailyBudgets(), request.getTotalBudget());
 
         List<DailyPlan> dailyPlans = createDailyPlans(request.getStartDate(), request.getDailyBudgets());
@@ -48,19 +48,19 @@ public class GoalService {
 
     public List<Goal> getGoals(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(_MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
         return member.getGoals();
     }
 
     @Transactional
     public void delete(Long goalId, Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(_MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
         Goal goal = goalRepository.findById(goalId)
-                .orElseThrow(() -> new GoalException(_GOAL_NOT_FOUND));
+                .orElseThrow(() -> new GoalException(GOAL_NOT_FOUND));
 
         if (!Objects.equals(member.getId(), goal.getMember().getId())) {
-            throw new CommonException(_INVALID_PERMISSION);
+            throw new CommonException(INVALID_PERMISSION);
         }
 
         goalRepository.delete(goal);
@@ -71,7 +71,7 @@ public class GoalService {
         if (!startDate.isBefore(endDate)
                 || dailyBudgets.size() != (ChronoUnit.DAYS.between(startDate, endDate) + 1)
         ) {
-            throw new GoalException(_INVALID_GOAL_DATE);
+            throw new GoalException(INVALID_GOAL_DATE);
         }
 
         long planSum = dailyBudgets.stream()
@@ -79,7 +79,7 @@ public class GoalService {
                 .sum();
 
         if (planSum != totalBudget) {
-            throw new GoalException(_INVALID_DAILY_PLAN);
+            throw new GoalException(INVALID_DAILY_PLAN);
         }
     }
 

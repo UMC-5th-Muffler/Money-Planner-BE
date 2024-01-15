@@ -11,10 +11,8 @@ import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.MemberException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -32,7 +30,7 @@ public class ExpenseService {
     public DailyExpenseDetailsResponse getDailyExpenseDetails(LocalDate date, Pageable pageable){
         Long memberId = 1L; // 임시
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(ErrorCode._MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(member, date, pageable);
         
