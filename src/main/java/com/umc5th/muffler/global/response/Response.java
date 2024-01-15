@@ -30,4 +30,8 @@ public class Response<T> {
     public static Response<Void> error(String message) {
         return new Response<>(false, message, null);
     }
+
+    public static <T> Response<T> error(String message, T result) {
+        return new Response<>(false, message, result);
+    }
 }
