@@ -18,7 +18,7 @@ import com.umc5th.muffler.domain.goal.service.GoalCreateService;
 import com.umc5th.muffler.domain.goal.service.GoalService;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.fixture.GoalCreateRequestFixture;
-import com.umc5th.muffler.fixture.GoalEntityFixture;
+import com.umc5th.muffler.fixture.GoalFixture;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +44,7 @@ class GoalControllerTest {
 
     @Test
     void 이전_목표기간들을_조회한다() throws Exception {
-        Goal goal = GoalEntityFixture.create();
+        Goal goal = GoalFixture.create();
         when(goalService.getGoals(any())).thenReturn(List.of(goal));
 
         String expectedStartDate = goal.getStartDate().toString();
