@@ -24,6 +24,8 @@ public enum ErrorCode {
     GOAL_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 목표입니다."),
     INVALID_GOAL_INPUT(HttpStatus.BAD_REQUEST, "올바르지 않은 목표 입력입니다."),
 
+    //Goal 에러
+    _NO_GOAL_IN_GIVEN_DATE(HttpStatus.BAD_REQUEST, "해당 날짜에 일치하는 목표가 없습니다"),
 
     // Category 에러
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 카테고리입니다."),

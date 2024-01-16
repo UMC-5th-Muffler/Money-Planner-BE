@@ -13,5 +13,4 @@ import java.util.List;
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     Slice<Expense> findAllByMemberAndDate(Member member, LocalDate date, Pageable pageable);
-
 }
