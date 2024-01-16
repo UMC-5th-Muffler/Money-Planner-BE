@@ -8,10 +8,9 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum SuccessCode {
 
-    _OK(HttpStatus.OK, "COMMON200", "성공입니다.");
+    OK(HttpStatus.OK, "성공입니다.");
 
     private final HttpStatus httpStatus;
-    private final String code;
     private final String message;
 
 }

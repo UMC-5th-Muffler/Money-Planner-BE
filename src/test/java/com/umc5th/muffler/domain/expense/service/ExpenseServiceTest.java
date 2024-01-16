@@ -1,121 +1,84 @@
 package com.umc5th.muffler.domain.expense.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
-import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
-import com.umc5th.muffler.domain.expense.dto.NewExpenseResponse;
+import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
-import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Expense;
-import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.Member;
-import com.umc5th.muffler.fixture.CategoryFixture;
-import com.umc5th.muffler.fixture.ExpenseFixture;
-import com.umc5th.muffler.fixture.MemberFixture;
-import com.umc5th.muffler.global.response.exception.CategoryException;
-import com.umc5th.muffler.global.response.exception.CustomException;
-import com.umc5th.muffler.global.response.exception.ExpenseException;
+import com.umc5th.muffler.fixture.CategoryEntityFixture;
+import com.umc5th.muffler.fixture.ExpenseEntityFixture;
+import com.umc5th.muffler.fixture.MemberEntityFixture;
+import com.umc5th.muffler.global.response.exception.MemberException;
+
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
-@ExtendWith(MockitoExtension.class)
 class ExpenseServiceTest {
+    @InjectMocks
+    private ExpenseService expenseService;
     @Mock
     private MemberRepository memberRepository;
     @Mock
     private CategoryRepository categoryRepository;
     @Mock
     private ExpenseRepository expenseRepository;
-    @Mock
-    private GoalRepository goalRepository;
-    @InjectMocks
-    private ExpenseService expenseService;
 
-    @Test
-    public void 정상_입력() {
-        Member member = MemberFixture.MEMBER_ONE;
-        Category category = CategoryFixture.CATEGORY_ONE;
-        Expense expense = ExpenseFixture.EXPENSE_ONE;
-        Goal goal = Goal.builder().build();
-
-        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(Long.class)))
-                .willReturn(Optional.of(category));
-        given(goalRepository.findByDateBetween(any(LocalDate.class), any(Long.class))).willReturn(Optional.of(goal));
-        given(expenseRepository.save(any(Expense.class))).willReturn(expense);
-
-        // given
-        NewExpenseRequest req = new NewExpenseRequest(member.getId(), expense.getTitle(), expense.getCost(),
-                expense.getDate(), null, category.getName());
-        // when
-        NewExpenseResponse res = expenseService.enrollExpense(req);
-        // then
-        assertEquals(req.getExpenseCost(), res.getCost());
+    @BeforeEach
+    public void setUp() {
+        openMocks(this);
     }
 
     @Test
-    public void 등록_안된_카테고리의_경우() {
-        Member member = MemberFixture.MEMBER_ONE;
-        Category category = CategoryFixture.CATEGORY_ONE;
-        Expense expense = ExpenseFixture.EXPENSE_ONE;
-        Goal goal = Goal.builder().build();
+    public void 일일_소비내역_조회_성공() {
 
-        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(Long.class)))
-                .willReturn(Optional.empty());
+        LocalDate testDate = LocalDate.of(2024, 1, 1);
+        Pageable pageable = PageRequest.of(0, 10);
+        Long memberId = 1L;
 
-        NewExpenseRequest req = new NewExpenseRequest(member.getId(), expense.getTitle(), expense.getCost(),
-                expense.getDate(), null, category.getName());
-        assertThrows(ExpenseException.class, () -> {
-            NewExpenseResponse res = expenseService.enrollExpense(req);
-        });
+        Member mockMember = MemberEntityFixture.create();
+        List<Expense> expenses = ExpenseEntityFixture.createList(10);
+        Slice<Expense> expenseSlice = new SliceImpl<>(expenses, pageable, false);
+
+        List<Category> memberCategories = CategoryEntityFixture.createList(5);
+        List<Category> commonCategories = CategoryEntityFixture.createList(5);
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
+        when(expenseRepository.findAllByMemberAndDate(mockMember, testDate, pageable)).thenReturn(expenseSlice);
+        when(categoryRepository.findAllByMember(mockMember)).thenReturn(memberCategories);
+        when(categoryRepository.findAllWithNoMember()).thenReturn(commonCategories);
+
+        DailyExpenseDetailsResponse response = expenseService.getDailyExpenseDetails(testDate, pageable);
+
+        assertEquals(testDate, response.getDate());
+        assertFalse(response.isHasNext());
+        assertEquals(10, response.getExpenseDetailDtoList().size());
     }
 
     @Test
-    public void 멤버가_등록_안된_경우() {
-        Member member = MemberFixture.MEMBER_ONE;
-        Category category = CategoryFixture.CATEGORY_ONE;
-        Expense expense = ExpenseFixture.EXPENSE_ONE;
-        Goal goal = Goal.builder().build();
+    public void 일일_소비내역_조회_멤버가없을경우() {
 
-        given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
+        LocalDate testDate = LocalDate.now();
+        Pageable pageable = PageRequest.of(0, 10);
+        Long memberId = 1L;
 
-        NewExpenseRequest req = new NewExpenseRequest(member.getId(), expense.getTitle(), expense.getCost(),
-                expense.getDate(), null, category.getName());
-        assertThrows(ExpenseException.class, () -> {
-            NewExpenseResponse res = expenseService.enrollExpense(req);
-        });
+        when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+
+        assertThrows(MemberException.class, () -> {
+            expenseService.getDailyExpenseDetails(testDate, pageable);});
     }
-
-    @Test
-    public void 목표가_등록_안된_경우() {
-        Member member = MemberFixture.MEMBER_ONE;
-        Category category = CategoryFixture.CATEGORY_ONE;
-        Expense expense = ExpenseFixture.EXPENSE_ONE;
-        Goal goal = Goal.builder().build();
-
-        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(Long.class)))
-                .willReturn(Optional.of(category));
-        given(goalRepository.findByDateBetween(any(LocalDate.class), any(Long.class))).willReturn(Optional.empty());
-
-        NewExpenseRequest req = new NewExpenseRequest(member.getId(), expense.getTitle(), expense.getCost(),
-                expense.getDate(), null, category.getName());
-        assertThrows(ExpenseException.class, () -> {
-            NewExpenseResponse res = expenseService.enrollExpense(req);
-        });
-    }
-
 }
