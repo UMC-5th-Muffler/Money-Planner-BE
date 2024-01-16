@@ -1,7 +1,7 @@
 package com.umc5th.muffler.domain.expense.service;
 
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
-import com.umc5th.muffler.domain.expense.converter.ExpenseConverter;
+import com.umc5th.muffler.domain.expense.dto.ExpenseConverter;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
