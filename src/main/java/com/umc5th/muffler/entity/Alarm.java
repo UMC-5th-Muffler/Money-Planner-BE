@@ -35,8 +35,7 @@ public class Alarm {
     @Column(nullable = false)
     private AlarmType type;
 
-    @Column(nullable = false)
-    @ColumnDefault("09:00:00")
+    @Column(nullable = false, columnDefinition = "TIME DEFAULT '09:00:00'")
     private LocalTime time;
 
     @Column(nullable = true)

@@ -22,12 +22,17 @@ public enum ErrorCode {
 
     // Goal 에러
     GOAL_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 목표입니다."),
-    INVALID_GOAL_DATE(HttpStatus.BAD_REQUEST, "올바르지 않은 목표 기간 입력입니다."),
-    INVALID_DAILY_PLAN(HttpStatus.BAD_REQUEST, "올바르지 않은 일일 계획 입력입니다."),
+    INVALID_GOAL_INPUT(HttpStatus.BAD_REQUEST, "올바르지 않은 목표 입력입니다."),
 
 
     // Category 에러
-    DUPLICATED_CATEGORY_NAME(HttpStatus.BAD_REQUEST, "카테고리 이름이 중복되었습니다.");
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 카테고리입니다."),
+    DUPLICATED_CATEGORY_NAME(HttpStatus.BAD_REQUEST, "카테고리 이름이 중복되었습니다."),
+
+
+    // Routine 에러
+    INVALID_ROUTINE_INPUT(HttpStatus.BAD_REQUEST, "올바르지 않은 입력값입니다.");
+
 
     private final HttpStatus httpStatus;
     private final String message;
