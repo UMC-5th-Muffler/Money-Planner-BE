@@ -2,6 +2,7 @@ package com.umc5th.muffler.domain.expense.service;
 
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
+import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseDetailsResponse;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Category;
@@ -11,12 +12,12 @@ import com.umc5th.muffler.fixture.CategoryEntityFixture;
 import com.umc5th.muffler.fixture.ExpenseEntityFixture;
 import com.umc5th.muffler.fixture.MemberEntityFixture;
 import com.umc5th.muffler.global.response.exception.MemberException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
@@ -25,51 +26,54 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.openMocks;
 
+@SpringBootTest
 class ExpenseServiceTest {
-    @InjectMocks
+    @Autowired
     private ExpenseService expenseService;
 
-    @Mock
+    @MockBean
     private ExpenseRepository expenseRepository;
 
-    @Mock
+    @MockBean
     private MemberRepository memberRepository;
 
-    @Mock
+    @MockBean
     private CategoryRepository categoryRepository;
-
-    @BeforeEach
-    public void setUp() {
-        openMocks(this);
-    }
 
     @Test
     public void 일일_소비내역_조회_성공() {
 
+        int pageSize = 10;
         LocalDate testDate = LocalDate.of(2024, 1, 1);
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, pageSize);
         Long memberId = 1L;
 
         Member mockMember = MemberEntityFixture.create();
-        List<Expense> expenses = ExpenseEntityFixture.createList(10);
+        List<Expense> expenses = ExpenseEntityFixture.createList(10, testDate);
         Slice<Expense> expenseSlice = new SliceImpl<>(expenses, pageable, false);
-
+        Long dailyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
         List<Category> memberCategories = CategoryEntityFixture.createList(5);
-        List<Category> commonCategories = CategoryEntityFixture.createList(5);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(expenseRepository.findAllByMemberAndDate(mockMember, testDate, pageable)).thenReturn(expenseSlice);
         when(categoryRepository.findAllByMember(mockMember)).thenReturn(memberCategories);
-        when(categoryRepository.findAllWithNoMember()).thenReturn(commonCategories);
+        when(expenseRepository.calculateTotalCostByMemberAndDate(mockMember, testDate)).thenReturn(dailyTotalCost);
 
         DailyExpenseDetailsResponse response = expenseService.getDailyExpenseDetails(testDate, pageable);
 
+        assertNotNull(response);
         assertEquals(testDate, response.getDate());
-        assertFalse(response.isHasNext());
-        assertEquals(10, response.getExpenseDetailDtoList().size());
+        assertEquals(pageSize, response.getExpenseDetailDtoList().size());
+        assertEquals(dailyTotalCost, response.getDailyTotalCost());
+        assertEquals(memberCategories.size(), response.getCategoryList().size());
+        assertEquals(expenseSlice.hasNext(), response.isHasNext());
+
+        verify(expenseRepository).calculateTotalCostByMemberAndDate(mockMember, testDate);
+        verify(expenseRepository).findAllByMemberAndDate(mockMember, testDate, pageable);
+        verify(categoryRepository).findAllByMember(mockMember);
     }
 
     @Test
@@ -83,6 +87,40 @@ class ExpenseServiceTest {
 
         assertThrows(MemberException.class, () -> {
             expenseService.getDailyExpenseDetails(testDate, pageable);});
+    }
+
+    @Test
+    public void 주간_소비내역_조회_성공(){
+
+        int pageSize = 10;
+        Long memberId = 1L;
+        Pageable pageable = PageRequest.of(0, pageSize);
+        LocalDate startDate = LocalDate.of(2024, 1, 1);
+        LocalDate endDate = LocalDate.of(2024, 1, 7);
+        Member mockMember = MemberEntityFixture.create();
+
+        List<Expense> expenses = ExpenseEntityFixture.createList(20, startDate);
+        Slice<Expense> expenseSlice = new SliceImpl<>(expenses, pageable, true);
+        Long weeklyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
+        List<Category> memberCategories = CategoryEntityFixture.createList(5);
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
+        when(expenseRepository.calculateTotalCostByMemberAndDateBetween(mockMember, startDate, endDate)).thenReturn(weeklyTotalCost);
+        when(expenseRepository.findAllByMemberAndDateBetween(mockMember, startDate, endDate, pageable)).thenReturn(expenseSlice);
+        when(categoryRepository.findAllByMember(mockMember)).thenReturn(memberCategories);
+
+        WeeklyExpenseDetailsResponse response = expenseService.getWeeklyExpenseDetails(startDate, endDate, pageable);
+
+        assertNotNull(response);
+        assertEquals(startDate, response.getStartDate());
+        assertEquals(endDate, response.getEndDate());
+        assertEquals(weeklyTotalCost, response.getWeeklyTotalCost());
+        assertEquals(expenseSlice.hasNext(), response.isHasNext());
+        assertEquals(memberCategories.size(), response.getCategoryList().size());
+
+        verify(expenseRepository).calculateTotalCostByMemberAndDateBetween(mockMember, startDate, endDate);
+        verify(expenseRepository).findAllByMemberAndDateBetween(mockMember, startDate, endDate, pageable);
+        verify(categoryRepository).findAllByMember(mockMember);
     }
 
 }

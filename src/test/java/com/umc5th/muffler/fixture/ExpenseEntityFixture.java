@@ -10,13 +10,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ExpenseEntityFixture {
-    public static List<Expense> createList(int num){
+    public static List<Expense> createList(int num, LocalDate date){
         Member member = Member.builder().id(1L).build();
         Category category = Category.builder().id(1L).icon("icon").build();
 
         return IntStream.rangeClosed(1, num)
                 .mapToObj(i -> Expense.builder()
-                        .date(LocalDate.of(2024, 1, 1))
+                        .date(date)
                         .title("title")
                         .cost(100L)
                         .memo("memo")
