@@ -1,20 +1,16 @@
-package com.umc5th.muffler.domain.expense.converter;
+package com.umc5th.muffler.domain.expense.dto;
 
-import com.umc5th.muffler.domain.expense.dto.CategoryDetailDto;
-import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
-import com.umc5th.muffler.domain.expense.dto.ExpenseDetailDto;
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Expense;
 import org.springframework.data.domain.Slice;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ExpenseConverter {
 
-    public static DailyExpenseDetailsResponse toDailyExpenseDetail(Slice<Expense> expenseList, List<Category> categoryList, LocalDate date){
+    public static DailyExpenseDetailsResponse toDailyExpenseDetail(Slice<Expense> expenseList, List<Category> categoryList, LocalDate date, Long dailyTotalCost){
 
         // Expense(entity) -> ExpenseDetail(dto)
         List<ExpenseDetailDto> expenseDetails = expenseList
@@ -37,11 +33,8 @@ public class ExpenseConverter {
                         .build())
                 .collect(Collectors.toList());
 
-        // 일일 소비 총합 계산
-        long totalCostSum = expenseList.stream().mapToLong(Expense::getCost).sum();
-
         return  DailyExpenseDetailsResponse.builder()
-                .dailyTotalCost(totalCostSum)
+                .dailyTotalCost(dailyTotalCost)
                 .date(date)
                 .expenseDetailDtoList(expenseDetails)
                 .categoryList(categoryDetails)

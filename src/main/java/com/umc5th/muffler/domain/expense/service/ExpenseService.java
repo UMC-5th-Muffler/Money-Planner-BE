@@ -1,8 +1,8 @@
 package com.umc5th.muffler.domain.expense.service;
 
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
-import com.umc5th.muffler.domain.expense.converter.ExpenseConverter;
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
+import com.umc5th.muffler.domain.expense.dto.ExpenseConverter;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Category;
@@ -31,14 +31,13 @@ public class ExpenseService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
+        Long dailyTotalCost = expenseRepository.calculateTotalCostByMemberAndDate(member, date);
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(member, date, pageable);
-        
-        List<Category> categoryList = categoryRepository.findAllByMember(member); // member와 연관된 카테고리 리스트
+        List<Category> categoryList = categoryRepository.findAllByMember(member);
 
-        DailyExpenseDetailsResponse response = ExpenseConverter.toDailyExpenseDetail(expenseList, categoryList, date);
+        DailyExpenseDetailsResponse response = ExpenseConverter.toDailyExpenseDetail(expenseList, categoryList, date, dailyTotalCost);
 
         return response;
     }
-
 
 }
