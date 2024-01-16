@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class ExpenseConverter {
 
-    public static DailyExpenseDetailsResponse toDailyExpenseDetail(Slice<Expense> expenseList, List<Category> categoryList, LocalDate date, Long dailyTotalCost){
+    public static DailyExpenseDetailsResponse toDailyExpenseDetailsResponse(Slice<Expense> expenseList, List<Category> categoryList, LocalDate date, Long dailyTotalCost){
 
         // Expense(entity) -> ExpenseDetail(dto)
         List<ExpenseDetailDto> expenseDetails = expenseList
@@ -39,6 +39,44 @@ public class ExpenseConverter {
                 .expenseDetailDtoList(expenseDetails)
                 .categoryList(categoryDetails)
                 .hasNext(expenseList.hasNext())
+                .build();
+    }
+
+    public static WeeklyExpenseDetailsResponse toWeeklyExpenseDetailsResponse(List<WeeklyExpenseDetailsResponse.DailyExpenseDetailsDto> dailyExpenseDetailsDtos,
+                                                                              Slice<Expense> expenseList, List<Category> categoryList, LocalDate startDate, LocalDate endDate, Long weeklyTotalCost){
+        List<CategoryDetailDto> categoryDetails = categoryList
+                .stream()
+                .map(category -> CategoryDetailDto.builder()
+                        .id(category.getId())
+                        .name(category.getName())
+                        .build())
+                .collect(Collectors.toList());
+
+        return WeeklyExpenseDetailsResponse.builder()
+                .weeklyTotalCost(weeklyTotalCost)
+                .startDate(startDate)
+                .endDate(endDate)
+                .categoryList(categoryDetails)
+                .dailyExpenseList(dailyExpenseDetailsDtos)
+                .hasNext(expenseList.hasNext())
+                .build();
+    }
+
+    public static WeeklyExpenseDetailsResponse.DailyExpenseDetailsDto toDailyExpenseDetailDto(List<Expense> dailyExpenseList, LocalDate dailyDate, Long dailyTotalCost){
+        List<ExpenseDetailDto> expenseDetailDtos = dailyExpenseList.stream()
+                .map(expense -> ExpenseDetailDto.builder()
+                        .expenseId(expense.getId())
+                        .title(expense.getTitle())
+                        .categoryIcon(expense.getCategory().getIcon())
+                        .categoryId(expense.getCategory().getId())
+                        .cost(expense.getCost())
+                        .build())
+                .collect(Collectors.toList());
+
+        return WeeklyExpenseDetailsResponse.DailyExpenseDetailsDto.builder()
+                .date(dailyDate)
+                .dailyTotalCost(dailyTotalCost)
+                .expenseDetailDtoList(expenseDetailDtos)
                 .build();
     }
 
