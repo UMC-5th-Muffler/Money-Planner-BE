@@ -30,8 +30,14 @@ public enum ErrorCode {
     DUPLICATED_CATEGORY_NAME(HttpStatus.BAD_REQUEST, "카테고리 이름이 중복되었습니다."),
 
 
+    // Expense 에러
+    EXPENSE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 소비 내역입니다."),
+
+
     // Routine 에러
-    INVALID_ROUTINE_INPUT(HttpStatus.BAD_REQUEST, "올바르지 않은 입력값입니다.");
+    INVALID_ROUTINE_INPUT(HttpStatus.BAD_REQUEST, "올바르지 않은 루틴 입력입니다."),
+    ROUTINE_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "루틴 타입이 없거나 유효하지 않습니다."),
+    ;
 
 
     private final HttpStatus httpStatus;
