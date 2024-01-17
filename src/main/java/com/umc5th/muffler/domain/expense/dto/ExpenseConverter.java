@@ -2,6 +2,7 @@ package com.umc5th.muffler.domain.expense.dto;
 
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Expense;
+import com.umc5th.muffler.entity.Member;
 import org.springframework.data.domain.Slice;
 
 import java.time.LocalDate;

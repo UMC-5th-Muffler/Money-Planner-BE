@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.expense.service;
 
+import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsDto;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseResponse;
@@ -35,6 +36,8 @@ public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
     private final MemberRepository memberRepository;
+    private final CategoryRepository categoryRepository;
+    private final GoalRepository goalRepository;
 
     public DailyExpenseDetailsResponse getDailyExpenseDetails(LocalDate date, Pageable pageable){
         Long memberId = 1L; // 임시
