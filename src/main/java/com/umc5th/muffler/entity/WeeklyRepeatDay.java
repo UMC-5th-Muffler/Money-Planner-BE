@@ -10,7 +10,7 @@ import lombok.*;
 @Builder
 @Entity
 @Getter
-public class WeeklyRoutineDetail {
+public class WeeklyRepeatDay {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

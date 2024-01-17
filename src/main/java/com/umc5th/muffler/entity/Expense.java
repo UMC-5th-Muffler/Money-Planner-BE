@@ -40,7 +40,19 @@ public class Expense extends BaseTimeEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
-    // 연관 관계 메서드
+  
+
+    public static Expense of(LocalDate date, String title, String memo, Long cost, Member member, Category category) {
+        return Expense.builder()
+                .date(date)
+                .title(title)
+                .memo(memo)
+                .cost(cost)
+                .member(member)
+                .category(category)
+                .build();
+    }
+
     public void setMember(Member member) {
         this.member = member;
     }

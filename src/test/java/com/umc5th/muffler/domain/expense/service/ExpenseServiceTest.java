@@ -12,7 +12,7 @@ import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.fixture.CategoryEntityFixture;
-import com.umc5th.muffler.fixture.ExpenseEntityFixture;
+import com.umc5th.muffler.fixture.ExpenseFixture;
 import com.umc5th.muffler.fixture.MemberEntityFixture;
 import com.umc5th.muffler.global.response.exception.MemberException;
 
@@ -51,7 +51,7 @@ class ExpenseServiceTest {
         Long memberId = 1L;
 
         Member mockMember = MemberEntityFixture.create();
-        List<Expense> expenses = ExpenseEntityFixture.createList(10);
+        List<Expense> expenses = ExpenseFixture.createList(10);
         Slice<Expense> expenseSlice = new SliceImpl<>(expenses, pageable, false);
 
         List<Category> memberCategories = CategoryEntityFixture.createList(5);
