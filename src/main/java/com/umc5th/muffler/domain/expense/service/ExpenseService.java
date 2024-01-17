@@ -1,6 +1,6 @@
 package com.umc5th.muffler.domain.expense.service;
 
-import com.umc5th.muffler.domain.category.repository.CategoryRepository;
+import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsDto;
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
 import com.umc5th.muffler.domain.expense.dto.ExpenseConverter;
 import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseDetailsResponse;
@@ -29,7 +29,6 @@ public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
     private final MemberRepository memberRepository;
-    private final CategoryRepository categoryRepository;
 
     public DailyExpenseDetailsResponse getDailyExpenseDetails(LocalDate date, Pageable pageable){
         Long memberId = 1L; // 임시
@@ -38,7 +37,7 @@ public class ExpenseService {
 
         Long dailyTotalCost = expenseRepository.calculateTotalCostByMemberAndDate(member, date);
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(member, date, pageable);
-        List<Category> categoryList = categoryRepository.findAllByMember(member);
+        List<Category> categoryList = member.getCategories();
 
         DailyExpenseDetailsResponse response = ExpenseConverter.toDailyExpenseDetailsResponse(expenseList, categoryList, date, dailyTotalCost);
 
@@ -58,26 +57,17 @@ public class ExpenseService {
 
         Long weeklyTotalCost = expenseRepository.calculateTotalCostByMemberAndDateBetween(member, startDate, endDate);
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDateBetween(member, startDate, endDate, pageable);
-        List<Category> categoryList = categoryRepository.findAllByMember(member);
+        List<Category> categoryList = member.getCategories();
 
         // 일별로 Expense 그룹화
         Map<LocalDate, List<Expense>> expensesByDate = expenseList.stream().collect(Collectors.groupingBy(Expense::getDate));
+        Map<LocalDate, Long> dailyTotalCostMap = expensesByDate.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> expenseRepository.calculateTotalCostByMemberAndDate(member, entry.getKey())
+                ));
 
-        // 일별로 dailyExpenseDetailsDtos(하루 간의 소비내역 정보) 생성
-        List<WeeklyExpenseDetailsResponse.DailyExpenseDetailsDto> dailyExpenseDetailsDtos = expensesByDate.entrySet().stream()
-
-                .map(entry -> {
-                    LocalDate dailyDate = entry.getKey();
-                    List<Expense> dailyExpenseList = entry.getValue();
-
-                    // 일일 소비 총합
-                    Long dailyTotalCost = expenseRepository.calculateTotalCostByMemberAndDate(member, dailyDate);
-
-                    return ExpenseConverter.toDailyExpenseDetailDto(dailyExpenseList, dailyDate, dailyTotalCost);
-                })
-                .collect(Collectors.toList());
-
-        // WeeklyExpenseDetailsResponse(일주일 간 소비 내역 정보) 생성
+        List<DailyExpenseDetailsDto> dailyExpenseDetailsDtos = ExpenseConverter.toDailyExpenseDetailsResponse(expensesByDate, dailyTotalCostMap);
         WeeklyExpenseDetailsResponse response = ExpenseConverter.toWeeklyExpenseDetailsResponse(dailyExpenseDetailsDtos, expenseList, categoryList, startDate, endDate, weeklyTotalCost);
 
         return response;

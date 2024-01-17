@@ -20,14 +20,4 @@ public class WeeklyExpenseDetailsResponse {
     private List<CategoryDetailDto> categoryList;
     private List<DailyExpenseDetailsDto> dailyExpenseList;
     private boolean hasNext;
-
-    @Builder
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class DailyExpenseDetailsDto{ // 일일 소비 내역 정보
-        private LocalDate date;
-        private Long dailyTotalCost;
-        private List<ExpenseDetailDto> expenseDetailDtoList;
-    }
 }

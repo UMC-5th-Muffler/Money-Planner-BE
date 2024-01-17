@@ -5,10 +5,8 @@ import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
 import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseDetailsResponse;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
-import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Member;
-import com.umc5th.muffler.fixture.CategoryEntityFixture;
 import com.umc5th.muffler.fixture.ExpenseFixture;
 import com.umc5th.muffler.fixture.MemberEntityFixture;
 import com.umc5th.muffler.global.response.exception.MemberException;
@@ -57,11 +55,9 @@ class ExpenseServiceTest {
         List<Expense> expenses = ExpenseFixture.createList(10, testDate);
         Slice<Expense> expenseSlice = new SliceImpl<>(expenses, pageable, false);
         Long dailyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
-        List<Category> memberCategories = CategoryEntityFixture.createList(5);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(expenseRepository.findAllByMemberAndDate(mockMember, testDate, pageable)).thenReturn(expenseSlice);
-        when(categoryRepository.findAllByMember(mockMember)).thenReturn(memberCategories);
         when(expenseRepository.calculateTotalCostByMemberAndDate(mockMember, testDate)).thenReturn(dailyTotalCost);
 
         DailyExpenseDetailsResponse response = expenseService.getDailyExpenseDetails(testDate, pageable);
@@ -70,12 +66,10 @@ class ExpenseServiceTest {
         assertEquals(testDate, response.getDate());
         assertEquals(pageSize, response.getExpenseDetailDtoList().size());
         assertEquals(dailyTotalCost, response.getDailyTotalCost());
-        assertEquals(memberCategories.size(), response.getCategoryList().size());
         assertEquals(expenseSlice.hasNext(), response.isHasNext());
 
         verify(expenseRepository).calculateTotalCostByMemberAndDate(mockMember, testDate);
         verify(expenseRepository).findAllByMemberAndDate(mockMember, testDate, pageable);
-        verify(categoryRepository).findAllByMember(mockMember);
     }
 
     @Test
@@ -105,12 +99,10 @@ class ExpenseServiceTest {
         List<Expense> expenses = ExpenseFixture.createList(20, startDate);
         Slice<Expense> expenseSlice = new SliceImpl<>(expenses, pageable, true);
         Long weeklyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
-        List<Category> memberCategories = CategoryEntityFixture.createList(5);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(expenseRepository.calculateTotalCostByMemberAndDateBetween(mockMember, startDate, endDate)).thenReturn(weeklyTotalCost);
         when(expenseRepository.findAllByMemberAndDateBetween(mockMember, startDate, endDate, pageable)).thenReturn(expenseSlice);
-        when(categoryRepository.findAllByMember(mockMember)).thenReturn(memberCategories);
 
         WeeklyExpenseDetailsResponse response = expenseService.getWeeklyExpenseDetails(date, pageable);
 
@@ -119,11 +111,9 @@ class ExpenseServiceTest {
         assertEquals(endDate, response.getEndDate());
         assertEquals(weeklyTotalCost, response.getWeeklyTotalCost());
         assertEquals(expenseSlice.hasNext(), response.isHasNext());
-        assertEquals(memberCategories.size(), response.getCategoryList().size());
 
         verify(expenseRepository).calculateTotalCostByMemberAndDateBetween(mockMember, startDate, endDate);
         verify(expenseRepository).findAllByMemberAndDateBetween(mockMember, startDate, endDate, pageable);
-        verify(categoryRepository).findAllByMember(mockMember);
     }
 
 }

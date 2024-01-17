@@ -1,9 +1,6 @@
 package com.umc5th.muffler.domain.expense.controller;
 
-import com.umc5th.muffler.domain.expense.dto.CategoryDetailDto;
-import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
-import com.umc5th.muffler.domain.expense.dto.ExpenseDetailDto;
-import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseDetailsResponse;
+import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.fixture.ExpenseFixture;
@@ -85,7 +82,7 @@ class ExpenseControllerTest {
         // 일별로 Expense 그룹화
         Map<LocalDate, List<Expense>> expensesByDate = expenses.stream().collect(Collectors.groupingBy(Expense::getDate));
 
-        List<WeeklyExpenseDetailsResponse.DailyExpenseDetailsDto> dailyExpenseDetailsDtos = expensesByDate.entrySet().stream()
+        List<DailyExpenseDetailsDto> dailyExpenseDetailsDtos = expensesByDate.entrySet().stream()
                 .map(entry -> {
                     LocalDate dailyDate = entry.getKey();
                     List<Expense> dailyExpenses = entry.getValue();
@@ -94,7 +91,7 @@ class ExpenseControllerTest {
                             .collect(Collectors.toList());
 
                     Long dailyTotalCost = dailyExpenses.stream().mapToLong(Expense::getCost).sum();
-                    return WeeklyExpenseDetailsResponse.DailyExpenseDetailsDto.builder()
+                    return DailyExpenseDetailsDto.builder()
                             .date(dailyDate)
                             .dailyTotalCost(dailyTotalCost)
                             .expenseDetailDtoList(expenseDetailDtos)
