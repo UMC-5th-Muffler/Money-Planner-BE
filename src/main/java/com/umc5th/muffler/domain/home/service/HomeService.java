@@ -13,9 +13,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,11 +44,13 @@ public class HomeService {
 
             Long totalCost = expenseRepository.calculateTotalCostByMemberAndDateBetween(member, startDate, endDate);
             List<Category> categoryList = expenseRepository.findDistinctCategoriesBetweenDates(member, startDate, endDate);
+            // 우선순위로 카테고리 정렬
+
             List<Long> dailyBudgetList = actualGoal.getDailyPlans().stream()
                     .map(DailyPlan::getBudget)
                     .collect(Collectors.toList());
-//            List<Long> dailyTotalCostList = expenseRepository.calculateDailyTotalCostList(member.getId(), date, startDate, endDate);
-            List<Long> dailyTotalCostList = calculateDailyTotalCostList(member, startDate, endDate);
+            List<Long> dailyTotalCostList = expenseRepository.calculateDailyTotalCostList(member, startDate, endDate);
+//            List<Long> dailyTotalCostList = calculateDailyTotalCostList(member, startDate, endDate);
             // TODO: List<Level> dailyRate 추가
 
             response = HomeConverter.toWholeCalendar(date, actualGoal, totalCost, categoryList, dailyBudgetList, dailyTotalCostList);

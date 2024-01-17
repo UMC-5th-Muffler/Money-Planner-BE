@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -48,6 +49,13 @@ public class Category extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String icon;
+
+    @Column(nullable = false)
+    private Long priority;
+
+    @Column(nullable = false)
+    @ColumnDefault("true")
+    private Boolean isVisible;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")

@@ -22,8 +22,19 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     Long calculateTotalCostByMemberAndDateBetween(@Param("member")Member member, @Param("startDate")LocalDate startDate, @Param("endDate")LocalDate endDate);
 
     @Query("SELECT DISTINCT e.category FROM Expense e WHERE e.member = :member AND e.date BETWEEN :startDate AND :endDate")
-    List<Category> findDistinctCategoriesBetweenDates(@Param("member")Member member, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate
-    );
+    List<Category> findDistinctCategoriesBetweenDates(@Param("member")Member member, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     List<Expense> findAllByMemberAndDateBetween(Member member, LocalDate startDate, LocalDate endDate);
+
+    @Query("SELECT COALESCE(SUM(e.cost), 0) " +
+            "FROM Expense e " +
+            "WHERE e.member = :member " +
+            "GROUP BY e.date " +
+            "HAVING e.date BETWEEN :startDate AND :endDate " +
+            "ORDER BY e.date")
+    List<Long> calculateDailyTotalCostList(
+            @Param("member") Member member,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 }

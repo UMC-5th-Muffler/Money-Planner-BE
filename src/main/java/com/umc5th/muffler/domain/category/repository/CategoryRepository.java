@@ -18,4 +18,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     @Query("SELECT c FROM Category c WHERE c.member IS NULL")
     List<Category> findAllWithNoMember(); //공통 카테고리 찾기
+
+    Long countByMember(Member member);
 }

@@ -1,6 +1,5 @@
 package com.umc5th.muffler.domain.home.controller;
 
-import com.umc5th.muffler.domain.goal.service.GoalService;
 import com.umc5th.muffler.domain.home.dto.WholeCalendarResponse;
 import com.umc5th.muffler.domain.home.service.HomeService;
 import com.umc5th.muffler.global.response.Response;
