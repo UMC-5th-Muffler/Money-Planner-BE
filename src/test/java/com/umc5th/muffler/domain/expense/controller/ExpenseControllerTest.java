@@ -6,7 +6,7 @@ import com.umc5th.muffler.domain.expense.dto.ExpenseDetailDto;
 import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseDetailsResponse;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
 import com.umc5th.muffler.entity.Expense;
-import com.umc5th.muffler.fixture.ExpenseEntityFixture;
+import com.umc5th.muffler.fixture.ExpenseFixture;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -45,7 +45,7 @@ class ExpenseControllerTest {
     void 일일_소비내역_조회() throws Exception{
 
         LocalDate testDate = LocalDate.of(2024, 1, 1);
-        List<Expense> expenses = ExpenseEntityFixture.createList(10, testDate);
+        List<Expense> expenses = ExpenseFixture.createList(10, testDate);
         List<ExpenseDetailDto> expenseDetailDtos = expenses.stream()
                 .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getCategory().getId(), expense.getCategory().getIcon()))
                 .collect(Collectors.toList());
@@ -78,8 +78,8 @@ class ExpenseControllerTest {
         LocalDate todayDate = LocalDate.of(2024, 1, 1);
         LocalDate startDate = todayDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate endDate = todayDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
-        List<Expense> expenses = ExpenseEntityFixture.createList(10, startDate); 
-        List<Expense> expenses_e = ExpenseEntityFixture.createList(10, endDate);
+        List<Expense> expenses = ExpenseFixture.createList(10, startDate);
+        List<Expense> expenses_e = ExpenseFixture.createList(10, endDate);
         expenses.addAll(expenses_e); // 이틀 간의 지출 내역 데이터
 
         // 일별로 Expense 그룹화

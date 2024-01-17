@@ -9,7 +9,7 @@ import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.fixture.CategoryEntityFixture;
-import com.umc5th.muffler.fixture.ExpenseEntityFixture;
+import com.umc5th.muffler.fixture.ExpenseFixture;
 import com.umc5th.muffler.fixture.MemberEntityFixture;
 import com.umc5th.muffler.global.response.exception.MemberException;
 import org.junit.jupiter.api.Test;
@@ -54,7 +54,7 @@ class ExpenseServiceTest {
         Long memberId = 1L;
 
         Member mockMember = MemberEntityFixture.create();
-        List<Expense> expenses = ExpenseEntityFixture.createList(10, testDate);
+        List<Expense> expenses = ExpenseFixture.createList(10, testDate);
         Slice<Expense> expenseSlice = new SliceImpl<>(expenses, pageable, false);
         Long dailyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
         List<Category> memberCategories = CategoryEntityFixture.createList(5);
@@ -102,7 +102,7 @@ class ExpenseServiceTest {
         LocalDate endDate = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
         Member mockMember = MemberEntityFixture.create();
 
-        List<Expense> expenses = ExpenseEntityFixture.createList(20, startDate);
+        List<Expense> expenses = ExpenseFixture.createList(20, startDate);
         Slice<Expense> expenseSlice = new SliceImpl<>(expenses, pageable, true);
         Long weeklyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
         List<Category> memberCategories = CategoryEntityFixture.createList(5);

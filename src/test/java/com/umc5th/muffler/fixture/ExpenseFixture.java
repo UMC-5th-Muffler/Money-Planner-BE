@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ExpenseEntityFixture {
+public class ExpenseFixture {
     public static List<Expense> createList(int num, LocalDate date){
         Member member = Member.builder().id(1L).build();
         Category category = Category.builder().id(1L).icon("icon").build();
