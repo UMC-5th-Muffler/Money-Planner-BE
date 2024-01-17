@@ -1,10 +1,12 @@
-package com.umc5th.muffler.domain.expense.converter;
+package com.umc5th.muffler.domain.expense.dto;
 
 import com.umc5th.muffler.domain.expense.dto.CategoryDetailDto;
+import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
 import com.umc5th.muffler.domain.expense.dto.ExpenseDetailDto;
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Expense;
+import com.umc5th.muffler.entity.Member;
 import org.springframework.data.domain.Slice;
 
 import java.time.LocalDate;
@@ -13,6 +15,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ExpenseConverter {
+    public static Expense toExpenseEntity(NewExpenseRequest request, Member member, Category category) {
+        return Expense.builder()
+            .title(request.getExpenseTitle())
+            .memo(request.getExpenseMemo())
+            .date(request.getExpenseDate())
+            .cost(request.getExpenseCost())
+            .category(category)
+            .member(member)
+            .build();
+    }
 
     public static DailyExpenseDetailsResponse toDailyExpenseDetail(Slice<Expense> expenseList, List<Category> categoryList, LocalDate date){
 
@@ -48,5 +60,4 @@ public class ExpenseConverter {
                 .hasNext(expenseList.hasNext())
                 .build();
     }
-
 }

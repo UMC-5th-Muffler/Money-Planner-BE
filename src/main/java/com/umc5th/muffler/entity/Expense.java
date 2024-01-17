@@ -27,6 +27,7 @@ public class Expense extends BaseTimeEntity {
     @Column(nullable = false)
     private String title;
 
+    @Column(nullable = true)
     private String memo;
 
     @Column(nullable = false)
@@ -39,6 +40,7 @@ public class Expense extends BaseTimeEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
+  
 
     public static Expense of(LocalDate date, String title, String memo, Long cost, Member member, Category category) {
         return Expense.builder()
@@ -49,5 +51,12 @@ public class Expense extends BaseTimeEntity {
                 .member(member)
                 .category(category)
                 .build();
+    }
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }
