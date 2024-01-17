@@ -15,7 +15,4 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     Optional<Category> findCategoryWithNameAndMemberId(@Param("name") String name, @Param("memberId") Long memberId);
     
     List<Category> findAllByMember(Member member);
-
-    @Query("SELECT c FROM Category c WHERE c.member IS NULL")
-    List<Category> findAllWithNoMember(); //공통 카테고리 찾기
 }
