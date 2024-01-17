@@ -26,6 +26,9 @@ public enum ErrorCode {
 
     //Goal 에러
     _NO_GOAL_IN_GIVEN_DATE(HttpStatus.BAD_REQUEST, "해당 날짜에 일치하는 목표가 없습니다"),
+    
+    // DailyPlan 에러
+    DAILYPLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 일일 소비 계획입니다."),
 
     // Category 에러
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 카테고리입니다."),
@@ -34,7 +37,6 @@ public enum ErrorCode {
 
     // Routine 에러
     INVALID_ROUTINE_INPUT(HttpStatus.BAD_REQUEST, "올바르지 않은 입력값입니다.");
-
 
     private final HttpStatus httpStatus;
     private final String message;
