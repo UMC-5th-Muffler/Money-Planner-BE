@@ -39,7 +39,7 @@ class RoutineServiceTest {
     private ArgumentCaptor<Routine> routineCaptor;
 
 
-    // TODO : 경계값 테스트 필요 ...
+    // TODO : 루틴 관련 경계값 테스트 & 예외 테스트 필요 ...
     @Test
     void 과거소비등록X_Weekly루틴_등록_성공() {
         LocalDate date = LocalDate.of(2024, 1, 1);
