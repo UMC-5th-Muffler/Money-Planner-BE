@@ -44,17 +44,26 @@ public class Member extends BaseTimeEntity {
     @Builder.Default
     private List<Category> categories = new ArrayList<>();
 
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST)
+    private List<Expense> expenses;
+
+    // 연관 관계 메서드
+    public void addExpense(Expense expense) {
+        expense.setMember(this);
+        this.expenses.add(expense);
+    }
+
+    public void addCategory(Category category) {
+        category.setMember(this);
+        this.categories.add(category);
+    }
+
     public void addGoal(Goal goal) {
         this.goals.add(goal);
     }
 
     public void removeGoal(Goal goal) {
         this.goals.remove(goal);
-    }
-
-    public void addCategory(Category category) {
-        category.setMember(this);
-        this.categories.add(category);
-
     }
 }

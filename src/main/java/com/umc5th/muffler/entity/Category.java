@@ -52,7 +52,8 @@ public class Category extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
-    
+
+    // 연관관계 메서드
     public void setMember(Member member) {
         this.member = member;
     }

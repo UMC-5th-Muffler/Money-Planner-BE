@@ -1,5 +1,9 @@
 package com.umc5th.muffler.domain.expense.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.openMocks;
+
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
 import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseDetailsResponse;
@@ -40,9 +44,6 @@ class ExpenseServiceTest {
     @MockBean
     private MemberRepository memberRepository;
 
-    @MockBean
-    private CategoryRepository categoryRepository;
-
     @Test
     public void 일일_소비내역_조회_성공() {
 
@@ -52,6 +53,7 @@ class ExpenseServiceTest {
         Long memberId = 1L;
 
         Member mockMember = MemberEntityFixture.create();
+
         List<Expense> expenses = ExpenseFixture.createList(10, testDate);
         Slice<Expense> expenseSlice = new SliceImpl<>(expenses, pageable, false);
         Long dailyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
@@ -115,5 +117,4 @@ class ExpenseServiceTest {
         verify(expenseRepository).calculateTotalCostByMemberAndDateBetween(mockMember, startDate, endDate);
         verify(expenseRepository).findAllByMemberAndDateBetween(mockMember, startDate, endDate, pageable);
     }
-
 }

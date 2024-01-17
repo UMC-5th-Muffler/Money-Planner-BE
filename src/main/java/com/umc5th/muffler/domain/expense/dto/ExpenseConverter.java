@@ -11,8 +11,18 @@ import java.util.stream.Collectors;
 
 public class ExpenseConverter {
 
-    public static DailyExpenseDetailsResponse toDailyExpenseDetailsResponse(Slice<Expense> expenseList, List<Category> categoryList, LocalDate date, Long dailyTotalCost) {
+    public static Expense toExpenseEntity(NewExpenseRequest request, Member member, Category category) {
+        return Expense.builder()
+            .title(request.getExpenseTitle())
+            .memo(request.getExpenseMemo())
+            .date(request.getExpenseDate())
+            .cost(request.getExpenseCost())
+            .category(category)
+            .member(member)
+            .build();
+    }
 
+    public static DailyExpenseDetailsResponse toDailyExpenseDetailsResponse(Slice<Expense> expenseList, List<Category> categoryList, LocalDate date, Long dailyTotalCost) {
         // Expense(entity) -> ExpenseDetail(dto)
         List<ExpenseDetailDto> expenseDetails = expenseList
                 .stream()
