@@ -1,55 +1,127 @@
 package com.umc5th.muffler.domain.routine.service;
 
-import com.umc5th.muffler.domain.member.repository.MemberRepository;
-import com.umc5th.muffler.domain.routine.dto.AddWeeklyRoutineRequest;
-import com.umc5th.muffler.entity.Category;
-import com.umc5th.muffler.entity.Member;
-import com.umc5th.muffler.fixture.CategoryFixture;
-import com.umc5th.muffler.fixture.MemberFixture;
-import com.umc5th.muffler.global.response.exception.MemberException;
-import com.umc5th.muffler.global.response.exception.RoutineException;
+import static java.time.DayOfWeek.MONDAY;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
+import com.umc5th.muffler.domain.routine.dto.RoutineRequest;
+import com.umc5th.muffler.domain.routine.repository.RoutineRepository;
+import com.umc5th.muffler.entity.Expense;
+import com.umc5th.muffler.entity.Routine;
+import com.umc5th.muffler.fixture.ExpenseFixture;
+import com.umc5th.muffler.fixture.RoutineRequestFixture;
+import com.umc5th.muffler.global.util.DateTimeProvider;
+import java.time.LocalDate;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.BDDMockito.given;
-
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 @SpringBootTest
-@Transactional
-public class RoutineCreateServiceTest {
-
-    @Mock
-    private MemberRepository memberRepository;
-    @InjectMocks
-    private final RoutineCreateService routineCreateService;
+class RoutineServiceTest {
 
     @Autowired
-    public RoutineCreateServiceTest(RoutineCreateService routineCreateService) {
-        this.routineCreateService = routineCreateService;
-    }
+    private RoutineService routineService;
+    @MockBean
+    private RoutineRepository routineRepository;
+    @MockBean
+    private ExpenseRepository expenseRepository;
+    @MockBean
+    private DateTimeProvider dateTimeProvider;
+    @Captor
+    private ArgumentCaptor<Routine> routineCaptor;
 
+
+    // TODO : 루틴 관련 경계값 테스트 & 예외 테스트 필요 ...
+    @Test
+    void 과거소비등록X_Weekly루틴_등록_성공() {
+        LocalDate date = LocalDate.of(2024, 1, 1);
+        Expense expense = ExpenseFixture.create(date);
+        RoutineRequest request = RoutineRequestFixture.createWeekly();
+        Long expenseId = expense.getId();
+
+        when(expenseRepository.findById(expenseId)).thenReturn(Optional.of(expense));
+        when(dateTimeProvider.nowDate()).thenReturn(date);
+
+        routineService.create(expenseId, request);
+
+        verify(routineRepository).save(routineCaptor.capture());
+        verify(expenseRepository, times(0)).save(any());
+
+        Routine saved = routineCaptor.getValue();
+        assertThat(saved.getEndDate()).isEqualTo(request.getEndDate());
+        assertThat(saved.getType()).isEqualTo(request.getType());
+        assertThat(saved.getWeeklyRepeatDays()).extracting("dayOfWeek").containsExactly(MONDAY);
+        assertThat(saved.getWeeklyTerm()).isEqualTo(Integer.parseInt(request.getWeeklyTerm()));
+    }
 
     @Test
-    public void 등록되지_않은_멤버인_경우() throws RoutineException {
-        // given
-        Member member = MemberFixture.MEMBER_TWO;
-        Category category = CategoryFixture.CATEGORY_ONE;
-        AddWeeklyRoutineRequest request = new AddWeeklyRoutineRequest(1, 10000L, LocalDate.of(2024, 1, 13), null, "title", "memo", category.getId(), member.getId(), List.of(1, 2));
+    void 과거소비등록O_Weekly루틴_등록_성공() {
+        Expense expense = ExpenseFixture.create(LocalDate.of(2024, 1, 1));
+        RoutineRequest request = RoutineRequestFixture.createWeekly();
+        Long expenseId = expense.getId();
 
-        given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
+        when(expenseRepository.findById(expenseId)).thenReturn(Optional.of(expense));
+        when(dateTimeProvider.nowDate()).thenReturn(LocalDate.of(2024, 1, 8));
 
-        // then
-        assertThrows(MemberException.class, () -> {
-            routineCreateService.addWeeklyRoutine(request);
-        });
+        routineService.create(expenseId, request);
+
+        verify(routineRepository).save(routineCaptor.capture());
+        verify(expenseRepository, times(1)).save(any());
+
+        Routine saved = routineCaptor.getValue();
+        assertThat(saved.getEndDate()).isEqualTo(request.getEndDate());
+        assertThat(saved.getType()).isEqualTo(request.getType());
+        assertThat(saved.getWeeklyRepeatDays()).extracting("dayOfWeek").containsExactly(MONDAY);
+        assertThat(saved.getWeeklyTerm()).isEqualTo(Integer.parseInt(request.getWeeklyTerm()));
     }
+
+    @Test
+    void 과거소비등록X_Monthly루틴_등록_성공() {
+        LocalDate date = LocalDate.of(2024, 1, 1);
+        Expense expense = ExpenseFixture.create(date);
+        RoutineRequest request = RoutineRequestFixture.createMonthly();
+        Long expenseId = expense.getId();
+
+        when(expenseRepository.findById(expenseId)).thenReturn(Optional.of(expense));
+        when(dateTimeProvider.nowDate()).thenReturn(date);
+
+        routineService.create(expenseId, request);
+
+        verify(routineRepository).save(routineCaptor.capture());
+        verify(expenseRepository, times(0)).save(any());
+
+        Routine saved = routineCaptor.getValue();
+        assertThat(saved.getEndDate()).isEqualTo(request.getEndDate());
+        assertThat(saved.getType()).isEqualTo(request.getType());
+        assertThat(saved.getMonthlyRepeatDay()).isEqualTo(Integer.parseInt(request.getMonthlyRepeatDay()));
+    }
+
+    @Test
+    void 과거소비등록O_Monthly루틴_등록_성공() {
+        Expense expense = ExpenseFixture.create(LocalDate.of(2023, 12, 1));
+        RoutineRequest request = RoutineRequestFixture.createMonthly();
+        Long expenseId = expense.getId();
+
+        when(expenseRepository.findById(expenseId)).thenReturn(Optional.of(expense));
+        when(dateTimeProvider.nowDate()).thenReturn(LocalDate.of(2024, 1, 1));
+
+        routineService.create(expenseId, request);
+
+        verify(routineRepository).save(routineCaptor.capture());
+        verify(expenseRepository, times(1)).save(any());
+
+        Routine saved = routineCaptor.getValue();
+        assertThat(saved.getEndDate()).isEqualTo(request.getEndDate());
+        assertThat(saved.getType()).isEqualTo(request.getType());
+        assertThat(saved.getMonthlyRepeatDay()).isEqualTo(Integer.parseInt(request.getMonthlyRepeatDay()));
+    }
+
 }

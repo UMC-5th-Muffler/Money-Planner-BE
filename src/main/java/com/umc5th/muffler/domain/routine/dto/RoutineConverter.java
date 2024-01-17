@@ -1,54 +1,20 @@
 package com.umc5th.muffler.domain.routine.dto;
 
-import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.Routine;
-import com.umc5th.muffler.entity.WeeklyRoutineDetail;
-import com.umc5th.muffler.entity.constant.RoutineType;
-
+import com.umc5th.muffler.entity.WeeklyRepeatDay;
 import java.time.DayOfWeek;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class RoutineConverter {
-
-    // WeeklyRoutineRequest(dto) -> Routine(entity)
-    public static Routine toWeeklyRoutine(AddWeeklyRoutineRequest request, Member member) {
-        Routine routine = Routine.builder()
-                .member(member)
-                .cost(request.getCost())
-                .term(request.getTerm())
-                .startDate(request.getStartDate())
-                .endDate(request.getEndDate())
-                .title(request.getTitle())
-                .memo(request.getMemo())
-                .categoryId(request.getCategoryId())
-                .routineType(RoutineType.WEEKLY)
-                .build();
-
-        request.getDayOfWeek().forEach(day -> {
-            WeeklyRoutineDetail detail = WeeklyRoutineDetail.builder()
-                    .dayOfWeek(DayOfWeek.of(day))
-                    .routine(routine)
-                    .build();
-
-            routine.addDetail(detail);
-        });
-
-        return routine;
-    }
-
-    // MonthlyRoutineRequest(dto) -> Routine(entity)
-    public static Routine toMonthlyRoutine(AddMonthlyRoutineRequest request, Member member) {
-        Routine monthlyRoutine = Routine.builder()
-                .member(member)
-                .cost(request.getCost())
-                .day(request.getDay())
-                .startDate(request.getStartDate())
-                .endDate(request.getEndDate())
-                .title(request.getTitle())
-                .memo(request.getMemo())
-                .categoryId(request.getCategoryId())
-                .routineType(RoutineType.MONTHLY)
-                .build();
-
-        return monthlyRoutine;
+    public static List<WeeklyRepeatDay> getWeeklyRepeatDayEntities(Routine routine, List<DayOfWeek> weeklyRepeatDays) {
+        return weeklyRepeatDays.stream()
+                .map(dayOfWeek -> WeeklyRepeatDay.builder()
+                        .dayOfWeek(dayOfWeek)
+                        .routine(routine)
+                        .build())
+                .sorted(Comparator.comparing(WeeklyRepeatDay::getDayOfWeek))
+                .collect(Collectors.toList());
     }
 }

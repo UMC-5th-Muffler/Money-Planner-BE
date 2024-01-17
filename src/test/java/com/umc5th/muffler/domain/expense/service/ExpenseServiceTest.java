@@ -1,5 +1,9 @@
 package com.umc5th.muffler.domain.expense.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.openMocks;
+
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
@@ -8,11 +12,15 @@ import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.fixture.CategoryEntityFixture;
-import com.umc5th.muffler.fixture.ExpenseEntityFixture;
+import com.umc5th.muffler.fixture.ExpenseFixture;
 import com.umc5th.muffler.fixture.MemberEntityFixture;
 import com.umc5th.muffler.global.response.exception.MemberException;
-import org.junit.jupiter.api.BeforeEach;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.data.domain.Pageable;
@@ -20,26 +28,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.openMocks;
-
 class ExpenseServiceTest {
     @InjectMocks
     private ExpenseService expenseService;
-
-    @Mock
-    private ExpenseRepository expenseRepository;
-
     @Mock
     private MemberRepository memberRepository;
-
     @Mock
     private CategoryRepository categoryRepository;
+    @Mock
+    private ExpenseRepository expenseRepository;
 
     @BeforeEach
     public void setUp() {
@@ -54,7 +51,7 @@ class ExpenseServiceTest {
         Long memberId = 1L;
 
         Member mockMember = MemberEntityFixture.create();
-        List<Expense> expenses = ExpenseEntityFixture.createList(10);
+        List<Expense> expenses = ExpenseFixture.createList(10);
         Slice<Expense> expenseSlice = new SliceImpl<>(expenses, pageable, false);
 
         List<Category> memberCategories = CategoryEntityFixture.createList(5);
@@ -84,5 +81,4 @@ class ExpenseServiceTest {
         assertThrows(MemberException.class, () -> {
             expenseService.getDailyExpenseDetails(testDate, pageable);});
     }
-
 }

@@ -44,9 +44,20 @@ public class Member extends BaseTimeEntity {
     @Builder.Default
     private List<Category> categories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    @Builder.Default
-    private List<Routine> routines = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST)
+    private List<Expense> expenses;
+
+    // 연관 관계 메서드
+    public void addExpense(Expense expense) {
+        expense.setMember(this);
+        this.expenses.add(expense);
+    }
+
+    public void addCategory(Category category) {
+        category.setMember(this);
+        this.categories.add(category);
+    }
 
     public void addGoal(Goal goal) {
         this.goals.add(goal);
@@ -55,15 +66,4 @@ public class Member extends BaseTimeEntity {
     public void removeGoal(Goal goal) {
         this.goals.remove(goal);
     }
-
-    public void addCategory(Category category) {
-        category.setMember(this);
-        this.categories.add(category);
-    }
-
-    public void addRoutine(Routine routine) {
-        routine.setMember(this);
-        this.routines.add(routine);
-    }
-    public void removeRoutine(Routine routine) { this.routines.remove(routine); }
 }
