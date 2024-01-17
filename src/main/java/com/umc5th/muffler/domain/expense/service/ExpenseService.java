@@ -57,7 +57,7 @@ public class ExpenseService {
 
         // 일별로 dailyExpenseDetailsDtos(하루 간의 소비내역 정보) 생성
         List<WeeklyExpenseDetailsResponse.DailyExpenseDetailsDto> dailyExpenseDetailsDtos = expensesByDate.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey()) // 날짜 순으로 정렬
+
                 .map(entry -> {
                     LocalDate dailyDate = entry.getKey();
                     List<Expense> dailyExpenseList = entry.getValue();

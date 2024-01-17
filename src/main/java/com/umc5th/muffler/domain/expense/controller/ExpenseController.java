@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +27,7 @@ public class ExpenseController {
     @GetMapping("/daily")
     public Response<DailyExpenseDetailsResponse> getDailyExpenseDetails(
             @RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
-            @PageableDefault(size = 20, sort = "createdAt",  direction = Sort.Direction.ASC) Pageable pageable){
+            @PageableDefault(size = 20, sort = "createdAt",  direction = Sort.Direction.DESC) Pageable pageable){
 
         DailyExpenseDetailsResponse response = expenseService.getDailyExpenseDetails(date, pageable);
         return Response.success(response);
@@ -36,7 +37,10 @@ public class ExpenseController {
     public Response<WeeklyExpenseDetailsResponse> getWeeklyExpenseDetails(
             @RequestParam(name = "startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
             @RequestParam(name = "endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
-            @PageableDefault(size = 20, sort = "createdAt",  direction = Sort.Direction.ASC) Pageable pageable){
+            @PageableDefault(size = 20) @SortDefault.SortDefaults({
+                    @SortDefault(sort = "date", direction = Sort.Direction.DESC),
+                    @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+            }) Pageable pageable){
 
         WeeklyExpenseDetailsResponse response = expenseService.getWeeklyExpenseDetails(startDate, endDate, pageable);
         return Response.success(response);
