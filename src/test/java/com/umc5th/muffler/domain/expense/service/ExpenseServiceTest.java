@@ -21,7 +21,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Optional;
 
@@ -95,8 +97,9 @@ class ExpenseServiceTest {
         int pageSize = 10;
         Long memberId = 1L;
         Pageable pageable = PageRequest.of(0, pageSize);
-        LocalDate startDate = LocalDate.of(2024, 1, 1);
-        LocalDate endDate = LocalDate.of(2024, 1, 7);
+        LocalDate date = LocalDate.of(2024, 1, 1);
+        LocalDate startDate = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate endDate = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
         Member mockMember = MemberEntityFixture.create();
 
         List<Expense> expenses = ExpenseEntityFixture.createList(20, startDate);
@@ -109,7 +112,7 @@ class ExpenseServiceTest {
         when(expenseRepository.findAllByMemberAndDateBetween(mockMember, startDate, endDate, pageable)).thenReturn(expenseSlice);
         when(categoryRepository.findAllByMember(mockMember)).thenReturn(memberCategories);
 
-        WeeklyExpenseDetailsResponse response = expenseService.getWeeklyExpenseDetails(startDate, endDate, pageable);
+        WeeklyExpenseDetailsResponse response = expenseService.getWeeklyExpenseDetails(date, pageable);
 
         assertNotNull(response);
         assertEquals(startDate, response.getStartDate());

@@ -16,7 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -73,8 +75,9 @@ class ExpenseControllerTest {
     @Test
     public void 주간_소비내역_조회() throws Exception{
 
-        LocalDate startDate = LocalDate.of(2024, 1, 1);
-        LocalDate endDate = startDate.plusDays(7);
+        LocalDate todayDate = LocalDate.of(2024, 1, 1);
+        LocalDate startDate = todayDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate endDate = todayDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
         List<Expense> expenses = ExpenseEntityFixture.createList(10, startDate); 
         List<Expense> expenses_e = ExpenseEntityFixture.createList(10, endDate);
         expenses.addAll(expenses_e); // 이틀 간의 지출 내역 데이터
@@ -84,7 +87,7 @@ class ExpenseControllerTest {
 
         List<WeeklyExpenseDetailsResponse.DailyExpenseDetailsDto> dailyExpenseDetailsDtos = expensesByDate.entrySet().stream()
                 .map(entry -> {
-                    LocalDate date = entry.getKey();
+                    LocalDate dailyDate = entry.getKey();
                     List<Expense> dailyExpenses = entry.getValue();
                     List<ExpenseDetailDto> expenseDetailDtos = dailyExpenses.stream()
                             .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getCategory().getId(), expense.getCategory().getIcon()))
@@ -92,7 +95,7 @@ class ExpenseControllerTest {
 
                     Long dailyTotalCost = dailyExpenses.stream().mapToLong(Expense::getCost).sum();
                     return WeeklyExpenseDetailsResponse.DailyExpenseDetailsDto.builder()
-                            .date(date)
+                            .date(dailyDate)
                             .dailyTotalCost(dailyTotalCost)
                             .expenseDetailDtoList(expenseDetailDtos)
                             .build();
@@ -110,11 +113,10 @@ class ExpenseControllerTest {
                 .dailyExpenseList(dailyExpenseDetailsDtos)
                 .build();
 
-        when(expenseService.getWeeklyExpenseDetails(eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(mockResponse);
+        when(expenseService.getWeeklyExpenseDetails(eq(todayDate), any(Pageable.class))).thenReturn(mockResponse);
 
         mockMvc.perform(get("/expense/weekly")
-                        .param("startDate", startDate.toString())
-                        .param("endDate", endDate.toString()))
+                        .param("date", todayDate.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.startDate", is(startDate.toString())))
                 .andExpect(jsonPath("$.result.endDate", is(endDate.toString())))

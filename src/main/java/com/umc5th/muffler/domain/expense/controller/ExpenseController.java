@@ -35,14 +35,13 @@ public class ExpenseController {
 
     @GetMapping("/weekly")
     public Response<WeeklyExpenseDetailsResponse> getWeeklyExpenseDetails(
-            @RequestParam(name = "startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
-            @RequestParam(name = "endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+            @RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
             @PageableDefault(size = 20) @SortDefault.SortDefaults({
                     @SortDefault(sort = "date", direction = Sort.Direction.DESC),
                     @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC)
             }) Pageable pageable){
 
-        WeeklyExpenseDetailsResponse response = expenseService.getWeeklyExpenseDetails(startDate, endDate, pageable);
+        WeeklyExpenseDetailsResponse response = expenseService.getWeeklyExpenseDetails(date, pageable);
         return Response.success(response);
     }
 

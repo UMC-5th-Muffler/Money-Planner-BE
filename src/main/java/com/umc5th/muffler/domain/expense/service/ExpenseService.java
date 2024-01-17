@@ -16,7 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,10 +45,16 @@ public class ExpenseService {
         return response;
     }
 
-    public WeeklyExpenseDetailsResponse getWeeklyExpenseDetails(LocalDate startDate, LocalDate endDate, Pageable pageable){
+    public WeeklyExpenseDetailsResponse getWeeklyExpenseDetails(LocalDate date, Pageable pageable){
         Long memberId = 1L; // 임시
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+        
+        // 해당 주 월요일 날짜
+        LocalDate startDate = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+        // 해당 주 일요일 날짜
+        LocalDate endDate = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
 
         Long weeklyTotalCost = expenseRepository.calculateTotalCostByMemberAndDateBetween(member, startDate, endDate);
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDateBetween(member, startDate, endDate, pageable);
