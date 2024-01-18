@@ -9,4 +9,5 @@ public class CategoryInfoDto {
 
     private Long id;
     private String name;
+    private Long categoryGoalId;
 }

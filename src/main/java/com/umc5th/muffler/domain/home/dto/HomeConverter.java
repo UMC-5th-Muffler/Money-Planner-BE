@@ -7,18 +7,20 @@ import com.umc5th.muffler.entity.constant.Level;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class HomeConverter {
 
-    public static WholeCalendarResponse toWholeCalendar(LocalDate date, Goal goal, Long totalCost, List<Category> categoryList, List<Long> dailyBudgetList, List<Long> dailyTotalCostList) {
+    public static WholeCalendarResponse toWholeCalendar(LocalDate date, Goal goal, Long totalCost, Map<Category, Long> categoryList, List<Long> dailyBudgetList, List<Long> dailyTotalCostList) {
 
-        // Category(entity) -> CategoryInfo(dto)
         List<CategoryInfoDto> categoryInfoList = categoryList
+                .entrySet()
                 .stream()
-                .map(category -> CategoryInfoDto.builder()
-                        .id(category.getId())
-                        .name(category.getName())
+                .map(entry -> CategoryInfoDto.builder()
+                        .id(entry.getKey().getId())
+                        .name(entry.getKey().getName())
+                        .categoryGoalId(entry.getValue())
                         .build())
                 .collect(Collectors.toList());
 
@@ -48,6 +50,35 @@ public class HomeConverter {
                 .totalCost(totalCost)
                 .categoryList(categoryInfoList)
                 .dailyList(dailyInfoList)
+                .build();
+    }
+
+    public static CategoryGoalCalendarResponse toGoalCalendar(Long categoryBudget, Long categoryTotalCost, List<Long> dailyTotalCostList) {
+
+        List<DailyCategoryInfoDto> dailyCategoryInfoList = new ArrayList<>();
+        for(int i = 0; i < dailyTotalCostList.size(); i++) {
+            Long dailyTotalCost = i < dailyTotalCostList.size() ? dailyTotalCostList.get(i) : 0L;
+//            Level dailyRate = i < dailyRateList.size() ? dailyRateList.get(i) : null;
+            Level dailyRate = Level.HIGH; // 임시
+
+            DailyCategoryInfoDto dailyCategoryInfo = DailyCategoryInfoDto.builder()
+                    .dailyTotalCost(dailyTotalCost)
+                    .dailyRate(dailyRate)
+                    .build();
+
+            dailyCategoryInfoList.add(dailyCategoryInfo);
+        }
+
+        return CategoryGoalCalendarResponse.builder()
+                .categoryBudget(categoryBudget)
+                .categoryTotalCost(categoryTotalCost)
+                .dailyList(dailyCategoryInfoList)
+                .build();
+    }
+
+    public static CategoryNoGoalCalendarResponse toNoGoalCalendar(List<Long> dailyTotalCostList) {
+        return CategoryNoGoalCalendarResponse.builder()
+                .dailyCostList(dailyTotalCostList)
                 .build();
     }
 }

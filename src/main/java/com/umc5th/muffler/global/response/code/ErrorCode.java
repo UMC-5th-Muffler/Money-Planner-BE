@@ -32,6 +32,10 @@ public enum ErrorCode {
     DUPLICATED_CATEGORY_NAME(HttpStatus.BAD_REQUEST, "카테고리 이름이 중복되었습니다."),
 
 
+    // CategoryGoal 에러
+    CATEGORY_GOAL_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 카테고리 목표입니다."),
+
+
     // Expense 에러
     EXPENSE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 소비 내역입니다."),
 
