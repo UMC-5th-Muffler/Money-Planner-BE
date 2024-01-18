@@ -1,14 +1,5 @@
 package com.umc5th.muffler.domain.goal.service;
 
-import static com.umc5th.muffler.global.response.code.ErrorCode.CATEGORY_NOT_FOUND;
-import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_GOAL_INPUT;
-import static com.umc5th.muffler.global.response.code.ErrorCode.MEMBER_NOT_FOUND;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.goal.dto.GoalCreateRequest;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
@@ -17,17 +8,23 @@ import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.fixture.GoalCreateRequestFixture;
-import com.umc5th.muffler.fixture.MemberEntityFixture;
+import com.umc5th.muffler.fixture.MemberFixture;
 import com.umc5th.muffler.global.response.exception.CategoryException;
 import com.umc5th.muffler.global.response.exception.GoalException;
 import com.umc5th.muffler.global.response.exception.MemberException;
-import java.time.LocalDate;
-import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+
+import java.time.LocalDate;
+import java.util.Optional;
+
+import static com.umc5th.muffler.global.response.code.ErrorCode.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class GoalCreateServiceTest {
@@ -45,7 +42,7 @@ class GoalCreateServiceTest {
     @Test
     void 목표등록이_성공한경우() {
         GoalCreateRequest request = GoalCreateRequestFixture.create();
-        Member member = MemberEntityFixture.create();
+        Member member = MemberFixture.create();
         Goal mockGoal = mock(Goal.class);
 
         when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
@@ -99,7 +96,7 @@ class GoalCreateServiceTest {
     @Test
     void 등록할목표기간이_기존목표기간과_겹치는경우() {
         GoalCreateRequest request = GoalCreateRequestFixture.create(LocalDate.of(2024, 1, 2), LocalDate.of(2024, 1, 3));
-        Member member = MemberEntityFixture.create();
+        Member member = MemberFixture.create();
 
         when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
 
@@ -112,7 +109,7 @@ class GoalCreateServiceTest {
     @Test
     void 중복된카테고리의_목표를_저장하는경우() {
         GoalCreateRequest request = GoalCreateRequestFixture.createDuplicatedCategoryGoals();
-        Member member = MemberEntityFixture.create();
+        Member member = MemberFixture.create();
 
         when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
 
@@ -125,7 +122,7 @@ class GoalCreateServiceTest {
     @Test
     void 카테고리목표금액_총합이_전체목표금액을_초과하는경우() {
         GoalCreateRequest request = GoalCreateRequestFixture.createInvalidCategoryBudget();
-        Member member = MemberEntityFixture.create();
+        Member member = MemberFixture.create();
 
         when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
 
@@ -138,7 +135,7 @@ class GoalCreateServiceTest {
     @Test
     void 목표기간보다_계획기간이_짧은경우() {
         GoalCreateRequest request = GoalCreateRequestFixture.createInvalidDailyPlanPeriod();
-        Member member = MemberEntityFixture.create();
+        Member member = MemberFixture.create();
 
         when(memberRepository.findById(member.getId())).thenReturn(Optional.of(mock(Member.class)));
 
@@ -151,7 +148,7 @@ class GoalCreateServiceTest {
     @Test
     void 전체목표금액이_일일계획금액총합과_일치하지않는경우() {
         GoalCreateRequest request = GoalCreateRequestFixture.createInvalidDailyBudgetSum();
-        Member member = MemberEntityFixture.create();
+        Member member = MemberFixture.create();
 
         when(memberRepository.findById(member.getId())).thenReturn(Optional.of(mock(Member.class)));
 
@@ -164,7 +161,7 @@ class GoalCreateServiceTest {
     @Test
     void 존재하지않는_카테고리에_목표등록하는경우() {
         GoalCreateRequest request = GoalCreateRequestFixture.create();
-        Member member = MemberEntityFixture.create();
+        Member member = MemberFixture.create();
 
         when(memberRepository.findById(member.getId())).thenReturn(Optional.of(mock(Member.class)));
         when(categoryRepository.findById(any())).thenReturn(Optional.empty());
