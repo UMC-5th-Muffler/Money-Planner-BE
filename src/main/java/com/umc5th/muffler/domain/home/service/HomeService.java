@@ -52,14 +52,19 @@ public class HomeService {
             List<Category> categoryExpenseList = expenseRepository.findDistinctCategoriesBetweenDates(member, startDate, endDate);
             Map<Category, Long> categoryMap = getCategoryMap(actualGoal, categoryExpenseList);
 
-            List<Long> dailyBudgetList = actualGoal.getDailyPlans().stream()
+            List<DailyPlan> dailyPlanList = actualGoal.getDailyPlans();
+            List<Long> dailyBudgetList = dailyPlanList.stream()
                     .map(DailyPlan::getBudget)
                     .collect(Collectors.toList());
-
-            List<Long> dailyTotalCostList = calculateDailyTotalCostList(expenses, startDate, endDate);
+            List<Long> dailyTotalCostList = dailyPlanList.stream()
+                    .map(DailyPlan::getTotalCost)
+                    .collect(Collectors.toList());
+            List<Boolean> isZeroDayList = dailyPlanList.stream()
+                    .map(DailyPlan::getIsZeroDay)
+                    .collect(Collectors.toList());
             // TODO: List<Level> dailyRate 추가
 
-            response = HomeConverter.toWholeCalendar(date, actualGoal, totalCost, categoryMap, dailyBudgetList, dailyTotalCostList);
+            response = HomeConverter.toWholeCalendar(date, actualGoal, totalCost, categoryMap, dailyBudgetList, dailyTotalCostList, isZeroDayList);
 
         } else {
             response = new WholeCalendarResponse();

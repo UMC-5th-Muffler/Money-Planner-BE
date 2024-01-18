@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -36,6 +37,14 @@ public class DailyPlan extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "goal_id")
     private Goal goal;
+
+    @Column(nullable = false)
+    @ColumnDefault("0")
+    private Long totalCost;
+
+    @Column(nullable = false)
+    @ColumnDefault("false")
+    private Boolean isZeroDay;
 
     public static DailyPlan of(LocalDate date, Long budget) {
         return DailyPlan.builder()

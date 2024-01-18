@@ -12,7 +12,9 @@ import java.util.stream.Collectors;
 
 public class HomeConverter {
 
-    public static WholeCalendarResponse toWholeCalendar(LocalDate date, Goal goal, Long totalCost, Map<Category, Long> categoryList, List<Long> dailyBudgetList, List<Long> dailyTotalCostList) {
+    public static WholeCalendarResponse toWholeCalendar(
+            LocalDate date, Goal goal, Long totalCost, Map<Category, Long> categoryList,
+            List<Long> dailyBudgetList, List<Long> dailyTotalCostList, List<Boolean> isZeroDayList) {
 
         List<CategoryInfoDto> categoryInfoList = categoryList
                 .entrySet()
@@ -28,6 +30,7 @@ public class HomeConverter {
         for (int i = 0; i < dailyBudgetList.size(); i++) {
             Long dailyBudget = dailyBudgetList.get(i);
             Long dailyTotalCost = i < dailyTotalCostList.size() ? dailyTotalCostList.get(i) : 0L;
+            Boolean isZeroDay = isZeroDayList.get(i);
 //            Level dailyRate = i < dailyRateList.size() ? dailyRateList.get(i) : null;
             Level dailyRate = Level.HIGH; // 임시
 
@@ -35,6 +38,7 @@ public class HomeConverter {
                     .dailyBudget(dailyBudget)
                     .dailyTotalCost(dailyTotalCost)
                     .dailyRate(dailyRate)
+                    .isZeroDay(isZeroDay)
                     .build();
 
             dailyInfoList.add(dailyInfo);

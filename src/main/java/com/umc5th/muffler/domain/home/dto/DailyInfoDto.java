@@ -11,4 +11,5 @@ public class DailyInfoDto {
     private Long dailyBudget;
     private Long dailyTotalCost;
     private Level dailyRate;
+    private Boolean isZeroDay;
 }
