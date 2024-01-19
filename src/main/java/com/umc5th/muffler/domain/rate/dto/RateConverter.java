@@ -1,11 +1,11 @@
 package com.umc5th.muffler.domain.rate.dto;
 
-import com.umc5th.muffler.entity.CategoryGoal;
-import com.umc5th.muffler.entity.CategoryRate;
-import com.umc5th.muffler.entity.DailyPlan;
-import com.umc5th.muffler.entity.Rate;
+import com.umc5th.muffler.entity.*;
 import com.umc5th.muffler.entity.constant.Level;
+import com.umc5th.muffler.global.response.code.ErrorCode;
+import com.umc5th.muffler.global.response.exception.GoalException;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -50,4 +50,34 @@ public class RateConverter {
                 .collect(Collectors.toList());
     }
 
+    public static List<CategoryRate> toCategoryRates(RateCreateRequest request, Goal goal){
+        List<CategoryGoal> categoryGoals = goal.getCategoryGoals();
+        List<CategoryRate> categoryRates = new ArrayList<>();
+
+        for (CategoryRateRequest categoryRateRequest : request.getCategoryRateList()) {
+            CategoryGoal categoryGoal = categoryGoals.stream()
+                    .filter(CategoryGoal -> CategoryGoal.getId().equals(categoryRateRequest.getCategoryGoalId()))
+                    .findAny()
+                    .orElseThrow(() -> new GoalException(ErrorCode.CATEGORY_GOAL_NOT_FOUND));
+
+            CategoryRate categoryRate = RateConverter.toCategoryRate(categoryRateRequest, categoryGoal);
+            categoryRates.add(categoryRate);
+        }
+
+        return categoryRates;
+    }
+
+    public static Rate toRate(RateCreateRequest request){
+        return Rate.builder()
+                .totalLevel(Level.valueOf(request.getTotalLevel()))
+                .memo(request.getMemo())
+                .build();
+    }
+
+    public static CategoryRate toCategoryRate(CategoryRateRequest categoryRateRequest, CategoryGoal categoryGoal){
+        return CategoryRate.builder()
+                .level(Level.valueOf(categoryRateRequest.getLevel()))
+                .categoryGoal(categoryGoal)
+                .build();
+    }
 }
