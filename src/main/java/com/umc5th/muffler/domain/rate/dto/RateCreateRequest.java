@@ -28,5 +28,5 @@ public class RateCreateRequest {
 
     private String memo;
 
-    private List<CategoryRateRequest> categoryRateList;
+    private List<CategoryRateCreateRequest> categoryRateList;
 }

@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CategoryRateRequest {
+public class CategoryRateCreateRequest {
 
     @NotNull
     private Long categoryGoalId;

@@ -57,13 +57,13 @@ public class RateConverter {
         List<CategoryGoal> categoryGoals = goal.getCategoryGoals();
         List<CategoryRate> categoryRates = new ArrayList<>();
 
-        for (CategoryRateRequest categoryRateRequest : request.getCategoryRateList()) {
+        for (CategoryRateCreateRequest categoryRateCreateRequest : request.getCategoryRateList()) {
             CategoryGoal categoryGoal = categoryGoals.stream()
-                    .filter(CategoryGoal -> CategoryGoal.getId().equals(categoryRateRequest.getCategoryGoalId()))
+                    .filter(CategoryGoal -> CategoryGoal.getId().equals(categoryRateCreateRequest.getCategoryGoalId()))
                     .findAny()
                     .orElseThrow(() -> new GoalException(ErrorCode.CATEGORY_GOAL_NOT_FOUND));
 
-            CategoryRate categoryRate = RateConverter.toCategoryRate(categoryRateRequest, categoryGoal);
+            CategoryRate categoryRate = RateConverter.toCategoryRate(categoryRateCreateRequest, categoryGoal);
             categoryRates.add(categoryRate);
         }
 
@@ -77,9 +77,9 @@ public class RateConverter {
                 .build();
     }
 
-    public static CategoryRate toCategoryRate(CategoryRateRequest categoryRateRequest, CategoryGoal categoryGoal){
+    public static CategoryRate toCategoryRate(CategoryRateCreateRequest categoryRateCreateRequest, CategoryGoal categoryGoal){
         return CategoryRate.builder()
-                .level(Level.valueOf(categoryRateRequest.getLevel()))
+                .level(Level.valueOf(categoryRateCreateRequest.getLevel()))
                 .categoryGoal(categoryGoal)
                 .build();
     }
