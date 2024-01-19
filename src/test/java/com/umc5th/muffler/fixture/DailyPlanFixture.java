@@ -17,6 +17,7 @@ public class DailyPlanFixture {
             .id(2L)
             .date(LocalDate.of(2024,1,2))
             .budget(5000L)
+            .totalCost(2000L)
             .build();
 
 }

@@ -6,17 +6,14 @@ import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.GoalException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class RateConverter {
 
     public static RateCriteriaResponse toRateCriteriaResponse(List<CategoryGoal> categoryGoals, DailyPlan dailyPlan, Rate rate) {
-        Map<Long, Level> categoryRateLevels = getCategoryRateLevels(rate); // 기존 카테고리별 평가 내역 가져오기
 
-        List<CategoryRateResponse> evalCategoryList = createCategoryRateResponseList(categoryGoals, categoryRateLevels);
+        List<CategoryRateResponse> evalCategoryList = createCategoryRateResponseList(categoryGoals, rate);
 
         Long rateId = (rate != null) ? rate.getId() : null;
         String memo = (rate != null) ? rate.getMemo() : null;
@@ -32,22 +29,28 @@ public class RateConverter {
                 .build();
     }
 
-    private static Map<Long, Level> getCategoryRateLevels(Rate rate) {
-        return (rate != null) ? rate.getCategoryRates().stream()
-                .collect(Collectors.toMap(
-                        categoryRate -> categoryRate.getCategoryGoal().getId(),
-                        CategoryRate::getLevel
-                )) : Collections.emptyMap();
+    private static List<CategoryRateResponse> createCategoryRateResponseList(List<CategoryGoal> categoryGoals, Rate rate) {
+        return categoryGoals.stream()
+                .map(categoryGoal -> {
+                    CategoryRate categoryRate = findMatchingCategoryRate(rate, categoryGoal.getId());
+                    return CategoryRateResponse.builder()
+                            .categoryGoalId(categoryGoal.getId())
+                            .categoryName(categoryGoal.getCategory().getName())
+                            .level(categoryRate != null ? categoryRate.getLevel() : null)
+                            .categoryRateId(categoryRate != null ? categoryRate.getId() : null)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 
-    private static List<CategoryRateResponse> createCategoryRateResponseList(List<CategoryGoal> categoryGoals, Map<Long, Level> categoryRateLevels) {
-        return categoryGoals.stream()
-                .map(categoryGoal -> CategoryRateResponse.builder()
-                        .categoryGoalId(categoryGoal.getId())
-                        .categoryName(categoryGoal.getCategory().getName())
-                        .level(categoryRateLevels.getOrDefault(categoryGoal.getId(), null))
-                        .build())
-                .collect(Collectors.toList());
+    private static CategoryRate findMatchingCategoryRate(Rate rate, Long categoryGoalId) {
+        if (rate == null || rate.getCategoryRates() == null) {
+            return null;
+        }
+        return rate.getCategoryRates().stream()
+                .filter(categoryRate -> categoryRate.getCategoryGoal().getId().equals(categoryGoalId))
+                .findAny()
+                .orElse(null);
     }
 
     public static List<CategoryRate> toCategoryRates(RateCreateRequest request, Goal goal){

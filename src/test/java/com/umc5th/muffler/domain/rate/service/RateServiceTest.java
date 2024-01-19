@@ -3,7 +3,10 @@ package com.umc5th.muffler.domain.rate.service;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.domain.rate.dto.RateCriteriaResponse;
-import com.umc5th.muffler.entity.*;
+import com.umc5th.muffler.entity.CategoryRate;
+import com.umc5th.muffler.entity.Goal;
+import com.umc5th.muffler.entity.Member;
+import com.umc5th.muffler.entity.Rate;
 import com.umc5th.muffler.fixture.*;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.GoalException;
@@ -14,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,24 +39,25 @@ class RateServiceTest {
     @Test
     public void 평가항목조회_기존_평가가_없는_경우(){
 
-        LocalDate date = LocalDate.of(2024, 1, 1);
+        LocalDate date = LocalDate.of(2024, 1, 2);
         Long memberId = 1L;
         Member mockMember = MemberFixture.create();
         Goal mockGoal = GoalFixture.create();
-        List<Expense> expenses = ExpenseFixture.createList(10, date);
-        Long dailyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
-        Long dailyPlanBudget = DailyPlanFixture.DAILY_PLAN_ONE.getBudget();
+        Long dailyTotalCost = DailyPlanFixture.DAILY_PLAN_TWO.getTotalCost();
+        Long dailyPlanBudget = DailyPlanFixture.DAILY_PLAN_TWO.getBudget();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.of(mockGoal));
 
         RateCriteriaResponse response = rateService.getEvalCategoryList(date);
-
+        System.out.println("response = " + response.getRateId());
+        System.out.println("response.getTotalLevel() = " + response.getTotalLevel());
         assertNotNull(response);
         assertEquals(dailyPlanBudget, response.getDailyPlanBudget());
         assertEquals(dailyTotalCost, response.getDailyTotalCost());
         assertEquals(1, response.getCategoryList().size());
         assertEquals(null, response.getRateId());
+
 
         verify(goalRepository).findByDateBetweenJoin(date, memberId);
     }
@@ -66,8 +69,7 @@ class RateServiceTest {
         Long memberId = 1L;
         Member mockMember = MemberFixture.create();
         Goal mockGoal = GoalFixture.create();
-        List<Expense> expenses = ExpenseFixture.createList(10, date);
-        Long dailyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
+        Long dailyTotalCost = DailyPlanFixture.DAILY_PLAN_ONE.getTotalCost();
         Long dailyPlanBudget = DailyPlanFixture.DAILY_PLAN_ONE.getBudget();
         Rate rate = RateFixture.RATE_ONE;
         CategoryRate categoryRate = CategoryRateFixture.CATEGORY_RATE_ONE;
@@ -84,6 +86,7 @@ class RateServiceTest {
         assertEquals(rate.getId(), response.getRateId());
         assertEquals(rate.getTotalLevel(), response.getTotalLevel());
         assertEquals(categoryRate.getLevel(), response.getCategoryList().get(0).getLevel());
+        assertEquals(categoryRate.getId(), response.getCategoryList().get(0).getCategoryRateId());
 
         verify(goalRepository).findByDateBetweenJoin(date, memberId);
     }

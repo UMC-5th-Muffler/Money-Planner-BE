@@ -13,5 +13,6 @@ import lombok.NoArgsConstructor;
 public class CategoryRateResponse {
     private Long categoryGoalId;
     private String categoryName;
+    private Long categoryRateId;
     private Level level;
 }
