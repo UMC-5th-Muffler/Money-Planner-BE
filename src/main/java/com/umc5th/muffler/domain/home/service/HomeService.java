@@ -24,7 +24,7 @@ public class HomeService {
     private final GoalRepository goalRepository;
     private final ExpenseRepository expenseRepository;
 
-    public WholeCalendarResponse getWholeCalendarInfos(LocalDate date, Integer month) {
+    public WholeCalendarResponse getWholeCalendarInfos(LocalDate date, Integer year, Integer month) {
 
         Long memberId = 1L;
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new HomeException(ErrorCode.MEMBER_NOT_FOUND));
@@ -36,8 +36,14 @@ public class HomeService {
         }
 
         Goal actualGoal = goal.get();
-        LocalDate startDate = adjustStartDate(month, actualGoal.getStartDate());
-        LocalDate endDate = adjustEndDate(month, actualGoal.getEndDate());
+        LocalDate goalStartDate = actualGoal.getStartDate();
+        LocalDate goalEndDate = actualGoal.getEndDate();
+        LocalDate startDate = adjustStartDate(year, month, goalStartDate);
+        LocalDate endDate = adjustEndDate(year, month, goalEndDate);
+
+        if ((startDate.isAfter(goalEndDate) || endDate.isBefore(goalStartDate))) {
+            return new WholeCalendarResponse();
+        }
 
         List<Expense> expensesAll = expenseRepository.findAllByMemberAndDateBetween(member, startDate, endDate);
         Long totalCost = calculateTotalCost(expensesAll);
@@ -137,16 +143,18 @@ public class HomeService {
         return dailyTotalCostList;
     }
 
-    private LocalDate adjustStartDate(Integer month, LocalDate startDate) {
-        if (startDate.getMonth().getValue() != month) {
-            return YearMonth.of(startDate.getYear(), month).atDay(1);
+    private LocalDate adjustStartDate(Integer year, Integer month, LocalDate startDate) {
+        YearMonth yearMonth = YearMonth.of(year, month);
+        if (startDate.isBefore(yearMonth.atDay(1))) {
+            return yearMonth.atDay(1);
         }
         return startDate;
     }
 
-    private LocalDate adjustEndDate(Integer month, LocalDate endDate) {
-        if (endDate.getMonth().getValue() != month) {
-            return YearMonth.of(endDate.getYear(), month).atEndOfMonth();
+    private LocalDate adjustEndDate(Integer year, Integer month, LocalDate endDate) {
+        YearMonth yearMonth = YearMonth.of(year, month);
+        if (endDate.isAfter(yearMonth.atEndOfMonth())) {
+            return yearMonth.atEndOfMonth();
         }
         return endDate;
     }
