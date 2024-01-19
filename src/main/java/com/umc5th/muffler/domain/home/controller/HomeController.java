@@ -1,7 +1,5 @@
 package com.umc5th.muffler.domain.home.controller;
 
-import com.umc5th.muffler.domain.home.dto.CategoryGoalCalendarResponse;
-import com.umc5th.muffler.domain.home.dto.CategoryNoGoalCalendarResponse;
 import com.umc5th.muffler.domain.home.dto.WholeCalendarResponse;
 import com.umc5th.muffler.domain.home.service.HomeService;
 import com.umc5th.muffler.global.response.Response;
@@ -20,27 +18,11 @@ public class HomeController {
     private final HomeService homeService;
 
     @GetMapping
-    public Response<WholeCalendarResponse> getCalendar(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
-
-        WholeCalendarResponse response = homeService.getWholeCalendarInfos(date);
-        return Response.success(response);
-    }
-
-    @GetMapping("/{goalId}/category")
-    public Response<CategoryGoalCalendarResponse> getCategoryGoalCalendar(
-            @PathVariable Long goalId,
-            @RequestParam(name = "categoryGoalId") Long categoryGoalId) {
-
-        CategoryGoalCalendarResponse response = homeService.getCategoryGoalInfos(goalId, categoryGoalId);
-        return Response.success(response);
-    }
-
-    @GetMapping("/{goalId}")
-    public Response<CategoryNoGoalCalendarResponse> getCategoryNoGoalCalendar(
-            @PathVariable Long goalId,
-            @RequestParam(name = "categoryId") Long categoryId) {
-
-        CategoryNoGoalCalendarResponse response = homeService.getCategoryNoGoalInfos(goalId, categoryId);
+    public Response<WholeCalendarResponse> getCalendar(
+            @RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
+            @RequestParam(name = "month") Integer month)
+    {
+        WholeCalendarResponse response = homeService.getWholeCalendarInfos(date, month);
         return Response.success(response);
     }
 }

@@ -13,19 +13,9 @@ import java.util.stream.Collectors;
 public class HomeConverter {
 
     public static WholeCalendarResponse toWholeCalendar(
-            LocalDate date, Goal goal, Long totalCost, Map<Category, Long> categoryList,
-            List<Long> dailyBudgetList, List<Long> dailyTotalCostList, List<Boolean> isZeroDayList) {
-
-        List<CategoryInfoDto> categoryInfoList = categoryList
-                .entrySet()
-                .stream()
-                .map(entry -> CategoryInfoDto.builder()
-                        .id(entry.getKey().getId())
-                        .name(entry.getKey().getName())
-                        .categoryGoalId(entry.getValue())
-                        .build())
-                .collect(Collectors.toList());
-
+            LocalDate date, Goal goal, LocalDate startDate, LocalDate endDate, Long totalCost,
+            List<Long> dailyBudgetList, List<Long> dailyTotalCostList, List<Boolean> isZeroDayList, List<CategoryCalendarInfo> categoryCalendarInfo)
+    {
         List<DailyInfoDto> dailyInfoList = new ArrayList<>();
         for (int i = 0; i < dailyBudgetList.size(); i++) {
             Long dailyBudget = dailyBudgetList.get(i);
@@ -49,40 +39,11 @@ public class HomeConverter {
                 .goalId(goal.getId())
                 .goalTitle(goal.getTitle())
                 .goalBudget(goal.getTotalBudget())
-                .goalStartDate(goal.getStartDate())
-                .goalEndDate(goal.getEndDate())
+                .goalStartDate(startDate)
+                .goalEndDate(endDate)
                 .totalCost(totalCost)
-                .categoryList(categoryInfoList)
+                .categoryCalendarInfo(categoryCalendarInfo)
                 .dailyList(dailyInfoList)
-                .build();
-    }
-
-    public static CategoryGoalCalendarResponse toGoalCalendar(Long categoryBudget, Long categoryTotalCost, List<Long> dailyTotalCostList) {
-
-        List<DailyCategoryInfoDto> dailyCategoryInfoList = new ArrayList<>();
-        for(int i = 0; i < dailyTotalCostList.size(); i++) {
-            Long dailyTotalCost = i < dailyTotalCostList.size() ? dailyTotalCostList.get(i) : 0L;
-//            Level dailyRate = i < dailyRateList.size() ? dailyRateList.get(i) : null;
-            Level dailyRate = Level.HIGH; // 임시
-
-            DailyCategoryInfoDto dailyCategoryInfo = DailyCategoryInfoDto.builder()
-                    .dailyTotalCost(dailyTotalCost)
-                    .dailyRate(dailyRate)
-                    .build();
-
-            dailyCategoryInfoList.add(dailyCategoryInfo);
-        }
-
-        return CategoryGoalCalendarResponse.builder()
-                .categoryBudget(categoryBudget)
-                .categoryTotalCost(categoryTotalCost)
-                .dailyList(dailyCategoryInfoList)
-                .build();
-    }
-
-    public static CategoryNoGoalCalendarResponse toNoGoalCalendar(List<Long> dailyTotalCostList) {
-        return CategoryNoGoalCalendarResponse.builder()
-                .dailyCostList(dailyTotalCostList)
                 .build();
     }
 }

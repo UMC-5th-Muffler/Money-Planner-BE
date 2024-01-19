@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.home.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,6 +13,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class WholeCalendarResponse {
 
     private LocalDate calendarDate;
@@ -21,6 +23,6 @@ public class WholeCalendarResponse {
     private LocalDate goalStartDate;
     private LocalDate goalEndDate;
     private Long totalCost;
-    private List<CategoryInfoDto> categoryList;
     private List<DailyInfoDto> dailyList;
+    private List<CategoryCalendarInfo> categoryCalendarInfo;
 }
