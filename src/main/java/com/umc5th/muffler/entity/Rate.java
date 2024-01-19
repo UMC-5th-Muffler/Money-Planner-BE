@@ -2,16 +2,10 @@ package com.umc5th.muffler.entity;
 
 import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import com.umc5th.muffler.entity.constant.Level;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import javax.persistence.*;
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -24,9 +18,18 @@ public class Rate extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String comment;
+    @Column(length = 1024)
+    private String memo;
 
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "VARCHAR(10)")
     private Level totalLevel;
+
+    @OneToMany(mappedBy =  "rate", cascade = CascadeType.ALL)
+    private List<CategoryRate> categoryRates;
+
+    public void setCategoryRates(List<CategoryRate> categoryRates){
+        this.categoryRates = categoryRates;
+        categoryRates.forEach(categoryRate -> categoryRate.setRate(this));
+    }
 }

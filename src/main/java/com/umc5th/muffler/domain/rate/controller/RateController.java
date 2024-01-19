@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.rate.controller;
 
+import com.umc5th.muffler.domain.rate.dto.RateCriteriaResponse;
 import com.umc5th.muffler.domain.rate.service.RateService;
 import com.umc5th.muffler.global.response.Response;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +19,9 @@ public class RateController {
 
     private final RateService rateService;
 
-    @GetMapping("/evaluation")
-    public Response<?> getEvalCategoryAndGoalDiff(
-            @RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
-
-        // 평가할 카테고리 목록들 + 팝업 요소 반환
-        rateService.getEvalCategoryList(date);
+    @GetMapping("")
+    public Response<RateCriteriaResponse> getRateCriteria(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
+        RateCriteriaResponse response = rateService.getEvalCategoryList(date);
+        return Response.success(response);
     }
 }
