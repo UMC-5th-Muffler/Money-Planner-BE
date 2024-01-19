@@ -26,119 +26,104 @@ public class HomeService {
 
     public WholeCalendarResponse getWholeCalendarInfos(LocalDate date, Integer month) {
 
-        WholeCalendarResponse response;
-
         Long memberId = 1L;
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new HomeException(ErrorCode.MEMBER_NOT_FOUND));
         Optional<Goal> goal = goalRepository.findByDateBetween(date, memberId);
 
-        if (goal.isPresent()) {
-            Goal actualGoal = goal.get();
-            LocalDate startDate = adjustStartDate(month, actualGoal.getStartDate());
-            LocalDate endDate = adjustEndDate(month, actualGoal.getEndDate());
 
-            // 목표 기간 내의 모든 소비 리스트
-            List<Expense> expensesAll = expenseRepository.findAllByMemberAndDateBetween(member, startDate, endDate);
-            Long totalCost = expensesAll.stream()
-                    .mapToLong(Expense::getCost)
-                    .sum();
-
-            // dailyList
-            List<DailyPlan> dailyPlanList = actualGoal.getDailyPlans();
-            List<Long> dailyBudgetList = dailyPlanList.stream()
-                    .map(DailyPlan::getBudget)
-                    .collect(Collectors.toList());
-            List<Long> dailyTotalCostList = dailyPlanList.stream()
-                    .map(DailyPlan::getTotalCost)
-                    .collect(Collectors.toList());
-            List<Boolean> isZeroDayList = dailyPlanList.stream()
-                    .map(DailyPlan::getIsZeroDay)
-                    .collect(Collectors.toList());
-            // TODO: List<Level> dailyRate 추가
-
-            // 소비가 진행된 카테고리 리스트
-            List<Category> expenseCategoryList = expenseRepository.findDistinctCategoriesBetweenDates(member, startDate, endDate);
-
-            // 소비 진행 카테고리 맵
-            Map<Category, Long> expenseCategoryMap = new HashMap<>();
-            expenseCategoryList.forEach(category -> expenseCategoryMap.put(category, null));
-            // 목표 있는 카테고리 맵 <Category, Budget>
-            Map<Category, Long> goalCategoryMap = actualGoal.getCategoryGoals().stream()
-                    .collect(Collectors.toMap(CategoryGoal::getCategory, CategoryGoal::getBudget));
-
-            expenseCategoryMap.keySet().removeAll(goalCategoryMap.keySet());
-            if(expenseCategoryMap != null) {
-                // 목표 없지만 소비 있는 카테고리 존재 -> 합치기
-                goalCategoryMap.putAll(expenseCategoryMap);
-            }
-
-            Map<Category, Long> sortedCategoryMap = new LinkedHashMap<>();
-            goalCategoryMap.entrySet().stream()
-                    .sorted(Map.Entry.comparingByKey(Comparator.comparing(Category::getPriority)))
-                    .forEach(entry -> sortedCategoryMap.put(entry.getKey(), entry.getValue()));
-
-            List<CategoryCalendarInfo> categoryInfoList = new ArrayList<>();
-            sortedCategoryMap.forEach((category, value) -> {
-                if (value != null) {
-                    System.out.println("value != 0L");
-                    // categoryGoalList
-                    // category goal 있는 것들
-                    // id, name, categoryBudget, categoryTotalCost, categorySummary[dailyTotalCost, categoryRate]
-                    List<Expense> expenses1 = expenseRepository.findAllByMemberAndCategoryIdAndDateBetween(member, category.getId(), startDate, endDate);
-
-                    Long categoryTotalCost = expenses1.stream()
-                            .mapToLong(Expense::getCost)
-                            .sum();
-
-                    List<Long> dailyTotalCostList1 = calculateDailyTotalCostList(expenses1, startDate, endDate);
-
-                    List<DailyCategoryInfoDto> dailyCategoryInfoList = new ArrayList<>();
-                    for (int i = 0; i < dailyTotalCostList1.size(); i++) {
-                        DailyCategoryInfoDto dailyDto = DailyCategoryInfoDto.builder()
-                                .dailyTotalCost(dailyTotalCostList1.get(i))
-                                .dailyRate(Level.HIGH) // 임시
-                                .build();
-
-                        dailyCategoryInfoList.add(dailyDto);
-                    }
-
-                    CategoryCalendarInfo special = CategoryCalendarInfo.builder()
-                            .id(category.getId())
-                            .name(category.getName())
-                            .categoryBudget(value)
-                            .categoryTotalCost(categoryTotalCost)
-                            .categoryGoalSummary(dailyCategoryInfoList)
-                            .build();
-
-                    categoryInfoList.add(special);
-                } else {
-                    System.out.println("value == 0L");
-                    // categoryNoGoalList
-                    // category goal 없는 것들
-                    // id, name, categoryTotalCost, dailyTotalCost
-
-                    List<Expense> expenses1 = expenseRepository.findAllByMemberAndCategoryIdAndDateBetween(member, category.getId(), startDate, endDate);
-
-                    Long categoryTotalCost = expenses1.stream()
-                            .mapToLong(Expense::getCost)
-                            .sum();
-
-                    List<Long> dailyTotalCostList1 = calculateDailyTotalCostList(expenses1, startDate, endDate);
-                    CategoryCalendarInfo dto = CategoryCalendarInfo.builder()
-                            .id(category.getId())
-                            .name(category.getName())
-                            .categoryTotalCost(categoryTotalCost)
-                            .noGoalDailyTotalCost(dailyTotalCostList1)
-                            .build();
-                    categoryInfoList.add(dto);
-                }
-            });
-            response = HomeConverter.toWholeCalendar(date, actualGoal, startDate, endDate, totalCost, dailyBudgetList, dailyTotalCostList, isZeroDayList, categoryInfoList);
-
-        } else {
-            response = new WholeCalendarResponse();
+        if (!goal.isPresent()) {
+            return new WholeCalendarResponse();
         }
-        return response;
+
+        Goal actualGoal = goal.get();
+        LocalDate startDate = adjustStartDate(month, actualGoal.getStartDate());
+        LocalDate endDate = adjustEndDate(month, actualGoal.getEndDate());
+
+        List<Expense> expensesAll = expenseRepository.findAllByMemberAndDateBetween(member, startDate, endDate);
+        Long totalCost = calculateTotalCost(expensesAll);
+
+        List<Long> dailyBudgetList = extractDailyBudgets(actualGoal);
+        List<Long> dailyTotalCostList = extractDailyTotalCosts(actualGoal);
+        List<Boolean> isZeroDayList = extractIsZeroDays(actualGoal);
+        // TODO: List<Level> dailyRate 추가
+
+        List<CategoryCalendarInfo> categoryInfoList = getCategoryInfo(actualGoal, member, startDate, endDate);
+
+        return HomeConverter.toWholeCalendar(date, actualGoal, startDate, endDate, totalCost, dailyBudgetList, dailyTotalCostList, isZeroDayList, categoryInfoList);
+    }
+
+    private List<CategoryCalendarInfo> getCategoryInfo(Goal goal, Member member, LocalDate startDate, LocalDate endDate) {
+
+        List<Category> expenseCategoryList = expenseRepository.findDistinctCategoriesBetweenDates(member, startDate, endDate);
+        Map<Category, Long> expenseCategoryMap = new HashMap<>();
+        expenseCategoryList.forEach(category -> expenseCategoryMap.put(category, null));
+        Map<Category, Long> goalCategoryMap = goal.getCategoryGoals().stream()
+                .collect(Collectors.toMap(CategoryGoal::getCategory, CategoryGoal::getBudget));
+
+        expenseCategoryMap.keySet().removeAll(goalCategoryMap.keySet());
+        if(expenseCategoryMap != null) {
+            goalCategoryMap.putAll(expenseCategoryMap);
+        }
+
+        Map<Category, Long> sortedCategoryMap = new LinkedHashMap<>();
+        goalCategoryMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.comparing(Category::getPriority)))
+                .forEach(entry -> sortedCategoryMap.put(entry.getKey(), entry.getValue()));
+
+        List<CategoryCalendarInfo> categoryInfoList = new ArrayList<>();
+        sortedCategoryMap.forEach((category, value) -> {
+
+            List<Expense> expensesByCategory = expenseRepository.findAllByMemberAndCategoryIdAndDateBetween(member, category.getId(), startDate, endDate);
+            Long categoryTotalCost = calculateTotalCost(expensesByCategory);
+            List<Long> dailyCategoryTotalCostList = calculateDailyTotalCostList(expensesByCategory, startDate, endDate);
+
+            if (value != null) {
+                // TODO: dailyCategoryRateList 추가
+
+                List<DailyCategoryInfoDto> dailyCategoryInfoList = new ArrayList<>();
+                for (int i = 0; i < dailyCategoryTotalCostList.size(); i++) {
+//                    Level dailyRate = i < dailyRateList.size() ? dailyRateList.get(i) : null;
+                    DailyCategoryInfoDto dailyDto = new DailyCategoryInfoDto(dailyCategoryTotalCostList.get(i), Level.HIGH);
+                    dailyCategoryInfoList.add(dailyDto);
+                }
+
+                CategoryCalendarInfo dto = new CategoryCalendarInfo(category.getId(), category.getName(), value,
+                        categoryTotalCost, dailyCategoryInfoList, null);
+
+                categoryInfoList.add(dto);
+
+            } else {
+                CategoryCalendarInfo dto = new CategoryCalendarInfo(category.getId(), category.getName(), null,
+                        categoryTotalCost, null, dailyCategoryTotalCostList);
+
+                categoryInfoList.add(dto);
+            }
+        });
+
+        return categoryInfoList;
+    }
+
+    private Long calculateTotalCost(List<Expense> expenses) {
+        return expenses.stream()
+                .mapToLong(Expense::getCost)
+                .sum();
+    }
+    private List<Long> extractDailyBudgets(Goal goal) {
+        return goal.getDailyPlans().stream()
+                .map(DailyPlan::getBudget)
+                .collect(Collectors.toList());
+    }
+
+    private List<Long> extractDailyTotalCosts(Goal goal) {
+        return goal.getDailyPlans().stream()
+                .map(DailyPlan::getTotalCost)
+                .collect(Collectors.toList());
+    }
+
+    private List<Boolean> extractIsZeroDays(Goal goal) {
+        return goal.getDailyPlans().stream()
+                .map(DailyPlan::getIsZeroDay)
+                .collect(Collectors.toList());
     }
 
     private List<Long> calculateDailyTotalCostList(List<Expense> expenses, LocalDate startDate, LocalDate endDate) {
