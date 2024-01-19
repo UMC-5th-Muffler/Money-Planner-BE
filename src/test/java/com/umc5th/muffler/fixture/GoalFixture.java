@@ -2,6 +2,7 @@ package com.umc5th.muffler.fixture;
 
 import com.umc5th.muffler.entity.Goal;
 import java.time.LocalDate;
+import java.util.List;
 
 public class GoalFixture {
     public static Goal create() {
@@ -13,6 +14,8 @@ public class GoalFixture {
                 .memo("memo")
                 .icon("icon")
                 .totalBudget(10000L)
+                .categoryGoals(List.of(CategoryGoalFixture.create()))
+                .dailyPlans(List.of(DailyPlanFixture.DAILY_PLAN_ONE, DailyPlanFixture.DAILY_PLAN_TWO))
                 .build();
     }
 }
