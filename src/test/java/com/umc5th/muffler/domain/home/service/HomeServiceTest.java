@@ -51,7 +51,7 @@ public class HomeServiceTest {
         List<Expense> expenseList1 = ExpenseFixture.createCategoryExpenseList(10, LocalDate.of(2024, 1, 1), mockCategory1.getId()); // 1월 1일 소비
         List<Expense> expenseList2 = ExpenseFixture.createCategoryExpenseList(10, LocalDate.of(2024, 1, 2), mockCategory2.getId()); // 1월 1일 소비
         List<Expense> expenseList = Stream.concat(expenseList1.stream(), expenseList2.stream()).collect(Collectors.toList());
-        List<Category> categoryList = new ArrayList<>(Arrays.asList(mockCategory1, mockCategory2));
+        List<Category> categoryList = Arrays.asList(mockCategory1, mockCategory2);
         Long goalTotalCost = expenseList.stream().mapToLong(Expense::getCost).sum();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
