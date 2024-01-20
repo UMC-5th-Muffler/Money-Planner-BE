@@ -60,4 +60,20 @@ public class ExpenseFixture {
                         .collect(Collectors.toList());
     }
 
+    public static List<Expense> createCategoryExpenseList(int num, LocalDate date, Long categoryId){
+        Member member = Member.builder().id(1L).build();
+        Category category = Category.builder().id(categoryId).icon("icon").build();
+
+        return IntStream.rangeClosed(1, num)
+                .mapToObj(i -> Expense.builder()
+                        .date(date)
+                        .title("title")
+                        .cost(100L)
+                        .memo("memo")
+                        .member(member)
+                        .category(category)
+                        .build())
+                .collect(Collectors.toList());
+    }
+
 }
