@@ -13,6 +13,13 @@ public class DailyPlanFixture {
             .rate(RateFixture.RATE_ONE)
             .build();
 
+    public static final DailyPlan DAILY_PLAN_NO_RATE = DailyPlan.builder()
+            .id(1L)
+            .date(LocalDate.of(2024,1,1))
+            .budget(5000L)
+            .totalCost(1000L)
+            .build();
+
     public static final DailyPlan DAILY_PLAN_TWO = DailyPlan.builder()
             .id(2L)
             .date(LocalDate.of(2024,1,2))

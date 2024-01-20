@@ -14,8 +14,22 @@ public class GoalFixture {
                 .memo("memo")
                 .icon("icon")
                 .totalBudget(10000L)
-                .categoryGoals(List.of(CategoryGoalFixture.create()))
+                .categoryGoals(List.of(CategoryGoalFixture.CATEGORY_GOAL_ONE, CategoryGoalFixture.CATEGORY_GOAL_TWO))
                 .dailyPlans(List.of(DailyPlanFixture.DAILY_PLAN_ONE, DailyPlanFixture.DAILY_PLAN_TWO))
+                .build();
+    }
+
+    public static Goal createWithoutRate(){
+        return Goal.builder()
+                .id(1L)
+                .startDate(LocalDate.of(2024, 1, 1))
+                .endDate(LocalDate.of(2024, 1, 2))
+                .title("title")
+                .memo("memo")
+                .icon("icon")
+                .totalBudget(10000L)
+                .categoryGoals(List.of(CategoryGoalFixture.CATEGORY_GOAL_ONE, CategoryGoalFixture.CATEGORY_GOAL_TWO))
+                .dailyPlans(List.of(DailyPlanFixture.DAILY_PLAN_NO_RATE, DailyPlanFixture.DAILY_PLAN_TWO))
                 .build();
     }
 
@@ -28,7 +42,7 @@ public class GoalFixture {
                 .memo("memo")
                 .icon("icon")
                 .totalBudget(10000L)
-                .categoryGoals(List.of(CategoryGoalFixture.create()))
+                .categoryGoals(List.of(CategoryGoalFixture.CATEGORY_GOAL_ONE))
                 .dailyPlans(List.of(DailyPlanFixture.DAILY_PLAN_TWO))
                 .build();
     }
@@ -42,7 +56,7 @@ public class GoalFixture {
                 .memo("memo")
                 .icon("icon")
                 .totalBudget(10000L)
-                .dailyPlans(List.of(DailyPlanFixture.DAILY_PLAN_ONE, DailyPlanFixture.DAILY_PLAN_TWO))
+                .dailyPlans(List.of(DailyPlanFixture.DAILY_PLAN_NO_RATE, DailyPlanFixture.DAILY_PLAN_TWO))
                 .build();
     }
 }
