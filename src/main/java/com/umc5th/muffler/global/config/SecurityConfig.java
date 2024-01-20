@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests(auth -> auth
-                        .antMatchers("/member/login").authenticated()
+                        .antMatchers("/member/login/**").authenticated()
                         .antMatchers("/category/**", "/challenge/**", "/expense/**",
                                 "/goal/**", "/rate/**", "/routine/**").authenticated()
                         .anyRequest().permitAll()
