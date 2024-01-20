@@ -23,7 +23,7 @@ public class RateConverter {
 
         return RateCriteriaResponse.builder()
                 .dailyPlanBudget(dailyPlan.getBudget())
-                .categoryList(evalCategoryList)
+                .categoryRateList(evalCategoryList)
                 .dailyTotalCost(dailyPlan.getTotalCost())
                 .rateId(rateId)
                 .memo(memo)
@@ -86,4 +86,5 @@ public class RateConverter {
                 .categoryGoal(categoryGoal)
                 .build();
     }
+
 }

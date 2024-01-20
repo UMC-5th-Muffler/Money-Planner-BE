@@ -43,6 +43,11 @@ public enum ErrorCode {
     // Routine 에러
     INVALID_ROUTINE_INPUT(HttpStatus.BAD_REQUEST, "올바르지 않은 루틴 입력입니다."),
     ROUTINE_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "루틴 타입이 없거나 유효하지 않습니다."),
+    
+    // Rate 에러
+    RATE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 평가입니다."),
+    CATEGORY_RATE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 카테고리 평가입니다."),
+    RATE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 평가가 존재합니다."),
     ;
 
     private final HttpStatus httpStatus;

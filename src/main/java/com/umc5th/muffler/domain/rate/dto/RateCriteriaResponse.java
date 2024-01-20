@@ -19,6 +19,6 @@ public class RateCriteriaResponse {
     private String memo;
     private Long dailyPlanBudget;
     private Long dailyTotalCost;
-    private List<CategoryRateResponse> categoryList;
+    private List<CategoryRateResponse> categoryRateList;
 
 }

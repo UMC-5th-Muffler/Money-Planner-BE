@@ -54,6 +54,9 @@ public class RateService {
                 .orElseThrow(() -> new GoalException(ErrorCode._NO_GOAL_IN_GIVEN_DATE));
 
         DailyPlan dailyPlan = findDailyPlan(goal, request.getDate());
+        if (dailyPlan.getRate() != null) {
+            throw new RateException(ErrorCode.RATE_ALREADY_EXISTS);
+        }
 
         List<CategoryRate> categoryRates = RateConverter.toCategoryRates(request,goal);
 
