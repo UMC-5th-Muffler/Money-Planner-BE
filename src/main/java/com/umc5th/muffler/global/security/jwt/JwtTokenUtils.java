@@ -7,6 +7,7 @@ import com.umc5th.muffler.global.response.exception.CommonException;
 import com.umc5th.muffler.global.util.DateTimeProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -65,6 +66,8 @@ public class JwtTokenUtils {
             log.info("Unsupported JWT Token", e);
         } catch (IllegalArgumentException e) {
             log.info("JWT claims string is empty", e);
+        } catch (JwtException e) {
+            log.info("JWT Token error: " + e.getMessage());
         }
         return false;
     }
