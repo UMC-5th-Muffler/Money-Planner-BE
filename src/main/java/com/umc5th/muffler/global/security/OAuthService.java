@@ -54,7 +54,6 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         if (member == null) {
             member = Member.builder()
                     .id(memberId)
-                    .name("")
                     .socialType(userProfile.getSocialType())
                     .role(Role.USER)
                     .build();
