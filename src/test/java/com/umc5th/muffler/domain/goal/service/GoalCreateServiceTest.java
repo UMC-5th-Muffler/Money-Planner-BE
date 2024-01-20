@@ -60,7 +60,7 @@ class GoalCreateServiceTest {
 
     @Test
     void 목표등록시_요청한유저가_존재하지않는경우() {
-        Long memberId = 1L;
+        String memberId = "1";
         GoalCreateRequest request = GoalCreateRequestFixture.create();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
@@ -72,7 +72,7 @@ class GoalCreateServiceTest {
 
     @Test
     void 목표가_1일인기간을_입력한경우() {
-        Long memberId = 1L;
+        String memberId = "1";
         GoalCreateRequest request = GoalCreateRequestFixture.create(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 1));
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mock(Member.class)));
@@ -85,7 +85,7 @@ class GoalCreateServiceTest {
 
     @Test
     void 목표등록시_시작기간이_끝기간보다_느린경우() {
-        Long memberId = 1L;
+        String memberId = "1";
         GoalCreateRequest request = GoalCreateRequestFixture.create(LocalDate.of(2024, 1, 2), LocalDate.of(2024, 1, 1));
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mock(Member.class)));

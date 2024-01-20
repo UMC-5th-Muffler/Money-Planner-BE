@@ -10,15 +10,17 @@ import com.umc5th.muffler.global.response.Response;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/goal")
@@ -28,20 +30,20 @@ public class GoalController {
     private final GoalCreateService goalCreateService;
 
     @PostMapping
-    public Response<Void> create(@RequestBody @Valid GoalCreateRequest request, @RequestParam Long memberId) {
-        goalCreateService.create(request, memberId);
+    public Response<Void> create(@RequestBody @Valid GoalCreateRequest request, Authentication authentication) {
+        goalCreateService.create(request, authentication.getName());
         return Response.success();
     }
 
     @GetMapping("/previous")
-    public Response<GoalPreviousResponse> getPrevious(@RequestParam Long memberId) {
-        List<Goal> goals = goalService.getGoals(memberId);
+    public Response<GoalPreviousResponse> getPrevious(Authentication authentication) {
+        List<Goal> goals = goalService.getGoals(authentication.getName());
         return Response.success(GoalConverter.getGoalPreviousResponse(goals));
     }
 
     @DeleteMapping("/{goalId}")
-    public Response<Void> delete(@PathVariable Long goalId, @RequestParam Long memberId) {
-        goalService.delete(goalId, memberId);
+    public Response<Void> delete(@PathVariable Long goalId, Authentication authentication) {
+        goalService.delete(goalId, authentication.getName());
         return Response.success();
     }
 }

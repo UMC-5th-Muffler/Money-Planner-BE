@@ -48,7 +48,7 @@ class ExpenseServiceTest {
 
         LocalDate testDate = LocalDate.of(2024, 1, 1);
         Pageable pageable = PageRequest.of(0, 10);
-        Long memberId = 1L;
+        String memberId = "1";
 
         Member mockMember = MemberEntityFixture.create();
         List<Expense> expenses = ExpenseFixture.createList(10);
@@ -74,7 +74,7 @@ class ExpenseServiceTest {
 
         LocalDate testDate = LocalDate.now();
         Pageable pageable = PageRequest.of(0, 10);
-        Long memberId = 1L;
+        String memberId = "1";
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
 
