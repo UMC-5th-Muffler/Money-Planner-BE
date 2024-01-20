@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -64,7 +65,10 @@ public class RateService {
     }
 
     private DailyPlan findDailyPlan(Goal goal, LocalDate date) {
-        return goal.getDailyPlans().stream()
+        List<DailyPlan> dailyPlans = Optional.ofNullable(goal.getDailyPlans())
+                .orElseThrow(() -> new RateException(ErrorCode.DAILYPLAN_NOT_FOUND));
+
+        return dailyPlans.stream()
                 .filter(dailyPlan -> dailyPlan.getDate().equals(date))
                 .findAny()
                 .orElseThrow(() -> new RateException(ErrorCode.DAILYPLAN_NOT_FOUND));

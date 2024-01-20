@@ -6,7 +6,9 @@ import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.GoalException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class RateConverter {
@@ -54,7 +56,8 @@ public class RateConverter {
     }
 
     public static List<CategoryRate> toCategoryRates(RateCreateRequest request, Goal goal){
-        List<CategoryGoal> categoryGoals = goal.getCategoryGoals();
+        List<CategoryGoal> categoryGoals = Optional.ofNullable(goal.getCategoryGoals())
+                .orElse(Collections.emptyList());
         List<CategoryRate> categoryRates = new ArrayList<>();
 
         for (CategoryRateCreateRequest categoryRateCreateRequest : request.getCategoryRateList()) {
