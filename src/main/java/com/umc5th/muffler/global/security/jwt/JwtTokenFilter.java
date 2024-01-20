@@ -42,12 +42,11 @@ public class JwtTokenFilter extends GenericFilterBean {
             log.error("Token Authority Error", e);
         }
 
-        sendUnauthorizedResponse((HttpServletResponse) response);
+        ResponseUtils.sendErrorResponse(response, SC_UNAUTHORIZED, TOKEN_ERROR_MESSAGE);
     }
 
-    private boolean isLogin(ServletRequest request) {
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        return httpServletRequest.getRequestURI().startsWith("/member/login");
+    private boolean isLogin(HttpServletRequest request) {
+        return request.getRequestURI().startsWith("/member/login");
     }
 
     private String getToken(HttpServletRequest request) {
@@ -56,16 +55,5 @@ public class JwtTokenFilter extends GenericFilterBean {
             return bearerToken.substring(7);
         }
         return null;
-    }
-
-    private void sendUnauthorizedResponse(HttpServletResponse response) throws IOException {
-        Response<Void> body = Response.error("유효한 인증 토큰이 필요합니다.");
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonResponse = objectMapper.writeValueAsString(body);
-        response.getWriter().write(jsonResponse);
     }
 }
