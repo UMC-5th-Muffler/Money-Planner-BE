@@ -36,8 +36,7 @@ public class HomeService {
         }
 
         Goal actualGoal = goal.get();
-        LocalDate goalStartDate = actualGoal.getStartDate();
-        LocalDate goalEndDate = actualGoal.getEndDate();
+        LocalDate goalStartDate = actualGoal.getStartDate(); LocalDate goalEndDate = actualGoal.getEndDate();
         LocalDate startDate = adjustStartDate(year, month, goalStartDate);
         LocalDate endDate = adjustEndDate(year, month, goalEndDate);
 
@@ -88,7 +87,7 @@ public class HomeService {
 
                 List<DailyCategoryInfoDto> dailyCategoryInfoList = new ArrayList<>();
                 for (int i = 0; i < dailyCategoryTotalCostList.size(); i++) {
-//                    Level dailyRate = i < dailyRateList.size() ? dailyRateList.get(i) : null;
+//                    Level dailyRate = dailyRateList.get(i);
                     DailyCategoryInfoDto dailyDto = new DailyCategoryInfoDto(dailyCategoryTotalCostList.get(i), Level.HIGH);
                     dailyCategoryInfoList.add(dailyDto);
                 }
