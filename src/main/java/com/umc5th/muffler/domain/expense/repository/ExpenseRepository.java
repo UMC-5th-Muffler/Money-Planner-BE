@@ -14,7 +14,8 @@ import java.time.LocalDate;
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
-    Slice<Expense> findAllByMemberAndDate(Member member, LocalDate date, Pageable pageable);
+    @Query("SELECT e FROM Expense e JOIN FETCH e.category WHERE e.member = :member AND e.date = :date")
+    Slice<Expense> findAllByMemberAndDate(@Param("member") Member member, @Param("date") LocalDate date, Pageable pageable);
   
     @Query("SELECT SUM(e.cost) FROM Expense e WHERE e.member = :member AND e.date BETWEEN :startDate AND :endDate")
     Long calculateTotalCostByMemberAndDateBetween(@Param("member")Member member, @Param("startDate")LocalDate startDate, @Param("endDate")LocalDate endDate);
