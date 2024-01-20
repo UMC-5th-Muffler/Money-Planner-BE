@@ -2,6 +2,7 @@ package com.umc5th.muffler.domain.rate.controller;
 
 import com.umc5th.muffler.domain.rate.dto.RateCreateRequest;
 import com.umc5th.muffler.domain.rate.dto.RateCriteriaResponse;
+import com.umc5th.muffler.domain.rate.dto.RateUpdateRequest;
 import com.umc5th.muffler.domain.rate.service.RateService;
 import com.umc5th.muffler.global.response.Response;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,12 @@ public class RateController {
     @PostMapping("")
     public Response<Void> createRate(@RequestBody @Valid RateCreateRequest request){
         rateService.createRate(request);
+        return Response.success();
+    }
+
+    @PatchMapping("")
+    public Response<Void> updateRate(@RequestBody @Valid RateUpdateRequest request){
+        rateService.updateRate(request);
         return Response.success();
     }
 }

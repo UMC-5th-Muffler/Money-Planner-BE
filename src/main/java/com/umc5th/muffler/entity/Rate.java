@@ -32,4 +32,15 @@ public class Rate extends BaseTimeEntity {
         this.categoryRates = categoryRates;
         categoryRates.forEach(categoryRate -> categoryRate.setRate(this));
     }
+
+    public void addCategoryRate(CategoryRate categoryRate){
+        this.categoryRates.add(categoryRate);
+        categoryRate.setRate(this);
+    }
+
+
+    public void update(String memo, Level totalLevel){
+        this.memo = memo;
+        this.totalLevel = totalLevel;
+    }
 }

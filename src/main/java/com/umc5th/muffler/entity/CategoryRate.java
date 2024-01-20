@@ -32,4 +32,8 @@ public class CategoryRate extends BaseTimeEntity {
         this.rate = rate;
     }
 
+    public void update(Level level){
+        this.level = level;
+    }
+
 }

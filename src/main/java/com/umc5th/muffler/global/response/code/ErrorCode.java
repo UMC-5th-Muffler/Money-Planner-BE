@@ -48,6 +48,7 @@ public enum ErrorCode {
     RATE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 평가입니다."),
     CATEGORY_RATE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 카테고리 평가입니다."),
     RATE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 평가가 존재합니다."),
+    CATEGORY_RATE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 카테고리 평가가 존재합니다."),
     ;
 
     private final HttpStatus httpStatus;

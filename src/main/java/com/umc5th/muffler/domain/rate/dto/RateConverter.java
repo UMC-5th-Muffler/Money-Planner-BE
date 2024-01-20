@@ -53,6 +53,7 @@ public class RateConverter {
                 .orElse(null);
     }
 
+
     public static Rate toRate(RateCreateRequest request){
         return Rate.builder()
                 .totalLevel(Level.valueOf(request.getTotalLevel()))
@@ -60,9 +61,16 @@ public class RateConverter {
                 .build();
     }
 
-    public static CategoryRate toCategoryRate(CategoryRateCreateRequest categoryRateCreateRequest, CategoryGoal categoryGoal){
+    public static CategoryRate toCategoryRate(CategoryRateCreateRequest request, CategoryGoal categoryGoal){
         return CategoryRate.builder()
-                .level(Level.valueOf(categoryRateCreateRequest.getLevel()))
+                .level(Level.valueOf(request.getLevel()))
+                .categoryGoal(categoryGoal)
+                .build();
+    }
+
+    public static CategoryRate toCategoryRate(CategoryRateUpdateRequest request, CategoryGoal categoryGoal){
+        return CategoryRate.builder()
+                .level(Level.valueOf(request.getLevel()))
                 .categoryGoal(categoryGoal)
                 .build();
     }
