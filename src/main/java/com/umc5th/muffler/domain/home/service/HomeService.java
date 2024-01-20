@@ -6,6 +6,7 @@ import com.umc5th.muffler.domain.home.dto.*;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.*;
 import com.umc5th.muffler.entity.constant.Level;
+import com.umc5th.muffler.entity.constant.Status;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.HomeException;
 import lombok.RequiredArgsConstructor;
@@ -66,46 +67,36 @@ public class HomeService {
                 .collect(Collectors.toMap(CategoryGoal::getCategory, CategoryGoal::getBudget));
 
         expenseCategoryMap.keySet().removeAll(goalCategoryMap.keySet());
-        if(expenseCategoryMap != null) {
+
+        if(!expenseCategoryMap.isEmpty()) {
             goalCategoryMap.putAll(expenseCategoryMap);
         }
 
-        Map<Category, Long> sortedCategoryMap = new LinkedHashMap<>();
-        goalCategoryMap.entrySet().stream()
+        goalCategoryMap.entrySet().removeIf(entry -> entry.getKey().getStatus() == Status.INACTIVE);
+
+        expenseCategoryMap.keySet().removeAll(goalCategoryMap.keySet());
+        goalCategoryMap.putAll(expenseCategoryMap);
+
+        goalCategoryMap.entrySet().removeIf(entry -> entry.getKey().getStatus() == Status.INACTIVE);
+
+        return goalCategoryMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey(Comparator.comparing(Category::getPriority)))
-                .forEach(entry -> sortedCategoryMap.put(entry.getKey(), entry.getValue()));
+                .map(entry -> createCategoryCalendarInfo(member, entry.getKey(), entry.getValue(), startDate, endDate))
+                .collect(Collectors.toList());
+    }
 
-        List<CategoryCalendarInfo> categoryInfoList = new ArrayList<>();
-        sortedCategoryMap.forEach((category, value) -> {
+    private CategoryCalendarInfo createCategoryCalendarInfo(Member member, Category category, Long budget, LocalDate startDate, LocalDate endDate) {
+        List<Expense> expensesByCategory = expenseRepository.findAllByMemberAndCategoryIdAndDateBetween(member, category.getId(), startDate, endDate);
+        Long categoryTotalCost = calculateTotalCost(expensesByCategory);
+        List<Long> dailyCategoryTotalCostList = calculateDailyTotalCostList(expensesByCategory, startDate, endDate);
 
-            List<Expense> expensesByCategory = expenseRepository.findAllByMemberAndCategoryIdAndDateBetween(member, category.getId(), startDate, endDate);
-            Long categoryTotalCost = calculateTotalCost(expensesByCategory);
-            List<Long> dailyCategoryTotalCostList = calculateDailyTotalCostList(expensesByCategory, startDate, endDate);
+        List<DailyCategoryInfoDto> dailyCategoryInfoList = budget != null ?
+                dailyCategoryTotalCostList.stream()
+                        .map(cost -> new DailyCategoryInfoDto(cost, Level.HIGH)) // 예시: Level 결정 로직 필요
+                        .collect(Collectors.toList()) : null;
 
-            if (value != null) {
-                // TODO: dailyCategoryRateList 추가
-
-                List<DailyCategoryInfoDto> dailyCategoryInfoList = new ArrayList<>();
-                for (int i = 0; i < dailyCategoryTotalCostList.size(); i++) {
-//                    Level dailyRate = dailyRateList.get(i);
-                    DailyCategoryInfoDto dailyDto = new DailyCategoryInfoDto(dailyCategoryTotalCostList.get(i), Level.HIGH);
-                    dailyCategoryInfoList.add(dailyDto);
-                }
-
-                CategoryCalendarInfo dto = new CategoryCalendarInfo(category.getId(), category.getName(), value,
-                        categoryTotalCost, dailyCategoryInfoList, null);
-
-                categoryInfoList.add(dto);
-
-            } else {
-                CategoryCalendarInfo dto = new CategoryCalendarInfo(category.getId(), category.getName(), null,
-                        categoryTotalCost, null, dailyCategoryTotalCostList);
-
-                categoryInfoList.add(dto);
-            }
-        });
-
-        return categoryInfoList;
+        return new CategoryCalendarInfo(category.getId(), category.getName(), budget,
+                categoryTotalCost, dailyCategoryInfoList, budget == null ? dailyCategoryTotalCostList : null);
     }
 
     private Long calculateTotalCost(List<Expense> expenses) {
