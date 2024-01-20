@@ -1,5 +1,6 @@
 package com.umc5th.muffler.global.security.jwt;
 
+import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_TOKEN;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
 import com.umc5th.muffler.global.response.exception.CommonException;
@@ -30,23 +31,28 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = getToken(request);
         try {
-            if (token != null && jwtTokenUtils.validateToken(token)) {
-                Authentication authentication = jwtTokenUtils.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                filterChain.doFilter(request, response);
-                return;
-            }
+            processTokenAuthentication(request);
         } catch (CommonException e) {
-            log.error("Token Authority Error", e);
+            log.error("Invalid Token", e);
+            ResponseUtils.sendErrorResponse(response, SC_UNAUTHORIZED, TOKEN_ERROR_MESSAGE);
+            return;
         }
-
-        ResponseUtils.sendErrorResponse(response, SC_UNAUTHORIZED, TOKEN_ERROR_MESSAGE);
+        filterChain.doFilter(request, response);
     }
 
     private boolean isLogin(HttpServletRequest request) {
         return request.getRequestURI().startsWith("/member/login");
+    }
+
+    private void processTokenAuthentication(HttpServletRequest request) {
+        String token = getToken(request);
+        if (StringUtils.hasText(token) && jwtTokenUtils.validateToken(token)) {
+            Authentication authentication = jwtTokenUtils.getAuthentication(token);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            return;
+        }
+        throw new CommonException(INVALID_TOKEN);
     }
 
     private String getToken(HttpServletRequest request) {
