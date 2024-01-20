@@ -1,21 +1,14 @@
 package com.umc5th.muffler.domain.expense.service;
 
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
-import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsDto;
-import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
-import com.umc5th.muffler.domain.expense.dto.NewExpenseResponse;
-import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
-import com.umc5th.muffler.domain.expense.dto.ExpenseConverter;
-import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseDetailsResponse;
+import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
-import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
-import com.umc5th.muffler.entity.Category;
-import com.umc5th.muffler.entity.Expense;
-import com.umc5th.muffler.entity.Goal;
-import com.umc5th.muffler.entity.Member;
+import com.umc5th.muffler.domain.member.repository.MemberRepository;
+import com.umc5th.muffler.entity.*;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.ExpenseException;
+import com.umc5th.muffler.global.response.exception.GoalException;
 import com.umc5th.muffler.global.response.exception.MemberException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +21,7 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,12 +37,16 @@ public class ExpenseService {
         Long memberId = 1L; // 임시
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+        Goal goal = goalRepository.findByDateBetween(date, memberId)
+                .orElseThrow(() -> new ExpenseException(ErrorCode._NO_GOAL_IN_GIVEN_DATE));
+        List<DailyPlan> dailyPlans = Optional.ofNullable(goal.getDailyPlans())
+                .orElseThrow(() -> new GoalException(ErrorCode.DAILYPLAN_NOT_FOUND));
+        DailyPlan dailyPlan = findDailyPlan(dailyPlans, date);
 
-        Long dailyTotalCost = expenseRepository.calculateTotalCostByMemberAndDate(member, date);
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(member, date, pageable);
         List<Category> categoryList = member.getCategories();
 
-        DailyExpenseDetailsResponse response = ExpenseConverter.toDailyExpenseDetailsResponse(expenseList, categoryList, date, dailyTotalCost);
+        DailyExpenseDetailsResponse response = ExpenseConverter.toDailyExpenseDetailsList(expenseList, categoryList, date, dailyPlan);
 
         return response;
     }
@@ -57,14 +55,17 @@ public class ExpenseService {
         Long memberId = 1L; // 임시
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-        
-        // 해당 주 월요일 날짜
-        LocalDate startDate = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        Goal goal = goalRepository.findByDateBetween(date, memberId)
+                .orElseThrow(() -> new ExpenseException(ErrorCode._NO_GOAL_IN_GIVEN_DATE));
+        List<DailyPlan> dailyPlans = Optional.ofNullable(goal.getDailyPlans())
+                .orElseThrow(() -> new GoalException(ErrorCode.DAILYPLAN_NOT_FOUND));
 
-        // 해당 주 일요일 날짜
-        LocalDate endDate = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+        LocalDate startDate = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)); // 해당 주 월요일 날짜
+        LocalDate endDate = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)); // 해당 주 일요일 날짜
 
-        Long weeklyTotalCost = expenseRepository.calculateTotalCostByMemberAndDateBetween(member, startDate, endDate);
+        Long weeklyTotalCost = Optional.ofNullable(
+                expenseRepository.calculateTotalCostByMemberAndDateBetween(member, startDate, endDate))
+                .orElse(0L);
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDateBetween(member, startDate, endDate, pageable);
         List<Category> categoryList = member.getCategories();
 
@@ -72,11 +73,11 @@ public class ExpenseService {
         Map<LocalDate, List<Expense>> expensesByDate = expenseList.stream().collect(Collectors.groupingBy(Expense::getDate));
         Map<LocalDate, Long> dailyTotalCostMap = expensesByDate.entrySet().stream()
                 .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> expenseRepository.calculateTotalCostByMemberAndDate(member, entry.getKey())
+                        entry -> entry.getKey(),
+                        entry -> findDailyPlan(dailyPlans, entry.getKey()).getTotalCost()
                 ));
 
-        List<DailyExpenseDetailsDto> dailyExpenseDetailsDtos = ExpenseConverter.toDailyExpenseDetailsResponse(expensesByDate, dailyTotalCostMap);
+        List<DailyExpenseDetailsDto> dailyExpenseDetailsDtos = ExpenseConverter.toDailyExpenseDetailsList(expensesByDate, dailyTotalCostMap);
         WeeklyExpenseDetailsResponse response = ExpenseConverter.toWeeklyExpenseDetailsResponse(dailyExpenseDetailsDtos, expenseList, categoryList, startDate, endDate, weeklyTotalCost);
 
         return response;
@@ -94,5 +95,12 @@ public class ExpenseService {
         Expense expense = ExpenseConverter.toExpenseEntity(request, member, category);
         expense = expenseRepository.save(expense);
         return new NewExpenseResponse(expense.getId(), expense.getCost());
+    }
+
+    private DailyPlan findDailyPlan(List<DailyPlan> dailyPlans, LocalDate date) {
+        return dailyPlans.stream()
+                .filter(dailyPlan -> dailyPlan.getDate().equals(date))
+                .findAny()
+                .orElseThrow(() -> new GoalException(ErrorCode.DAILYPLAN_NOT_FOUND));
     }
 }

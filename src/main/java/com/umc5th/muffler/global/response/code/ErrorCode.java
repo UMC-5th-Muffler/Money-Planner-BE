@@ -27,6 +27,9 @@ public enum ErrorCode {
     //Goal 에러
     _NO_GOAL_IN_GIVEN_DATE(HttpStatus.BAD_REQUEST, "해당 날짜에 일치하는 목표가 없습니다"),
 
+    // DailyPlan 에러
+    DAILYPLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 일일 소비 계획입니다."),
+
     // Category 에러
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 카테고리입니다."),
     DUPLICATED_CATEGORY_NAME(HttpStatus.BAD_REQUEST, "카테고리 이름이 중복되었습니다."),

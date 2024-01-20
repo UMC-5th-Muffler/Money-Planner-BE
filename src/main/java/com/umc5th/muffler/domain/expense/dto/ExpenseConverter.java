@@ -1,6 +1,7 @@
 package com.umc5th.muffler.domain.expense.dto;
 
 import com.umc5th.muffler.entity.Category;
+import com.umc5th.muffler.entity.DailyPlan;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Member;
 import org.springframework.data.domain.Slice;
@@ -23,8 +24,7 @@ public class ExpenseConverter {
             .build();
     }
 
-    public static DailyExpenseDetailsResponse toDailyExpenseDetailsResponse(Slice<Expense> expenseList, List<Category> categoryList, LocalDate date, Long dailyTotalCost) {
-        // Expense(entity) -> ExpenseDetail(dto)
+    public static DailyExpenseDetailsResponse toDailyExpenseDetailsList(Slice<Expense> expenseList, List<Category> categoryList, LocalDate date, DailyPlan dailyPlan) {
         List<ExpenseDetailDto> expenseDetails = expenseList
                 .stream()
                 .map(expense -> ExpenseDetailDto.builder()
@@ -36,7 +36,6 @@ public class ExpenseConverter {
                         .build())
                 .collect(Collectors.toList());
 
-        // Category(entity) -> CategoryDetail(dto)
         List<CategoryDetailDto> categoryDetails = categoryList
                 .stream()
                 .map(category -> CategoryDetailDto.builder()
@@ -46,8 +45,9 @@ public class ExpenseConverter {
                 .collect(Collectors.toList());
 
         return DailyExpenseDetailsResponse.builder()
-                .dailyTotalCost(dailyTotalCost)
+                .dailyTotalCost(dailyPlan.getTotalCost())
                 .date(date)
+                .isZeroDay(dailyPlan.getIsZeroDay())
                 .expenseDetailDtoList(expenseDetails)
                 .categoryList(categoryDetails)
                 .hasNext(expenseList.hasNext())
@@ -74,7 +74,7 @@ public class ExpenseConverter {
                 .build();
     }
 
-    public static List<DailyExpenseDetailsDto> toDailyExpenseDetailsResponse(Map<LocalDate, List<Expense>> expensesByDate, Map<LocalDate, Long> dailyTotalCostMap) {
+    public static List<DailyExpenseDetailsDto> toDailyExpenseDetailsList(Map<LocalDate, List<Expense>> expensesByDate, Map<LocalDate, Long> dailyTotalCostMap) {
 
         return expensesByDate.entrySet().stream().map(entry -> {
             LocalDate dailyDate = entry.getKey();

@@ -15,6 +15,7 @@ import java.util.List;
 public class DailyExpenseDetailsResponse {
 
     private LocalDate date;
+    private Boolean isZeroDay;
     private Long dailyTotalCost;
     private List<CategoryDetailDto> categoryList;
     private List<ExpenseDetailDto> expenseDetailDtoList;
