@@ -6,3 +6,9 @@ spring:
     password:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
+  profiles:
+    include: oauth
+    active: test
+
+jwt:
+  secret: ${JWT_SECRET}

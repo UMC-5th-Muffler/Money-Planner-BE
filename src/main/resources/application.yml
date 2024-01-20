@@ -6,12 +6,25 @@ spring:
     password: ${DB_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: ${DB_DLL_MODE}
+      ddl-auto: update
     properties:
       hibernate:
-        show_sql: true
+        show_sql: false
         format_sql: true
         use_sql_comments: true
         dialect: org.hibernate.dialect.MySQL8Dialect
+  profiles:
+    include: oauth
+    active: dev
+
+jwt:
+  secret: ${JWT_SECRET}
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+
 logging.level:
   org.hibernate.SQL: debug
