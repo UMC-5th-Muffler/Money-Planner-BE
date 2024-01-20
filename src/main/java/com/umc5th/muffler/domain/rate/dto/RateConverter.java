@@ -6,6 +6,7 @@ import com.umc5th.muffler.entity.DailyPlan;
 import com.umc5th.muffler.entity.Rate;
 import com.umc5th.muffler.entity.constant.Level;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,9 @@ public class RateConverter {
     }
 
     private static List<CategoryRateResponse> createCategoryRateResponseList(List<CategoryGoal> categoryGoals, Rate rate) {
+        if (categoryGoals == null) {
+            return Collections.emptyList();
+        }
         return categoryGoals.stream()
                 .map(categoryGoal -> {
                     CategoryRate categoryRate = findMatchingCategoryRate(rate, categoryGoal.getId());

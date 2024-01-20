@@ -29,7 +29,7 @@ public class RateService {
     private final GoalRepository goalRepository;
     private final RateRepository rateRepository;
 
-    public RateCriteriaResponse getEvalCategoryList(LocalDate date){
+    public RateCriteriaResponse getRateCriteria(LocalDate date){
         Long memberId = 1L; // 임시
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
@@ -70,7 +70,11 @@ public class RateService {
         Goal goal = findGoal(request.getDate(), member.getId());
 
         rate.update(request.getMemo(), Level.valueOf(request.getTotalLevel()));
-        updateCategoryRates(rate, request.getCategoryRateList(), goal);
+        List<CategoryRateUpdateRequest> categoryRateList = request.getCategoryRateList();
+
+        if(categoryRateList!=null){
+            updateCategoryRates(rate, categoryRateList, goal);
+        }
     }
 
     private Goal findGoal(LocalDate date, Long memberId) {
@@ -89,19 +93,23 @@ public class RateService {
     }
 
     private CategoryGoal findCategoryGoal(Goal goal, Long categoryGoalId) {
-        return goal.getCategoryGoals().stream()
-                .filter(cg -> cg.getId().equals(categoryGoalId))
-                .findFirst()
+        return Optional.ofNullable(goal.getCategoryGoals())
+                .flatMap(categoryGoals -> categoryGoals.stream()
+                        .filter(cg -> cg.getId().equals(categoryGoalId))
+                        .findFirst())
                 .orElseThrow(() -> new GoalException(ErrorCode.CATEGORY_GOAL_NOT_FOUND));
     }
 
     private List<CategoryRate> createCategoryRates(RateCreateRequest request, Goal goal) {
         List<CategoryRate> categoryRates = new ArrayList<>();
+        List<CategoryRateCreateRequest> categoryRateList = request.getCategoryRateList();
 
-        for (CategoryRateCreateRequest categoryRateCreateRequest : request.getCategoryRateList()) {
-            CategoryGoal categoryGoal = findCategoryGoal(goal, categoryRateCreateRequest.getCategoryGoalId());
-            CategoryRate categoryRate = RateConverter.toCategoryRate(categoryRateCreateRequest, categoryGoal);
-            categoryRates.add(categoryRate);
+        if(categoryRateList!=null){
+            for (CategoryRateCreateRequest categoryRateCreateRequest : categoryRateList) {
+                CategoryGoal categoryGoal = findCategoryGoal(goal, categoryRateCreateRequest.getCategoryGoalId());
+                CategoryRate categoryRate = RateConverter.toCategoryRate(categoryRateCreateRequest, categoryGoal);
+                categoryRates.add(categoryRate);
+            }
         }
         return categoryRates;
     }
@@ -117,6 +125,9 @@ public class RateService {
     }
 
     private void updateExistingCategoryRate(Rate rate, CategoryRateUpdateRequest categoryRateReq) {
+        if (rate.getCategoryRates() == null) {
+            throw new RateException(ErrorCode.CATEGORY_RATE_NOT_FOUND);
+        }
         CategoryRate categoryRate = rate.getCategoryRates().stream()
                 .filter(cr -> cr.getId().equals(categoryRateReq.getCategoryRateId()))
                 .findFirst()

@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
@@ -29,6 +30,6 @@ public class RateUpdateRequest {
 
     private String memo;
 
+    @Valid
     List<CategoryRateUpdateRequest> categoryRateList;
-
 }

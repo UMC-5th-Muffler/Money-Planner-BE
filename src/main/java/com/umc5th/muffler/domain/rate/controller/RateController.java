@@ -21,7 +21,7 @@ public class RateController {
 
     @GetMapping("")
     public Response<RateCriteriaResponse> getRateCriteria(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
-        RateCriteriaResponse response = rateService.getEvalCategoryList(date);
+        RateCriteriaResponse response = rateService.getRateCriteria(date);
         return Response.success(response);
     }
 
