@@ -49,7 +49,7 @@ class ExpenseControllerTest {
         List<CategoryDetailDto> categoryList = List.of(CategoryDetailDto.builder().id(1L).name("icon").build());
         long expDailyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
 
-        DailyExpenseDetailsResponse mockResponse = DailyExpenseDetailsResponse.builder()
+        DailyExpenseResponse mockResponse = DailyExpenseResponse.builder()
                 .date(testDate)
                 .dailyTotalCost(expDailyTotalCost)
                 .expenseDetailDtoList(expenseDetailDtos)
@@ -82,7 +82,7 @@ class ExpenseControllerTest {
         // 일별로 Expense 그룹화
         Map<LocalDate, List<Expense>> expensesByDate = expenses.stream().collect(Collectors.groupingBy(Expense::getDate));
 
-        List<DailyExpenseDetailsDto> dailyExpenseDetailsDtos = expensesByDate.entrySet().stream()
+        List<DailyExpensesDto> dailyExpensesDtos = expensesByDate.entrySet().stream()
                 .map(entry -> {
                     LocalDate dailyDate = entry.getKey();
                     List<Expense> dailyExpenses = entry.getValue();
@@ -91,7 +91,7 @@ class ExpenseControllerTest {
                             .collect(Collectors.toList());
 
                     Long dailyTotalCost = dailyExpenses.stream().mapToLong(Expense::getCost).sum();
-                    return DailyExpenseDetailsDto.builder()
+                    return DailyExpensesDto.builder()
                             .date(dailyDate)
                             .dailyTotalCost(dailyTotalCost)
                             .expenseDetailDtoList(expenseDetailDtos)
@@ -102,12 +102,12 @@ class ExpenseControllerTest {
         List<CategoryDetailDto> categoryList = List.of(CategoryDetailDto.builder().id(1L).name("icon").build());
         long expWeeklyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
 
-        WeeklyExpenseDetailsResponse mockResponse = WeeklyExpenseDetailsResponse.builder()
+        WeeklyExpenseResponse mockResponse = WeeklyExpenseResponse.builder()
                 .startDate(startDate)
                 .endDate(endDate)
                 .weeklyTotalCost(expenses.stream().mapToLong(Expense::getCost).sum())
                 .categoryList(categoryList)
-                .dailyExpenseList(dailyExpenseDetailsDtos)
+                .dailyExpenseList(dailyExpensesDtos)
                 .build();
 
         when(expenseService.getWeeklyExpenseDetails(eq(todayDate), any(Pageable.class))).thenReturn(mockResponse);

@@ -33,7 +33,7 @@ public class ExpenseService {
     private final CategoryRepository categoryRepository;
     private final GoalRepository goalRepository;
 
-    public DailyExpenseDetailsResponse getDailyExpenseDetails(LocalDate date, Pageable pageable){
+    public DailyExpenseResponse getDailyExpenseDetails(LocalDate date, Pageable pageable){
         Long memberId = 1L; // 임시
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
@@ -46,12 +46,12 @@ public class ExpenseService {
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(member, date, pageable);
         List<Category> categoryList = member.getCategories();
 
-        DailyExpenseDetailsResponse response = ExpenseConverter.toDailyExpenseDetailsList(expenseList, categoryList, date, dailyPlan);
+        DailyExpenseResponse response = ExpenseConverter.toDailyExpenseDetailsList(expenseList, categoryList, date, dailyPlan);
 
         return response;
     }
 
-    public WeeklyExpenseDetailsResponse getWeeklyExpenseDetails(LocalDate date, Pageable pageable){
+    public WeeklyExpenseResponse getWeeklyExpenseDetails(LocalDate date, Pageable pageable){
         Long memberId = 1L; // 임시
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
@@ -77,8 +77,8 @@ public class ExpenseService {
                         entry -> findDailyPlan(dailyPlans, entry.getKey()).getTotalCost()
                 ));
 
-        List<DailyExpenseDetailsDto> dailyExpenseDetailsDtos = ExpenseConverter.toDailyExpenseDetailsList(expensesByDate, dailyTotalCostMap);
-        WeeklyExpenseDetailsResponse response = ExpenseConverter.toWeeklyExpenseDetailsResponse(dailyExpenseDetailsDtos, expenseList, categoryList, startDate, endDate, weeklyTotalCost);
+        List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpenseDetailsList(expensesByDate, dailyTotalCostMap);
+        WeeklyExpenseResponse response = ExpenseConverter.toWeeklyExpenseDetailsResponse(dailyExpensesDtos, expenseList, categoryList, startDate, endDate, weeklyTotalCost);
 
         return response;
     }

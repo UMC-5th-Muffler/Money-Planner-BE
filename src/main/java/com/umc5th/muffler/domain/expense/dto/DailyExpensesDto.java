@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DailyExpenseDetailsDto {
+public class DailyExpensesDto {
 
     private LocalDate date;
     private Long dailyTotalCost;

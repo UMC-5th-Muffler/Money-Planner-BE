@@ -2,11 +2,9 @@ package com.umc5th.muffler.domain.expense.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.openMocks;
 
-import com.umc5th.muffler.domain.category.repository.CategoryRepository;
-import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
-import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseDetailsResponse;
+import com.umc5th.muffler.domain.expense.dto.DailyExpenseResponse;
+import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseResponse;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Expense;
@@ -29,9 +27,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 class ExpenseServiceTest {
@@ -62,7 +58,7 @@ class ExpenseServiceTest {
         when(expenseRepository.findAllByMemberAndDate(mockMember, testDate, pageable)).thenReturn(expenseSlice);
         when(expenseRepository.calculateTotalCostByMemberAndDate(mockMember, testDate)).thenReturn(dailyTotalCost);
 
-        DailyExpenseDetailsResponse response = expenseService.getDailyExpenseDetails(testDate, pageable);
+        DailyExpenseResponse response = expenseService.getDailyExpenseDetails(testDate, pageable);
 
         assertNotNull(response);
         assertEquals(testDate, response.getDate());
@@ -106,7 +102,7 @@ class ExpenseServiceTest {
         when(expenseRepository.calculateTotalCostByMemberAndDateBetween(mockMember, startDate, endDate)).thenReturn(weeklyTotalCost);
         when(expenseRepository.findAllByMemberAndDateBetween(mockMember, startDate, endDate, pageable)).thenReturn(expenseSlice);
 
-        WeeklyExpenseDetailsResponse response = expenseService.getWeeklyExpenseDetails(date, pageable);
+        WeeklyExpenseResponse response = expenseService.getWeeklyExpenseDetails(date, pageable);
 
         assertNotNull(response);
         assertEquals(startDate, response.getStartDate());

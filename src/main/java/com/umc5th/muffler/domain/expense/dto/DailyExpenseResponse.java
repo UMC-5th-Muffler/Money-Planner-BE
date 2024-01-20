@@ -10,14 +10,14 @@ import java.util.List;
 
 @Builder
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
-public class WeeklyExpenseDetailsResponse {
+@AllArgsConstructor
+public class DailyExpenseResponse {
 
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private Long weeklyTotalCost;
+    private LocalDate date;
+    private Boolean isZeroDay;
+    private Long dailyTotalCost;
     private List<CategoryDetailDto> categoryList;
-    private List<DailyExpenseDetailsDto> dailyExpenseList;
+    private List<ExpenseDetailDto> expenseDetailDtoList;
     private boolean hasNext;
 }
