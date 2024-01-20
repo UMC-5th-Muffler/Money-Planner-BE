@@ -40,7 +40,7 @@ public class Member extends BaseTimeEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private SocialType socialType;
 
-    @Column
+    @Enumerated(EnumType.STRING)
     private Role role; // authority는 하나만 가능 (ex. "USER,ADMIN"처럼 2개 불가능)
 
     @Column
