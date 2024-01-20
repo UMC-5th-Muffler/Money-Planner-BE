@@ -2,6 +2,7 @@ package com.umc5th.muffler.domain.rate.service;
 
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
+import com.umc5th.muffler.domain.rate.dto.CategoryRateCreateRequest;
 import com.umc5th.muffler.domain.rate.dto.RateConverter;
 import com.umc5th.muffler.domain.rate.dto.RateCreateRequest;
 import com.umc5th.muffler.domain.rate.dto.RateCriteriaResponse;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,7 +61,7 @@ public class RateService {
             throw new RateException(ErrorCode.RATE_ALREADY_EXISTS);
         }
 
-        List<CategoryRate> categoryRates = RateConverter.toCategoryRates(request,goal);
+        List<CategoryRate> categoryRates = createCategoryRates(request,goal);
 
         Rate rate = RateConverter.toRate(request);
         rate.setCategoryRates(categoryRates);
@@ -76,4 +79,22 @@ public class RateService {
                 .findAny()
                 .orElseThrow(() -> new RateException(ErrorCode.DAILYPLAN_NOT_FOUND));
     }
+
+    private List<CategoryRate> createCategoryRates(RateCreateRequest request, Goal goal){
+        List<CategoryGoal> categoryGoals = Optional.ofNullable(goal.getCategoryGoals())
+                .orElse(Collections.emptyList());
+        List<CategoryRate> categoryRates = new ArrayList<>();
+
+        for (CategoryRateCreateRequest categoryRateCreateRequest : request.getCategoryRateList()) {
+            CategoryGoal categoryGoal = categoryGoals.stream()
+                    .filter(CategoryGoal -> CategoryGoal.getId().equals(categoryRateCreateRequest.getCategoryGoalId()))
+                    .findAny()
+                    .orElseThrow(() -> new GoalException(ErrorCode.CATEGORY_GOAL_NOT_FOUND));
+
+            CategoryRate categoryRate = RateConverter.toCategoryRate(categoryRateCreateRequest, categoryGoal);
+            categoryRates.add(categoryRate);
+        }
+        return categoryRates;
+    }
+
 }
