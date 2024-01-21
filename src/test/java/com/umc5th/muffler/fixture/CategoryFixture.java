@@ -1,6 +1,7 @@
 package com.umc5th.muffler.fixture;
 
 import com.umc5th.muffler.entity.Category;
+import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.constant.Status;
 
 public class CategoryFixture {
@@ -22,4 +23,12 @@ public class CategoryFixture {
             .icon("ICON")
             .status(Status.ACTIVE)
             .build();
+    public static Category create(Member member) {
+        return Category.builder()
+                .name("카테고리")
+                .icon("icon")
+                .member(member)
+                .status(Status.ACTIVE)
+                .build();
+    }
 }

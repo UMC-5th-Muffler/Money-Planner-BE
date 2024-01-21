@@ -11,9 +11,16 @@ public class MemberFixture {
             .socialType(SocialType.KAKAO)
             .build();
     public static final Member MEMBER_TWO = Member.builder()
-            .id(1L)
+            .id(2L)
             .name("two")
             .email("two@naver.com")
             .socialType(SocialType.KAKAO)
             .build();
+    public static Member create() {
+        return Member.builder()
+                .name("name")
+                .socialType(SocialType.KAKAO)
+                .email("email")
+                .build();
+    }
 }
