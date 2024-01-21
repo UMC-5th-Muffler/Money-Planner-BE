@@ -19,19 +19,19 @@ public class RateController {
 
     private final RateService rateService;
 
-    @GetMapping("")
+    @GetMapping
     public Response<RateCriteriaResponse> getRateCriteria(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
         RateCriteriaResponse response = rateService.getRateCriteria(date);
         return Response.success(response);
     }
 
-    @PostMapping("")
+    @PostMapping
     public Response<Void> createRate(@RequestBody @Valid RateCreateRequest request){
         rateService.createRate(request);
         return Response.success();
     }
 
-    @PatchMapping("")
+    @PatchMapping
     public Response<Void> updateRate(@RequestBody @Valid RateUpdateRequest request){
         rateService.updateRate(request);
         return Response.success();
