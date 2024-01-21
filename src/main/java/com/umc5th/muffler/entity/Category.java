@@ -51,10 +51,6 @@ public class Category extends BaseTimeEntity {
     private Long priority;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private CategoryType type;
-
-    @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'")
     private Status status;
 
