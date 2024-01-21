@@ -1,6 +1,7 @@
 package com.umc5th.muffler.entity;
 
 import com.umc5th.muffler.entity.base.BaseTimeEntity;
+import com.umc5th.muffler.entity.constant.CategoryType;
 import com.umc5th.muffler.entity.constant.Status;
 import javax.persistence.*;
 import javax.persistence.Column;
@@ -19,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -42,12 +44,23 @@ public class Category extends BaseTimeEntity {
     @Column(length = 25, nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private String icon;
+
+    @Column(nullable = false)
+    private Long priority;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CategoryType type;
+
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(15) DEFAULT 'ACTIVE'")
     private Status status;
 
     @Column(nullable = false)
-    private String icon;
+    @ColumnDefault("true")
+    private Boolean isVisible;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
