@@ -3,6 +3,7 @@ package com.umc5th.muffler.domain.routine.dto;
 import com.umc5th.muffler.entity.constant.RoutineType;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,6 +23,10 @@ public class InsertableRoutine {
     private DayOfWeek routineDayOfWeek;
     private int routineDayOfMonth;
 
+    private Long dailyPlanTotalCost;
+
     private Long memberId;
     private Long categoryId;
+    private Long dailyPlanId;
+
 }
