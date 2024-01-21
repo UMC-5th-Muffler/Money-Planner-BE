@@ -8,6 +8,7 @@ import com.umc5th.muffler.entity.constant.Level;
 import com.umc5th.muffler.entity.constant.Status;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,6 +39,7 @@ public class RateConverter {
 
         return categoryGoals.stream()
                 .filter(categoryGoal -> categoryGoal.getCategory().getStatus() == Status.ACTIVE)
+                .sorted(Comparator.comparingLong(categoryGoal -> categoryGoal.getCategory().getPriority()))
                 .map(categoryGoal -> {
                     CategoryRate categoryRate = findMatchingCategoryRate(rate, categoryGoal.getId());
                     return CategoryRateResponse.builder()
@@ -48,6 +50,7 @@ public class RateConverter {
                             .build();
                 })
                 .collect(Collectors.toList());
+
     }
 
     private static CategoryRate findMatchingCategoryRate(Rate rate, Long categoryGoalId) {
