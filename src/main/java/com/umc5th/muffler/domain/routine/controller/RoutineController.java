@@ -7,9 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,5 +22,11 @@ public class RoutineController {
 
         RoutineResponse response = routineService.getRoutine(pageable);
         return Response.success(response);
+    }
+
+    @DeleteMapping("/{routineId}")
+    public Response<Void> delete(@PathVariable Long routineId) {
+        routineService.delete(routineId);
+        return Response.success();
     }
 }

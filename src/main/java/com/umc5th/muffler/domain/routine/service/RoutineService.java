@@ -2,8 +2,7 @@ package com.umc5th.muffler.domain.routine.service;
 
 import static com.umc5th.muffler.entity.constant.RoutineType.MONTHLY;
 import static com.umc5th.muffler.entity.constant.RoutineType.WEEKLY;
-import static com.umc5th.muffler.global.response.code.ErrorCode.EXPENSE_NOT_FOUND;
-import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_ROUTINE_INPUT;
+import static com.umc5th.muffler.global.response.code.ErrorCode.*;
 
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
@@ -14,6 +13,7 @@ import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.Routine;
 import com.umc5th.muffler.entity.constant.RoutineType;
 import com.umc5th.muffler.global.response.code.ErrorCode;
+import com.umc5th.muffler.global.response.exception.CommonException;
 import com.umc5th.muffler.global.response.exception.ExpenseException;
 import com.umc5th.muffler.global.response.exception.MemberException;
 import com.umc5th.muffler.global.response.exception.RoutineException;
@@ -23,6 +23,7 @@ import com.umc5th.muffler.global.util.RoutineUtils;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -119,5 +120,20 @@ public class RoutineService {
                         Routine::getId,
                         RoutineConverter::getWeeklyDetail
                 ));
+    }
+
+    @Transactional
+    public void delete(Long routineId) {
+        Long memberId = 1L;
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
+        Routine routine = routineRepository.findById(routineId)
+                .orElseThrow(() -> new RoutineException(ROUTINE_NOT_FOUND));
+
+        if(!Objects.equals(member.getId(), routine.getMember().getId())) {
+            throw new CommonException(INVALID_PERMISSION);
+        }
+
+        routineRepository.delete(routine);
     }
 }
