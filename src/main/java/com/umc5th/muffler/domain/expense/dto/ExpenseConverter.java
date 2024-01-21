@@ -4,9 +4,11 @@ import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.DailyPlan;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Member;
+import com.umc5th.muffler.entity.constant.Status;
 import org.springframework.data.domain.Slice;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,6 +40,9 @@ public class ExpenseConverter {
 
         List<CategoryDetailDto> categoryDetails = categoryList
                 .stream()
+                .filter(category -> category.getStatus() == Status.ACTIVE)
+                .filter(Category::getIsVisible)
+                .sorted(Comparator.comparingLong(Category::getPriority))
                 .map(category -> CategoryDetailDto.builder()
                         .id(category.getId())
                         .name(category.getName())
@@ -58,6 +63,9 @@ public class ExpenseConverter {
                                                                        List<Category> categoryList, LocalDate startDate, LocalDate endDate, Long weeklyTotalCost){
         List<CategoryDetailDto> categoryDetails = categoryList
                 .stream()
+                .filter(category -> category.getStatus() == Status.ACTIVE)
+                .filter(Category::getIsVisible)
+                .sorted(Comparator.comparingLong(Category::getPriority))
                 .map(category -> CategoryDetailDto.builder()
                         .id(category.getId())
                         .name(category.getName())
@@ -98,4 +106,5 @@ public class ExpenseConverter {
                     .build();
         }).collect(Collectors.toList());
     }
+
 }
