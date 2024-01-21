@@ -46,14 +46,6 @@ public class DailyPlan extends BaseTimeEntity {
     @JoinColumn(name = "goal_id")
     private Goal goal;
 
-    @Column(nullable = false)
-    @ColumnDefault("0")
-    private Long totalCost;
-
-    @Column(nullable = false)
-    @ColumnDefault("false")
-    private Boolean isZeroDay;
-
     public static DailyPlan of(LocalDate date, Long budget) {
         return DailyPlan.builder()
                 .date(date)

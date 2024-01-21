@@ -78,6 +78,7 @@ public class HomeService {
         goalCategoryMap.putAll(expenseCategoryMap);
 
         goalCategoryMap.entrySet().removeIf(entry -> entry.getKey().getStatus() == Status.INACTIVE);
+        goalCategoryMap.entrySet().removeIf(entry -> entry.getKey().getIsVisible() == false);
 
         return goalCategoryMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey(Comparator.comparing(Category::getPriority)))
