@@ -1,4 +1,4 @@
-package com.umc5th.muffler.domain.home.dto;
+package com.umc5th.muffler.domain.expense.dto.homeDto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -19,6 +19,6 @@ public class CategoryCalendarInfo {
     private String name;
     private Long categoryBudget;
     private Long categoryTotalCost;
-    private List<DailyCategoryInfoDto> categoryGoalSummary;
+    private List<CategoryCalendarDailyInfo> categoryGoalSummary;
     private List<Long> noGoalDailyTotalCost;
 }

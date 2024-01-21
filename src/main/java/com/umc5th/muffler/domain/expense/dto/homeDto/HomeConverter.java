@@ -1,4 +1,4 @@
-package com.umc5th.muffler.domain.home.dto;
+package com.umc5th.muffler.domain.expense.dto.homeDto;
 
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.constant.Level;
@@ -14,8 +14,8 @@ public class HomeConverter {
             LocalDate date, Goal goal, LocalDate startDate, LocalDate endDate, Long totalCost,
             List<Long> dailyBudgetList, List<Long> dailyTotalCostList, List<Boolean> isZeroDayList, List<CategoryCalendarInfo> categoryCalendarInfo)
     {
-        List<DailyInfoDto> dailyInfoList = IntStream.range(0, dailyBudgetList.size())
-                .mapToObj(i -> DailyInfoDto.builder()
+        List<WholeCalendarDailyInfo> dailyInfoList = IntStream.range(0, dailyBudgetList.size())
+                .mapToObj(i -> WholeCalendarDailyInfo.builder()
                         .dailyBudget(dailyBudgetList.get(i))
                         .dailyTotalCost(dailyTotalCostList.get(i))
                         .dailyRate(Level.HIGH) // 임시

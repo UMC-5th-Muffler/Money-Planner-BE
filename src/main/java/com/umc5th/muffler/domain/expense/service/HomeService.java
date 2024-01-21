@@ -1,8 +1,11 @@
-package com.umc5th.muffler.domain.home.service;
+package com.umc5th.muffler.domain.expense.service;
 
+import com.umc5th.muffler.domain.expense.dto.homeDto.CategoryCalendarDailyInfo;
+import com.umc5th.muffler.domain.expense.dto.homeDto.CategoryCalendarInfo;
+import com.umc5th.muffler.domain.expense.dto.homeDto.HomeConverter;
+import com.umc5th.muffler.domain.expense.dto.homeDto.WholeCalendarResponse;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
-import com.umc5th.muffler.domain.home.dto.*;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.*;
 import com.umc5th.muffler.entity.constant.Level;
@@ -91,9 +94,9 @@ public class HomeService {
         Long categoryTotalCost = calculateTotalCost(expensesByCategory);
         List<Long> dailyCategoryTotalCostList = calculateDailyTotalCostList(expensesByCategory, startDate, endDate);
 
-        List<DailyCategoryInfoDto> dailyCategoryInfoList = budget != null ?
+        List<CategoryCalendarDailyInfo> dailyCategoryInfoList = budget != null ?
                 dailyCategoryTotalCostList.stream()
-                        .map(cost -> new DailyCategoryInfoDto(cost, Level.HIGH)) // 예시: Level 결정 로직 필요
+                        .map(cost -> new CategoryCalendarDailyInfo(cost, Level.HIGH)) // 예시: Level 결정 로직 필요
                         .collect(Collectors.toList()) : null;
 
         return new CategoryCalendarInfo(category.getId(), category.getName(), budget,
