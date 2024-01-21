@@ -1,8 +1,5 @@
 package com.umc5th.muffler.domain.expense.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseResponse;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
@@ -27,12 +24,14 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
-class ExpenseServiceTest {
+class ExpenseViewServiceTest {
     @Autowired
-    private ExpenseService expenseService;
+    private ExpenseViewService expenseViewService;
 
     @MockBean
     private ExpenseRepository expenseRepository;
@@ -56,9 +55,8 @@ class ExpenseServiceTest {
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(expenseRepository.findAllByMemberAndDate(mockMember, testDate, pageable)).thenReturn(expenseSlice);
-        when(expenseRepository.calculateTotalCostByMemberAndDate(mockMember, testDate)).thenReturn(dailyTotalCost);
 
-        DailyExpenseResponse response = expenseService.getDailyExpenseDetails(testDate, pageable);
+        DailyExpenseResponse response = expenseViewService.getDailyExpenseDetails(testDate, pageable);
 
         assertNotNull(response);
         assertEquals(testDate, response.getDate());
@@ -66,7 +64,6 @@ class ExpenseServiceTest {
         assertEquals(dailyTotalCost, response.getDailyTotalCost());
         assertEquals(expenseSlice.hasNext(), response.isHasNext());
 
-        verify(expenseRepository).calculateTotalCostByMemberAndDate(mockMember, testDate);
         verify(expenseRepository).findAllByMemberAndDate(mockMember, testDate, pageable);
     }
 
@@ -80,7 +77,7 @@ class ExpenseServiceTest {
         when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
 
         assertThrows(MemberException.class, () -> {
-            expenseService.getDailyExpenseDetails(testDate, pageable);});
+            expenseViewService.getDailyExpenseDetails(testDate, pageable);});
     }
 
     @Test
@@ -102,7 +99,7 @@ class ExpenseServiceTest {
         when(expenseRepository.calculateTotalCostByMemberAndDateBetween(mockMember, startDate, endDate)).thenReturn(weeklyTotalCost);
         when(expenseRepository.findAllByMemberAndDateBetween(mockMember, startDate, endDate, pageable)).thenReturn(expenseSlice);
 
-        WeeklyExpenseResponse response = expenseService.getWeeklyExpenseDetails(date, pageable);
+        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(date, pageable);
 
         assertNotNull(response);
         assertEquals(startDate, response.getStartDate());

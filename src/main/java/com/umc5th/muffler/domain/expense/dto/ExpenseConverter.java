@@ -27,27 +27,8 @@ public class ExpenseConverter {
     }
 
     public static DailyExpenseResponse toDailyExpenseDetailsList(Slice<Expense> expenseList, List<Category> categoryList, LocalDate date, DailyPlan dailyPlan) {
-        List<ExpenseDetailDto> expenseDetails = expenseList
-                .stream()
-                .map(expense -> ExpenseDetailDto.builder()
-                        .expenseId(expense.getId())
-                        .title(expense.getTitle())
-                        .categoryIcon(expense.getCategory().getIcon())
-                        .categoryId(expense.getCategory().getId())
-                        .cost(expense.getCost())
-                        .build())
-                .collect(Collectors.toList());
-
-        List<CategoryDetailDto> categoryDetails = categoryList
-                .stream()
-                .filter(category -> category.getStatus() == Status.ACTIVE)
-                .filter(Category::getIsVisible)
-                .sorted(Comparator.comparingLong(Category::getPriority))
-                .map(category -> CategoryDetailDto.builder()
-                        .id(category.getId())
-                        .name(category.getName())
-                        .build())
-                .collect(Collectors.toList());
+        List<ExpenseDetailDto> expenseDetails = toExpensesDetails(expenseList.getContent());
+        List<CategoryDetailDto> categoryDetails = toCategoryDetails(categoryList);
 
         return DailyExpenseResponse.builder()
                 .dailyTotalCost(dailyPlan.getTotalCost())
@@ -61,16 +42,7 @@ public class ExpenseConverter {
 
     public static WeeklyExpenseResponse toWeeklyExpenseDetailsResponse(List<DailyExpensesDto> dailyExpensesDtos, Slice<Expense> expenseList,
                                                                        List<Category> categoryList, LocalDate startDate, LocalDate endDate, Long weeklyTotalCost){
-        List<CategoryDetailDto> categoryDetails = categoryList
-                .stream()
-                .filter(category -> category.getStatus() == Status.ACTIVE)
-                .filter(Category::getIsVisible)
-                .sorted(Comparator.comparingLong(Category::getPriority))
-                .map(category -> CategoryDetailDto.builder()
-                        .id(category.getId())
-                        .name(category.getName())
-                        .build())
-                .collect(Collectors.toList());
+        List<CategoryDetailDto> categoryDetails = toCategoryDetails(categoryList);
 
         return WeeklyExpenseResponse.builder()
                 .weeklyTotalCost(weeklyTotalCost)
@@ -82,29 +54,44 @@ public class ExpenseConverter {
                 .build();
     }
 
-    public static List<DailyExpensesDto> toDailyExpenseDetailsList(Map<LocalDate, List<Expense>> expensesByDate, Map<LocalDate, Long> dailyTotalCostMap) {
 
+    public static List<DailyExpensesDto> toDailyExpenseDetailsList(Map<LocalDate, List<Expense>> expensesByDate, Map<LocalDate, Long> dailyTotalCostMap) {
         return expensesByDate.entrySet().stream().map(entry -> {
             LocalDate dailyDate = entry.getKey();
             List<Expense> dailyExpenseList = entry.getValue();
             Long dailyTotalCost = dailyTotalCostMap.getOrDefault(dailyDate, 0L);
 
-            List<ExpenseDetailDto> expenseDetailDtos = dailyExpenseList.stream()
-                    .map(expense -> ExpenseDetailDto.builder()
-                            .expenseId(expense.getId())
-                            .title(expense.getTitle())
-                            .categoryIcon(expense.getCategory().getIcon())
-                            .categoryId(expense.getCategory().getId())
-                            .cost(expense.getCost())
-                            .build())
-                    .collect(Collectors.toList());
+            List<ExpenseDetailDto> expenseDetails = toExpensesDetails(dailyExpenseList);
 
             return DailyExpensesDto.builder()
                     .date(dailyDate)
                     .dailyTotalCost(dailyTotalCost)
-                    .expenseDetailDtoList(expenseDetailDtos)
+                    .expenseDetailDtoList(expenseDetails)
                     .build();
         }).collect(Collectors.toList());
     }
 
+    private static List<CategoryDetailDto> toCategoryDetails(List<Category> categoryList) {
+        return categoryList.stream()
+                .filter(category -> category.getStatus() == Status.ACTIVE && category.getIsVisible())
+                .sorted(Comparator.comparingLong(Category::getPriority))
+                .map(category -> CategoryDetailDto.builder()
+                        .id(category.getId())
+                        .name(category.getName())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private static List<ExpenseDetailDto> toExpensesDetails(List<Expense> expenseList) {
+
+        return expenseList.stream()
+                .map(expense -> ExpenseDetailDto.builder()
+                        .expenseId(expense.getId())
+                        .title(expense.getTitle())
+                        .categoryIcon(expense.getCategory().getIcon())
+                        .categoryId(expense.getCategory().getId())
+                        .cost(expense.getCost())
+                        .build())
+                .collect(Collectors.toList());
+    }
 }

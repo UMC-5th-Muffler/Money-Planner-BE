@@ -1,7 +1,7 @@
 package com.umc5th.muffler.domain.expense.controller;
 
 import com.umc5th.muffler.domain.expense.dto.*;
-import com.umc5th.muffler.domain.expense.service.ExpenseService;
+import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.fixture.ExpenseFixture;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,7 @@ class ExpenseControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private ExpenseService expenseService;
+    private ExpenseViewService expenseViewService;
 
 
     @Test
@@ -56,7 +56,7 @@ class ExpenseControllerTest {
                 .categoryList(categoryList)
                 .build();
 
-        when(expenseService.getDailyExpenseDetails(eq(testDate), any(Pageable.class))).thenReturn(mockResponse);
+        when(expenseViewService.getDailyExpenseDetails(eq(testDate), any(Pageable.class))).thenReturn(mockResponse);
 
         // then
         mockMvc.perform(get("/expense/daily")
@@ -110,7 +110,7 @@ class ExpenseControllerTest {
                 .dailyExpenseList(dailyExpensesDtos)
                 .build();
 
-        when(expenseService.getWeeklyExpenseDetails(eq(todayDate), any(Pageable.class))).thenReturn(mockResponse);
+        when(expenseViewService.getWeeklyExpenseDetails(eq(todayDate), any(Pageable.class))).thenReturn(mockResponse);
 
         mockMvc.perform(get("/expense/weekly")
                         .param("date", todayDate.toString()))

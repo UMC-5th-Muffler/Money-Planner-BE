@@ -1,9 +1,7 @@
 package com.umc5th.muffler.domain.expense.controller;
 
-import com.umc5th.muffler.domain.expense.dto.DailyExpenseResponse;
-import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
-import com.umc5th.muffler.domain.expense.dto.NewExpenseResponse;
-import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseResponse;
+import com.umc5th.muffler.domain.expense.dto.*;
+import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
 import com.umc5th.muffler.global.response.Response;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +20,7 @@ import java.time.LocalDate;
 @RequestMapping("/expense")
 public class ExpenseController {
     private final ExpenseService expenseService;
+    private final ExpenseViewService expenseViewService;
 
     @PostMapping("")
     public Response<NewExpenseResponse> enrollNewExpense(@RequestBody @Valid NewExpenseRequest request) {
@@ -34,7 +33,7 @@ public class ExpenseController {
             @RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
             @PageableDefault(size = 20, sort = "createdAt",  direction = Sort.Direction.DESC) Pageable pageable){
 
-        DailyExpenseResponse response = expenseService.getDailyExpenseDetails(date, pageable);
+        DailyExpenseResponse response = expenseViewService.getDailyExpenseDetails(date, pageable);
         return Response.success(response);
     }
 
@@ -46,7 +45,7 @@ public class ExpenseController {
                     @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC)
             }) Pageable pageable){
 
-        WeeklyExpenseResponse response = expenseService.getWeeklyExpenseDetails(date, pageable);
+        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(date, pageable);
         return Response.success(response);
     }
 
