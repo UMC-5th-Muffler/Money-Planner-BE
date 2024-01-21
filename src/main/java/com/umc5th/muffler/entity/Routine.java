@@ -2,6 +2,7 @@ package com.umc5th.muffler.entity;
 
 import com.umc5th.muffler.entity.constant.RoutineType;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -58,8 +59,9 @@ public class Routine {
     private Member member;
 
     // Weekly Column
+    @Builder.Default
     @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL)
-    private List<WeeklyRepeatDay> weeklyRepeatDays;
+    private List<WeeklyRepeatDay> weeklyRepeatDays = new ArrayList<>();
 
     @Column
     private Integer weeklyTerm;
@@ -91,5 +93,9 @@ public class Routine {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public void addRepeatDay(WeeklyRepeatDay weeklyRepeatDay) {
+        this.weeklyRepeatDays.add(weeklyRepeatDay);
     }
 }

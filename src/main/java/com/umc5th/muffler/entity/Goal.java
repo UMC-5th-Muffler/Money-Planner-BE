@@ -2,6 +2,7 @@ package com.umc5th.muffler.entity;
 
 import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -54,8 +55,9 @@ public class Goal extends BaseTimeEntity {
     @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL)
     private List<CategoryGoal> categoryGoals;
 
+    @Builder.Default
     @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL)
-    private List<DailyPlan> dailyPlans;
+    private List<DailyPlan> dailyPlans = new ArrayList<>();
 
     public static Goal of(LocalDate startDate, LocalDate endDate, String title, String memo, String icon, Long totalBudget, Member member) {
         return Goal.builder()
@@ -77,5 +79,9 @@ public class Goal extends BaseTimeEntity {
     public void setCategoryGoals(List<CategoryGoal> categoryGoals) {
         this.categoryGoals = categoryGoals;
         categoryGoals.forEach(categoryGoal -> categoryGoal.setGoal(this));
+    }
+
+    public void addDailyPlan(DailyPlan dailyPlan) {
+        this.dailyPlans.add(dailyPlan);
     }
 }
