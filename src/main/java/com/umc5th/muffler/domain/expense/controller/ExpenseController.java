@@ -49,4 +49,5 @@ public class ExpenseController {
         WeeklyExpenseResponse response = expenseService.getWeeklyExpenseDetails(date, pageable);
         return Response.success(response);
     }
+
 }
