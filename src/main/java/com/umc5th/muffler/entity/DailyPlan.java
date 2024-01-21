@@ -34,6 +34,14 @@ public class DailyPlan extends BaseTimeEntity {
     @Column(nullable = false)
     private Long budget;
 
+    @Column(nullable = false)
+    @ColumnDefault("false")
+    private Boolean isZeroDay;
+
+    @Column(nullable = false)
+    @ColumnDefault("0")
+    private Long totalCost;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "goal_id")
     private Goal goal;
