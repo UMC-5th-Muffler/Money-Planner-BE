@@ -6,19 +6,28 @@ import static com.umc5th.muffler.global.response.code.ErrorCode.EXPENSE_NOT_FOUN
 import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_ROUTINE_INPUT;
 
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
-import com.umc5th.muffler.domain.routine.dto.RoutineConverter;
-import com.umc5th.muffler.domain.routine.dto.RoutineRequest;
+import com.umc5th.muffler.domain.member.repository.MemberRepository;
+import com.umc5th.muffler.domain.routine.dto.*;
 import com.umc5th.muffler.domain.routine.repository.RoutineRepository;
 import com.umc5th.muffler.entity.Expense;
+import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.Routine;
+import com.umc5th.muffler.entity.constant.RoutineType;
+import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.ExpenseException;
+import com.umc5th.muffler.global.response.exception.MemberException;
 import com.umc5th.muffler.global.response.exception.RoutineException;
 import com.umc5th.muffler.global.util.DateTimeProvider;
 import com.umc5th.muffler.global.util.RoutineProcessor;
 import com.umc5th.muffler.global.util.RoutineUtils;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +37,7 @@ public class RoutineService {
     private final DateTimeProvider dateTimeProvider;
     private final RoutineRepository routineRepository;
     private final ExpenseRepository expenseRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional
     public void create(Long expenseId, RoutineRequest request) {
@@ -85,5 +95,29 @@ public class RoutineService {
         expenseRepository.save(
                 Expense.of(date, routine.getTitle(), routine.getMemo(), routine.getCost(), routine.getMember(), routine.getCategory())
         );
+    }
+
+    public RoutineResponse getRoutine(Pageable pageable) {
+
+        Long memberId = 1L;
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Slice<Routine> routineList = routineRepository.findAllByMember(member, pageable);
+
+        Map<Long, RoutineWeeklyDetailDto> weeklyDetailDto = getRoutineDetail(routineList);
+        List<RoutineDetailDto> routineInfoList  = RoutineConverter.toRoutineInfo(routineList, weeklyDetailDto);
+        RoutineResponse response = RoutineConverter.toRoutineResponse(routineInfoList, routineList.hasNext());
+
+        return response;
+    }
+
+    private static Map<Long, RoutineWeeklyDetailDto> getRoutineDetail(Slice<Routine> routineList) {
+        return routineList.stream()
+                .filter(routine -> routine.getType() == RoutineType.WEEKLY)
+                .collect(Collectors.toMap(
+                        Routine::getId,
+                        RoutineConverter::getWeeklyDetail
+                ));
     }
 }

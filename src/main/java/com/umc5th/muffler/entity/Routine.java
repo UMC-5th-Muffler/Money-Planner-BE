@@ -1,5 +1,6 @@
 package com.umc5th.muffler.entity;
 
+import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import com.umc5th.muffler.entity.constant.RoutineType;
 import java.time.LocalDate;
 import java.util.List;
@@ -26,7 +27,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Getter
-public class Routine {
+public class Routine extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
