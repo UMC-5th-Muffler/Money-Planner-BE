@@ -62,6 +62,10 @@ public class Category extends BaseTimeEntity {
     @ColumnDefault("true")
     private Boolean isVisible;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CategoryType type;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
