@@ -16,7 +16,6 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class WholeCalendarResponse {
 
-    private LocalDate calendarDate;
     private Long goalId;
     private String goalTitle;
     private Long goalBudget;

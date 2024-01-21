@@ -26,4 +26,10 @@ public class HomeController {
         WholeCalendarResponse response = homeService.getWholeCalendarInfos(date, year, month);
         return Response.success(response);
     }
+
+    @GetMapping("/{goalId}")
+    public Response<WholeCalendarResponse> getGoalCalendar(@PathVariable Long goalId) {
+        WholeCalendarResponse response = homeService.getGoalCalendarInfos(goalId);
+        return Response.success(response);
+    }
 }

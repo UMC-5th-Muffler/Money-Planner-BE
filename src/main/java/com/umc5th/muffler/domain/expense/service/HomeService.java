@@ -11,6 +11,7 @@ import com.umc5th.muffler.entity.*;
 import com.umc5th.muffler.entity.constant.Level;
 import com.umc5th.muffler.entity.constant.Status;
 import com.umc5th.muffler.global.response.code.ErrorCode;
+import com.umc5th.muffler.global.response.exception.GoalException;
 import com.umc5th.muffler.global.response.exception.HomeException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,6 @@ public class HomeService {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new HomeException(ErrorCode.MEMBER_NOT_FOUND));
         Optional<Goal> goal = goalRepository.findByDateBetween(date, memberId);
 
-
         if (!goal.isPresent()) {
             return new WholeCalendarResponse();
         }
@@ -48,17 +48,32 @@ public class HomeService {
             return new WholeCalendarResponse();
         }
 
+        return process(actualGoal, member, startDate, endDate);
+    }
+
+    public WholeCalendarResponse getGoalCalendarInfos(Long goalId) {
+        Long memberId = 1L;
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new HomeException(ErrorCode.MEMBER_NOT_FOUND));
+        Goal goal = goalRepository.findById(goalId).orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
+
+        LocalDate startDate = goal.getStartDate();
+        LocalDate endDate = adjustEndDate(startDate.getYear(), startDate.getMonthValue(), goal.getEndDate());
+
+        return process(goal, member, startDate, endDate);
+    }
+
+    private WholeCalendarResponse process(Goal goal, Member member, LocalDate startDate, LocalDate endDate) {
         List<Expense> expensesAll = expenseRepository.findAllByMemberAndDateBetween(member, startDate, endDate);
         Long totalCost = calculateTotalCost(expensesAll);
 
-        List<Long> dailyBudgetList = extractDailyBudgets(actualGoal);
-        List<Long> dailyTotalCostList = extractDailyTotalCosts(actualGoal);
-        List<Boolean> isZeroDayList = extractIsZeroDays(actualGoal);
+        List<Long> dailyBudgetList = extractDailyBudgets(goal);
+        List<Long> dailyTotalCostList = extractDailyTotalCosts(goal);
+        List<Boolean> isZeroDayList = extractIsZeroDays(goal);
         // TODO: List<Level> dailyRate 추가
 
-        List<CategoryCalendarInfo> categoryInfoList = getCategoryInfo(actualGoal, member, startDate, endDate);
+        List<CategoryCalendarInfo> categoryInfoList = getCategoryInfo(goal, member, startDate, endDate);
 
-        return HomeConverter.toWholeCalendar(date, actualGoal, startDate, endDate, totalCost, dailyBudgetList, dailyTotalCostList, isZeroDayList, categoryInfoList);
+        return HomeConverter.toWholeCalendar(goal, startDate, endDate, totalCost, dailyBudgetList, dailyTotalCostList, isZeroDayList, categoryInfoList);
     }
 
     private List<CategoryCalendarInfo> getCategoryInfo(Goal goal, Member member, LocalDate startDate, LocalDate endDate) {
