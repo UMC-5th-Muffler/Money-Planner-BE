@@ -5,6 +5,7 @@ import com.umc5th.muffler.entity.CategoryRate;
 import com.umc5th.muffler.entity.DailyPlan;
 import com.umc5th.muffler.entity.Rate;
 import com.umc5th.muffler.entity.constant.Level;
+import com.umc5th.muffler.entity.constant.Status;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +35,9 @@ public class RateConverter {
         if (categoryGoals == null) {
             return Collections.emptyList();
         }
+
         return categoryGoals.stream()
+                .filter(categoryGoal -> categoryGoal.getCategory().getStatus() == Status.ACTIVE)
                 .map(categoryGoal -> {
                     CategoryRate categoryRate = findMatchingCategoryRate(rate, categoryGoal.getId());
                     return CategoryRateResponse.builder()
