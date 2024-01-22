@@ -1,10 +1,8 @@
 package com.umc5th.muffler.fixture;
 
-import com.umc5th.muffler.domain.rate.dto.CategoryRateUpdateRequest;
 import com.umc5th.muffler.domain.rate.dto.RateUpdateRequest;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public class RateUpdateRequestFixture {
 
@@ -14,8 +12,6 @@ public class RateUpdateRequestFixture {
                 .rateId(1L)
                 .totalLevel("MEDIUM")
                 .memo("changeMemo")
-                .categoryRateList(List.of(new CategoryRateUpdateRequest(1L, 1L, "HIGH"),
-                        new CategoryRateUpdateRequest(null, 2L, "LOW")))
                 .build();
     }
 }

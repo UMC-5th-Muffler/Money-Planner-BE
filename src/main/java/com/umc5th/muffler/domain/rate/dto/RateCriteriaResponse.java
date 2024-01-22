@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Builder
 @Getter
 @NoArgsConstructor
@@ -19,6 +17,5 @@ public class RateCriteriaResponse {
     private String memo;
     private Long dailyPlanBudget;
     private Long dailyTotalCost;
-    private List<CategoryRateResponse> categoryRateList;
-
+    private Boolean isZeroDay;
 }

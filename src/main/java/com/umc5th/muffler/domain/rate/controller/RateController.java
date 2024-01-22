@@ -34,8 +34,8 @@ public class RateController {
     }
 
     @PatchMapping
-    public Response<Void> updateRate(@RequestBody @Valid RateUpdateRequest request, Authentication authentication){
-        rateService.updateRate(request, authentication.getName());
+    public Response<Void> updateRate(@RequestBody @Valid RateUpdateRequest request){
+        rateService.updateRate(request);
         return Response.success();
     }
 }

@@ -8,10 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -21,6 +19,7 @@ public class RateUpdateRequest {
     @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
+
     @NotNull
     private Long rateId;
 
@@ -29,7 +28,4 @@ public class RateUpdateRequest {
     private String totalLevel;
 
     private String memo;
-
-    @Valid
-    List<CategoryRateUpdateRequest> categoryRateList;
 }

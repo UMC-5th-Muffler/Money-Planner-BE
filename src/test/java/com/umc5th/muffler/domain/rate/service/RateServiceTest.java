@@ -6,7 +6,6 @@ import com.umc5th.muffler.domain.rate.dto.RateCreateRequest;
 import com.umc5th.muffler.domain.rate.dto.RateCriteriaResponse;
 import com.umc5th.muffler.domain.rate.dto.RateUpdateRequest;
 import com.umc5th.muffler.domain.rate.repository.RateRepository;
-import com.umc5th.muffler.entity.CategoryRate;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.Rate;
@@ -61,7 +60,6 @@ class RateServiceTest {
         assertNotNull(response);
         assertEquals(dailyPlanBudget, response.getDailyPlanBudget());
         assertEquals(dailyTotalCost, response.getDailyTotalCost());
-        assertEquals(0, response.getCategoryRateList().size());
         assertEquals(null, response.getRateId());
 
 
@@ -78,7 +76,6 @@ class RateServiceTest {
         Long dailyTotalCost = DailyPlanFixture.DAILY_PLAN_ONE.getTotalCost();
         Long dailyPlanBudget = DailyPlanFixture.DAILY_PLAN_ONE.getBudget();
         Rate rate = RateFixture.RATE_ONE;
-        CategoryRate categoryRate = CategoryRateFixture.CATEGORY_RATE_ONE;
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.of(mockGoal));
@@ -88,12 +85,8 @@ class RateServiceTest {
         assertNotNull(response);
         assertEquals(dailyPlanBudget, response.getDailyPlanBudget());
         assertEquals(dailyTotalCost, response.getDailyTotalCost());
-        assertEquals(2, response.getCategoryRateList().size());
         assertEquals(rate.getId(), response.getRateId());
         assertEquals(rate.getTotalLevel(), response.getTotalLevel());
-        assertEquals(categoryRate.getLevel(), response.getCategoryRateList().get(0).getLevel());
-        assertEquals(categoryRate.getId(), response.getCategoryRateList().get(0).getCategoryRateId());
-
 
         verify(goalRepository).findByDateBetweenJoin(date, memberId);
     }
@@ -175,22 +168,6 @@ class RateServiceTest {
     }
 
     @Test
-    public void 평가_등록_일치하는_카테고리목표가_없는_경우() {
-        LocalDate date = LocalDate.of(2024, 1, 1);
-        String memberId = "1";
-        RateCreateRequest request = RateCreateRequestFixture.create();
-        Member mockMember = MemberFixture.create();
-        Goal mockGoal = GoalFixture.createWithoutCategoryGoals();
-
-        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.of(mockGoal));
-
-        assertThrows(GoalException.class, () -> rateService.createRate(request, memberId));
-
-        verifyNoInteractions(rateRepository);
-    }
-
-    @Test
     void 평가_수정_성공() {
         LocalDate date = LocalDate.of(2024, 1, 1);
         String memberId = "1";
@@ -200,8 +177,6 @@ class RateServiceTest {
         Member mockMember = MemberFixture.create();
         Goal mockGoal = GoalFixture.create();
         Rate originalRate = RateFixture.RATE_ONE; // 초기 Rate 상태
-        CategoryRate originalCategoryRate = CategoryRateFixture.CATEGORY_RATE_ONE; // 기존에 있던 카테고리 평가
-        CategoryRate newCategoryRate = CategoryRateFixture.CATEGORY_RATE_TWO; // 기존에 없던 카테고리 평가
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.of(mockGoal));
@@ -210,25 +185,15 @@ class RateServiceTest {
         // 변경 전 상태 확인
         Level originalLevel = originalRate.getTotalLevel();
         String originalMemo = originalRate.getMemo();
-        Level originalCategoryRateLevel = originalCategoryRate.getLevel();
-        int originalCategoryRatesSize = originalRate.getCategoryRates().size();
 
-        rateService.updateRate(request, memberId);
+        rateService.updateRate(request);
 
         // 변경 후 상태 확인
         when(rateRepository.findById(rateId)).thenReturn(Optional.of(originalRate));
         Rate updatedRate = rateRepository.findById(rateId).get();
-        CategoryRate updatedCategoryRate = updatedRate.getCategoryRates().stream()
-                .filter(cr -> cr.getId().equals(originalCategoryRate.getId()))
-                .findAny()
-                .get();
 
         assertNotEquals(originalLevel, updatedRate.getTotalLevel());
         assertNotEquals(originalMemo, updatedRate.getMemo());
-        assertNotEquals(originalCategoryRateLevel, updatedCategoryRate.getLevel());
-        assertTrue(updatedRate.getCategoryRates().contains(originalCategoryRate));
-        assertEquals(updatedRate.getCategoryRates().get(1).getLevel(), newCategoryRate.getLevel());
-        assertEquals(originalCategoryRatesSize + 1, updatedRate.getCategoryRates().size()); // 한 개의 새로운 CategoryRate 추가
     }
 
 
@@ -242,7 +207,7 @@ class RateServiceTest {
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(rateRepository.findById(request.getRateId())).thenReturn(Optional.empty());
 
-        assertThrows(RateException.class, () -> rateService.updateRate(request, memberId));
+        assertThrows(RateException.class, () -> rateService.updateRate(request));
     }
 
 
