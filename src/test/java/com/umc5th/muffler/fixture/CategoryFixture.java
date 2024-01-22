@@ -15,11 +15,13 @@ public class CategoryFixture {
             .name("카테고리1")
             .icon("ICON")
             .status(Status.ACTIVE)
+            .priority(0L)
             .build();
     public static final Category CATEGORY_TWO = Category.builder()
             .id(3L)
             .name("카테고리2")
             .icon("ICON")
             .status(Status.ACTIVE)
+            .priority(1L)
             .build();
 }
