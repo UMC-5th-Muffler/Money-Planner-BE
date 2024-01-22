@@ -33,12 +33,11 @@ public class ExpenseViewService {
     private final MemberRepository memberRepository;
     private final GoalRepository goalRepository;
 
-    public DailyExpenseResponse getDailyExpenseDetails(LocalDate date, Pageable pageable){
-        Long memberId = 1L; // 임시
+    public DailyExpenseResponse getDailyExpenseDetails(String memberId, LocalDate date, Pageable pageable){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
         Goal goal = goalRepository.findByDateBetween(date, memberId)
-                .orElseThrow(() -> new ExpenseException(ErrorCode._NO_GOAL_IN_GIVEN_DATE));
+                .orElseThrow(() -> new ExpenseException(ErrorCode.NO_GOAL_IN_GIVEN_DATE));
         List<DailyPlan> dailyPlans = Optional.ofNullable(goal.getDailyPlans())
                 .orElseThrow(() -> new GoalException(ErrorCode.DAILYPLAN_NOT_FOUND));
         DailyPlan dailyPlan = findDailyPlan(dailyPlans, date);
@@ -51,12 +50,11 @@ public class ExpenseViewService {
         return response;
     }
 
-    public WeeklyExpenseResponse getWeeklyExpenseDetails(LocalDate date, Pageable pageable){
-        Long memberId = 1L; // 임시
+    public WeeklyExpenseResponse getWeeklyExpenseDetails(String memberId, LocalDate date, Pageable pageable){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
         Goal goal = goalRepository.findByDateBetween(date, memberId)
-                .orElseThrow(() -> new ExpenseException(ErrorCode._NO_GOAL_IN_GIVEN_DATE));
+                .orElseThrow(() -> new ExpenseException(ErrorCode.NO_GOAL_IN_GIVEN_DATE));
         List<DailyPlan> dailyPlans = Optional.ofNullable(goal.getDailyPlans())
                 .orElseThrow(() -> new GoalException(ErrorCode.DAILYPLAN_NOT_FOUND));
 

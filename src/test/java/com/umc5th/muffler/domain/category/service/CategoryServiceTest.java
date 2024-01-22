@@ -48,7 +48,7 @@ class CategoryServiceTest {
         given(categoryRepository.save(any(Category.class))).willReturn(category);
 
         // when
-        CategoryDto newCategory = categoryService.createNewCategory(1L, request);
+        CategoryDto newCategory = categoryService.createNewCategory("1", request);
         //then
         assertEquals(request.getCategoryName(), newCategory.getName());
     }

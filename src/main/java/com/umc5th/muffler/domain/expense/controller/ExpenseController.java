@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -30,22 +31,24 @@ public class ExpenseController {
 
     @GetMapping("/daily")
     public Response<DailyExpenseResponse> getDailyExpenseDetails(
+            Authentication authentication,
             @RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
             @PageableDefault(size = 20, sort = "createdAt",  direction = Sort.Direction.DESC) Pageable pageable){
 
-        DailyExpenseResponse response = expenseViewService.getDailyExpenseDetails(date, pageable);
+        DailyExpenseResponse response = expenseViewService.getDailyExpenseDetails(authentication.getName(), date, pageable);
         return Response.success(response);
     }
 
     @GetMapping("/weekly")
     public Response<WeeklyExpenseResponse> getWeeklyExpenseDetails(
+            Authentication authentication,
             @RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
             @PageableDefault(size = 20) @SortDefault.SortDefaults({
                     @SortDefault(sort = "date", direction = Sort.Direction.DESC),
                     @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC)
             }) Pageable pageable){
 
-        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(date, pageable);
+        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(authentication.getName(),date, pageable);
         return Response.success(response);
     }
 

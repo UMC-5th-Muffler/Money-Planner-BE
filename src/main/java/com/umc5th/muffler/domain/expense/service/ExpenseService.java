@@ -33,7 +33,7 @@ public class ExpenseService {
         Category category = categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), member.getId())
                 .orElseThrow(() -> new ExpenseException(ErrorCode.CATEGORY_NOT_FOUND));
         Goal goal = goalRepository.findByDateBetween(request.getExpenseDate(), request.getUserId())
-                .orElseThrow(() -> new ExpenseException(ErrorCode._NO_GOAL_IN_GIVEN_DATE));
+                .orElseThrow(() -> new ExpenseException(ErrorCode.NO_GOAL_IN_GIVEN_DATE));
 
         Expense expense = ExpenseConverter.toExpenseEntity(request, member, category);
         expense = expenseRepository.save(expense);

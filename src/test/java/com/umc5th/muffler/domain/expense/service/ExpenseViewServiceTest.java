@@ -7,7 +7,7 @@ import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.fixture.ExpenseFixture;
-import com.umc5th.muffler.fixture.MemberEntityFixture;
+import com.umc5th.muffler.fixture.MemberFixture;
 import com.umc5th.muffler.global.response.exception.MemberException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +45,9 @@ class ExpenseViewServiceTest {
         int pageSize = 10;
         LocalDate testDate = LocalDate.of(2024, 1, 1);
         Pageable pageable = PageRequest.of(0, pageSize);
-        Long memberId = 1L;
+        String memberId = "1";
 
-        Member mockMember = MemberEntityFixture.create();
+        Member mockMember = MemberFixture.create();
 
         List<Expense> expenses = ExpenseFixture.createList(10, testDate);
         Slice<Expense> expenseSlice = new SliceImpl<>(expenses, pageable, false);
@@ -56,7 +56,7 @@ class ExpenseViewServiceTest {
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(expenseRepository.findAllByMemberAndDate(mockMember, testDate, pageable)).thenReturn(expenseSlice);
 
-        DailyExpenseResponse response = expenseViewService.getDailyExpenseDetails(testDate, pageable);
+        DailyExpenseResponse response = expenseViewService.getDailyExpenseDetails(memberId, testDate, pageable);
 
         assertNotNull(response);
         assertEquals(testDate, response.getDate());
@@ -72,24 +72,24 @@ class ExpenseViewServiceTest {
 
         LocalDate testDate = LocalDate.now();
         Pageable pageable = PageRequest.of(0, 10);
-        Long memberId = 1L;
+        String memberId = "1";
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
 
         assertThrows(MemberException.class, () -> {
-            expenseViewService.getDailyExpenseDetails(testDate, pageable);});
+            expenseViewService.getDailyExpenseDetails(memberId, testDate, pageable);});
     }
 
     @Test
     public void 주간_소비내역_조회_성공(){
 
         int pageSize = 10;
-        Long memberId = 1L;
+        String memberId = "1";
         Pageable pageable = PageRequest.of(0, pageSize);
         LocalDate date = LocalDate.of(2024, 1, 1);
         LocalDate startDate = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate endDate = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
-        Member mockMember = MemberEntityFixture.create();
+        Member mockMember = MemberFixture.create();
 
         List<Expense> expenses = ExpenseFixture.createList(20, startDate);
         Slice<Expense> expenseSlice = new SliceImpl<>(expenses, pageable, true);
@@ -99,7 +99,7 @@ class ExpenseViewServiceTest {
         when(expenseRepository.calculateTotalCostByMemberAndDateBetween(mockMember, startDate, endDate)).thenReturn(weeklyTotalCost);
         when(expenseRepository.findAllByMemberAndDateBetween(mockMember, startDate, endDate, pageable)).thenReturn(expenseSlice);
 
-        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(date, pageable);
+        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(memberId, date, pageable);
 
         assertNotNull(response);
         assertEquals(startDate, response.getStartDate());

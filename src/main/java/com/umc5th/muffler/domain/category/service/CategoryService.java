@@ -23,7 +23,7 @@ public class CategoryService {
     private final MemberRepository memberRepository;
     private final CategoryRepository categoryRepository;
 
-    public CategoryDto createNewCategory(Long memberId, NewCategoryRequest request) throws CategoryException {
+    public CategoryDto createNewCategory(String memberId, NewCategoryRequest request) throws CategoryException {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
         Optional<Category> duplicatedCategory = categoryRepository.findCategoryWithNameAndMemberId(

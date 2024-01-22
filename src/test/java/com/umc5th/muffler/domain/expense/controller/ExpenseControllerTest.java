@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.expense.controller;
 
+import com.umc5th.muffler.config.TestSecurityConfig;
 import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.entity.Expense;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Import(TestSecurityConfig.class)
 class ExpenseControllerTest {
 
     @Autowired
@@ -40,7 +43,7 @@ class ExpenseControllerTest {
 
     @Test
     void 일일_소비내역_조회() throws Exception{
-
+        String memberId = "1";
         LocalDate testDate = LocalDate.of(2024, 1, 1);
         List<Expense> expenses = ExpenseFixture.createList(10, testDate);
         List<ExpenseDetailDto> expenseDetailDtos = expenses.stream()
@@ -56,7 +59,7 @@ class ExpenseControllerTest {
                 .categoryList(categoryList)
                 .build();
 
-        when(expenseViewService.getDailyExpenseDetails(eq(testDate), any(Pageable.class))).thenReturn(mockResponse);
+        when(expenseViewService.getDailyExpenseDetails(memberId, eq(testDate), any(Pageable.class))).thenReturn(mockResponse);
 
         // then
         mockMvc.perform(get("/expense/daily")
@@ -71,7 +74,7 @@ class ExpenseControllerTest {
 
     @Test
     public void 주간_소비내역_조회() throws Exception{
-
+        String memberId = "1";
         LocalDate todayDate = LocalDate.of(2024, 1, 1);
         LocalDate startDate = todayDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate endDate = todayDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
@@ -110,7 +113,7 @@ class ExpenseControllerTest {
                 .dailyExpenseList(dailyExpensesDtos)
                 .build();
 
-        when(expenseViewService.getWeeklyExpenseDetails(eq(todayDate), any(Pageable.class))).thenReturn(mockResponse);
+        when(expenseViewService.getWeeklyExpenseDetails(memberId, eq(todayDate), any(Pageable.class))).thenReturn(mockResponse);
 
         mockMvc.perform(get("/expense/weekly")
                         .param("date", todayDate.toString()))
