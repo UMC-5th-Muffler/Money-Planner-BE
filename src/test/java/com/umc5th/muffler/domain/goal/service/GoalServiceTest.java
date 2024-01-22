@@ -34,7 +34,7 @@ class GoalServiceTest {
 
     @Test
     void 전체_목표조회가_성공한경우() {
-        Long memberId = 1L;
+        String memberId = "1";
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mock(Member.class)));
 
         assertThatCode(() -> goalService.getGoals(memberId)).doesNotThrowAnyException();
@@ -44,7 +44,7 @@ class GoalServiceTest {
 
     @Test
     void 전체목표조회시_요청한유저가_존재하지않는경우() {
-        Long memberId = 1L;
+        String memberId = "1";
         when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> goalService.getGoals(memberId))
@@ -54,7 +54,7 @@ class GoalServiceTest {
 
     @Test
     void 목표삭제에_성공할경우() {
-        Long memberId = 1L;
+        String memberId = "1";
         Long goalId = 1L;
 
         Member mockMember = mock(Member.class);
@@ -74,7 +74,7 @@ class GoalServiceTest {
 
     @Test
     void 목표삭제시_요청한유저가_존재하지않는경우() {
-        Long memberId = 1L;
+        String memberId = "1";
         Long goalId = 1L;
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
@@ -86,7 +86,7 @@ class GoalServiceTest {
 
     @Test
     void 목표삭제시_해당목표가_존재하지않는경우() {
-        Long memberId = 1L;
+        String memberId = "1";
         Long goalId = 1L;
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mock(Member.class)));
@@ -99,7 +99,7 @@ class GoalServiceTest {
 
     @Test
     void 목표삭제시_등록한유저가_아닌경우() {
-        Long memberId = 1L;
+        String memberId = "1";
         Long goalId = 1L;
 
         Member mockMember = mock(Member.class);

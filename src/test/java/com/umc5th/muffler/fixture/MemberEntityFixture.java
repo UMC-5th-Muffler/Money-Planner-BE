@@ -8,9 +8,8 @@ import java.util.List;
 public class MemberEntityFixture {
     public static Member create() {
         return Member.builder()
-                .id(1L)
+                .id("1")
                 .name("name")
-                .email("1")
                 .socialType(SocialType.APPLE)
                 .goals(new ArrayList<>(List.of(GoalFixture.create())))
                 .build();

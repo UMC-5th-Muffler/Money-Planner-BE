@@ -37,7 +37,7 @@ public class GoalCreateService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public void create(GoalCreateRequest request, Long memberId) {
+    public void create(GoalCreateRequest request, String memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
         validateGoalInput(request, member);

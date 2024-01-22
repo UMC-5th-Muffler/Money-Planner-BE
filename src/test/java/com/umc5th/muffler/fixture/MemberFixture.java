@@ -5,15 +5,13 @@ import com.umc5th.muffler.entity.constant.SocialType;
 
 public class MemberFixture {
     public static final Member MEMBER_ONE = Member.builder()
-            .id(1L)
+            .id("1")
             .name("one")
-            .email("one@naver.com")
             .socialType(SocialType.KAKAO)
             .build();
     public static final Member MEMBER_TWO = Member.builder()
-            .id(1L)
+            .id("1")
             .name("two")
-            .email("two@naver.com")
             .socialType(SocialType.KAKAO)
             .build();
 }

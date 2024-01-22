@@ -9,8 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface GoalRepository extends JpaRepository<Goal, Long> {
-    List<Goal> findByMemberId(Long memberId);
+    List<Goal> findByMemberId(String memberId);
 
     @Query("SELECT goal from Goal goal where :date BETWEEN goal.startDate and goal.endDate AND goal.member.id = :memberId")
-    Optional<Goal> findByDateBetween(LocalDate date, Long memberId);
+    Optional<Goal> findByDateBetween(LocalDate date, String memberId);
 }

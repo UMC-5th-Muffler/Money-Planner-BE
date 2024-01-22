@@ -13,5 +13,18 @@ spring:
         format_sql: true
         use_sql_comments: true
         dialect: org.hibernate.dialect.MySQL8Dialect
+  profiles:
+    include: oauth
+    active: dev
+
+jwt:
+  secret: ${JWT_SECRET}
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+
 logging.level:
   org.hibernate.SQL: debug
