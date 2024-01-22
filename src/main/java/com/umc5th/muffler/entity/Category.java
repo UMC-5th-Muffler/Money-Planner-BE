@@ -66,6 +66,10 @@ public class Category extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
     // 연관관계 메서드
     public void setMember(Member member) {
         this.member = member;

@@ -7,6 +7,7 @@ import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Member;
+import com.umc5th.muffler.entity.constant.Status;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.CategoryException;
 import java.util.Optional;
@@ -28,12 +29,19 @@ public class CategoryService {
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
         Optional<Category> duplicatedCategory = categoryRepository.findCategoryWithNameAndMemberId(
                 request.getCategoryName(), memberId);
+        Category newCategory;
 
-        if (duplicatedCategory.isPresent())
-            throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
-        Category newCategory = CategoryConverter.toEntity(request);
-        member.addCategory(newCategory);
-        newCategory = categoryRepository.save(newCategory);
+        if (duplicatedCategory.isPresent()) {
+            Category category = duplicatedCategory.get();
+            if (category.getStatus() == Status.ACTIVE)
+                throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
+            category.setStatus(Status.ACTIVE);
+            newCategory = categoryRepository.save(category);
+        } else {
+            newCategory = CategoryConverter.toEntity(request);
+            member.addCategory(newCategory);
+            newCategory = categoryRepository.save(newCategory);
+        }
         return new CategoryDto(newCategory.getId(), newCategory.getName());
     }
 }
