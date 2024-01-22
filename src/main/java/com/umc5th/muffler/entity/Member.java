@@ -12,6 +12,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
@@ -21,15 +22,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Persistable;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 @Builder
 @Entity
 @Getter
-public class Member extends BaseTimeEntity implements UserDetails {
+public class Member extends BaseTimeEntity implements Persistable<String>, UserDetails {
 
     @Id
     private String id;
@@ -57,9 +61,6 @@ public class Member extends BaseTimeEntity implements UserDetails {
     @Builder.Default
     private List<Category> categories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST)
-    private List<Expense> expenses;
-
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
@@ -77,9 +78,9 @@ public class Member extends BaseTimeEntity implements UserDetails {
         this.categories.add(category);
     }
 
-    public void addExpense(Expense expense) {
-        expense.setMember(this);
-        this.expenses.add(expense);
+    @Override
+    public boolean isNew() {
+        return getCreatedAt() == null;
     }
 
     @Override
