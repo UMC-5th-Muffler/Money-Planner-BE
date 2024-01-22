@@ -1,8 +1,9 @@
 package com.umc5th.muffler.domain.category.service;
 
-import com.umc5th.muffler.domain.category.converter.CategoryConverter;
+import com.umc5th.muffler.domain.category.dto.CategoryConverter;
 import com.umc5th.muffler.domain.category.dto.CategoryDto;
 import com.umc5th.muffler.domain.category.dto.NewCategoryRequest;
+import com.umc5th.muffler.domain.category.dto.UpdateCategoryRequest;
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Category;
@@ -43,5 +44,27 @@ public class CategoryService {
             newCategory = categoryRepository.save(newCategory);
         }
         return new CategoryDto(newCategory.getId(), newCategory.getName());
+    }
+
+    public void renameCategory(String memberId, UpdateCategoryRequest request) throws CategoryException {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
+        Category originalCategory = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        if (!originalCategory.getMember().getId().equals(request.getMemberId()))
+            throw new CategoryException(ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
+        Optional<Category> duplicatedCategory = categoryRepository.findCategoryWithNameAndMemberId(request.getName(), memberId);
+        Category updatedCategory;
+
+        if (duplicatedCategory.isPresent()) {
+            updatedCategory = duplicatedCategory.get();
+            if (updatedCategory.getStatus() == Status.INACTIVE) {
+                updatedCategory.setStatus(Status.ACTIVE);
+            } else throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
+        } else {
+            updatedCategory = CategoryConverter.toEntity(originalCategory, request);
+        }
+        categoryRepository.save(updatedCategory);
     }
 }
