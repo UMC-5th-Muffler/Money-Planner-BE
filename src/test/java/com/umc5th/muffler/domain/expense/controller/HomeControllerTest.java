@@ -1,10 +1,10 @@
-package com.umc5th.muffler.domain.home.controller;
+package com.umc5th.muffler.domain.expense.controller;
 
-import com.umc5th.muffler.domain.home.dto.CategoryCalendarInfo;
-import com.umc5th.muffler.domain.home.dto.DailyCategoryInfoDto;
-import com.umc5th.muffler.domain.home.dto.DailyInfoDto;
-import com.umc5th.muffler.domain.home.dto.WholeCalendarResponse;
-import com.umc5th.muffler.domain.home.service.HomeService;
+import com.umc5th.muffler.domain.expense.dto.homeDto.CategoryCalendarInfo;
+import com.umc5th.muffler.domain.expense.dto.homeDto.CategoryCalendarDailyInfo;
+import com.umc5th.muffler.domain.expense.dto.homeDto.WholeCalendarDailyInfo;
+import com.umc5th.muffler.domain.expense.dto.homeDto.WholeCalendarResponse;
+import com.umc5th.muffler.domain.expense.service.HomeService;
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.constant.Level;
@@ -41,10 +41,11 @@ class HomeControllerTest {
     @Test
     void 홈화면_조회() throws Exception {
 
+        String memberId = "1";
         LocalDate testDate = LocalDate.of(2024, 1, 1);
         LocalDate calendarDate = LocalDate.of(2024, 1, 1);
 
-        Goal goal = GoalFixture.createDetail();
+        Goal goal = GoalFixture.create();
 
         List<Long> dailyBudgetList = Arrays.asList(5000L, 5000L);
         List<Long> dailyTotalCostList = Arrays.asList(4000L, 4000L);
@@ -55,8 +56,8 @@ class HomeControllerTest {
 
         long totalCost = dailyTotalCostList.stream().mapToLong(Long::valueOf).sum();
 
-        List<DailyInfoDto> dailyInfoList = IntStream.range(0, dailyBudgetList.size())
-                .mapToObj(i -> DailyInfoDto.builder()
+        List<WholeCalendarDailyInfo> dailyInfoList = IntStream.range(0, dailyBudgetList.size())
+                .mapToObj(i -> WholeCalendarDailyInfo.builder()
                         .dailyBudget(dailyBudgetList.get(i))
                         .dailyTotalCost(dailyTotalCostList.get(i))
                         .dailyRate(Level.HIGH) // 임시
@@ -70,8 +71,8 @@ class HomeControllerTest {
                     Long categoryBudget = categoryBudgetList.get(i);
                     Long categoryTotalCost = categoryTotalCostList.get(i);
 
-                    List<DailyCategoryInfoDto> dailyCategoryInfoList = IntStream.rangeClosed(0, 1)
-                            .mapToObj(day -> new DailyCategoryInfoDto(2000L, Level.HIGH))
+                    List<CategoryCalendarDailyInfo> dailyCategoryInfoList = IntStream.rangeClosed(0, 1)
+                            .mapToObj(day -> new CategoryCalendarDailyInfo(2000L, Level.HIGH))
                             .collect(Collectors.toList());
 
                     return CategoryCalendarInfo.builder()
@@ -85,7 +86,6 @@ class HomeControllerTest {
                 .collect(Collectors.toList());
 
         WholeCalendarResponse mockResponse = WholeCalendarResponse.builder()
-                .calendarDate(calendarDate)
                 .goalId(goal.getId())
                 .goalTitle(goal.getTitle())
                 .goalBudget(goal.getTotalBudget())
@@ -96,7 +96,7 @@ class HomeControllerTest {
                 .categoryCalendarInfo(categoryCalendarInfo)
                 .build();
 
-        when(homeService.getWholeCalendarInfos(testDate, 2024, 1)).thenReturn(mockResponse);
+        when(homeService.getWholeCalendarInfos(testDate, 2024, 1, memberId)).thenReturn(mockResponse);
 
         mockMvc.perform(get("/home")
                         .param("date", "2024-01-01")

@@ -1,9 +1,10 @@
-package com.umc5th.muffler.domain.home.service;
+package com.umc5th.muffler.domain.expense.service;
 
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
+import com.umc5th.muffler.domain.expense.service.HomeService;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
-import com.umc5th.muffler.domain.home.dto.CategoryCalendarInfo;
-import com.umc5th.muffler.domain.home.dto.WholeCalendarResponse;
+import com.umc5th.muffler.domain.expense.dto.homeDto.CategoryCalendarInfo;
+import com.umc5th.muffler.domain.expense.dto.homeDto.WholeCalendarResponse;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.*;
 import com.umc5th.muffler.fixture.*;
@@ -14,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;

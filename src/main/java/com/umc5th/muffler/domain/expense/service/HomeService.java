@@ -29,9 +29,8 @@ public class HomeService {
     private final GoalRepository goalRepository;
     private final ExpenseRepository expenseRepository;
 
-    public WholeCalendarResponse getWholeCalendarInfos(LocalDate date, Integer year, Integer month) {
+    public WholeCalendarResponse getWholeCalendarInfos(LocalDate date, Integer year, Integer month, String memberId) {
 
-        Long memberId = 1L;
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new HomeException(ErrorCode.MEMBER_NOT_FOUND));
         Optional<Goal> goal = goalRepository.findByDateBetween(date, memberId);
 
@@ -51,8 +50,8 @@ public class HomeService {
         return process(actualGoal, member, startDate, endDate);
     }
 
-    public WholeCalendarResponse getGoalCalendarInfos(Long goalId) {
-        Long memberId = 1L;
+    public WholeCalendarResponse getGoalCalendarInfos(Long goalId, String memberId) {
+
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new HomeException(ErrorCode.MEMBER_NOT_FOUND));
         Goal goal = goalRepository.findById(goalId).orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
 
@@ -111,7 +110,7 @@ public class HomeService {
 
         List<CategoryCalendarDailyInfo> dailyCategoryInfoList = budget != null ?
                 dailyCategoryTotalCostList.stream()
-                        .map(cost -> new CategoryCalendarDailyInfo(cost, Level.HIGH)) // 예시: Level 결정 로직 필요
+                        .map(cost -> new CategoryCalendarDailyInfo(cost, Level.HIGH))
                         .collect(Collectors.toList()) : null;
 
         return new CategoryCalendarInfo(category.getId(), category.getName(), budget,

@@ -196,7 +196,8 @@ package.json
 
 ## environment variable file ##
 .env
-
+application-oauth.yml
+application.properties
 
 
 # End of https://www.toptal.com/developers/gitignore/api/java,macos,wintersmith,intellij+all

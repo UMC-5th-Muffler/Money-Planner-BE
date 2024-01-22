@@ -1,10 +1,5 @@
 package com.umc5th.muffler.domain.expense.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.openMocks;
-
-import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
 import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseDetailsResponse;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
@@ -12,7 +7,7 @@ import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.fixture.ExpenseFixture;
-import com.umc5th.muffler.fixture.MemberEntityFixture;
+import com.umc5th.muffler.fixture.MemberFixture;
 import com.umc5th.muffler.global.response.exception.MemberException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +45,9 @@ class ExpenseServiceTest {
         int pageSize = 10;
         LocalDate testDate = LocalDate.of(2024, 1, 1);
         Pageable pageable = PageRequest.of(0, pageSize);
-        Long memberId = 1L;
+        String memberId = "1";
 
-        Member mockMember = MemberEntityFixture.create();
+        Member mockMember = MemberFixture.create();
 
         List<Expense> expenses = ExpenseFixture.createList(10, testDate);
         Slice<Expense> expenseSlice = new SliceImpl<>(expenses, pageable, false);
@@ -79,7 +74,7 @@ class ExpenseServiceTest {
 
         LocalDate testDate = LocalDate.now();
         Pageable pageable = PageRequest.of(0, 10);
-        Long memberId = 1L;
+        String memberId = "1";
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
 
@@ -91,12 +86,12 @@ class ExpenseServiceTest {
     public void 주간_소비내역_조회_성공(){
 
         int pageSize = 10;
-        Long memberId = 1L;
+        String memberId = "1";
         Pageable pageable = PageRequest.of(0, pageSize);
         LocalDate date = LocalDate.of(2024, 1, 1);
         LocalDate startDate = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate endDate = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
-        Member mockMember = MemberEntityFixture.create();
+        Member mockMember = MemberFixture.create();
 
         List<Expense> expenses = ExpenseFixture.createList(20, startDate);
         Slice<Expense> expenseSlice = new SliceImpl<>(expenses, pageable, true);

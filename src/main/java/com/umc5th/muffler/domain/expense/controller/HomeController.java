@@ -5,6 +5,7 @@ import com.umc5th.muffler.domain.expense.service.HomeService;
 import com.umc5th.muffler.global.response.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -21,15 +22,16 @@ public class HomeController {
     public Response<WholeCalendarResponse> getCalendar(
             @RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
             @RequestParam(name = "year") Integer year,
-            @RequestParam(name = "month") Integer month)
+            @RequestParam(name = "month") Integer month,
+            Authentication authentication)
     {
-        WholeCalendarResponse response = homeService.getWholeCalendarInfos(date, year, month);
+        WholeCalendarResponse response = homeService.getWholeCalendarInfos(date, year, month, authentication.getName());
         return Response.success(response);
     }
 
     @GetMapping("/{goalId}")
-    public Response<WholeCalendarResponse> getGoalCalendar(@PathVariable Long goalId) {
-        WholeCalendarResponse response = homeService.getGoalCalendarInfos(goalId);
+    public Response<WholeCalendarResponse> getGoalCalendar(@PathVariable Long goalId, Authentication authentication) {
+        WholeCalendarResponse response = homeService.getGoalCalendarInfos(goalId, authentication.getName());
         return Response.success(response);
     }
 }
