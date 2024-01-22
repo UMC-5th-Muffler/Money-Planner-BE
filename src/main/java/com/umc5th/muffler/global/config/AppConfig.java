@@ -13,5 +13,4 @@ public class AppConfig {
     public DateTimeProvider dateTimeProvider() {
         return new DefaultDateTimeProvider();
     }
-
 }

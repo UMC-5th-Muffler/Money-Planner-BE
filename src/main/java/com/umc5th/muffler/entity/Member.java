@@ -1,41 +1,49 @@
 package com.umc5th.muffler.entity;
 
 import com.umc5th.muffler.entity.base.BaseTimeEntity;
+import com.umc5th.muffler.entity.constant.Role;
 import com.umc5th.muffler.entity.constant.SocialType;
+import com.umc5th.muffler.entity.constant.Status;
+import lombok.*;
+import org.springframework.data.domain.Persistable;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import static com.umc5th.muffler.entity.constant.Status.ACTIVE;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 @Builder
 @Entity
 @Getter
-public class Member extends BaseTimeEntity {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Table(name = "members")
+public class Member extends BaseTimeEntity implements Persistable<String>, UserDetails {
 
-    @Column(length = 50, nullable = false, unique = true)
-    private String email;
+    @Id
+    private String id;
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 20)
     private String name;
 
     @Enumerated(EnumType.STRING)
     private SocialType socialType;
+
+    @Enumerated(EnumType.STRING)
+    private Role role; // authority는 하나만 가능 (ex. "USER,ADMIN"처럼 2개 불가능)
+
+    @Column
+    private String refreshToken;
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    private Status status = ACTIVE;
 
     @OneToMany(mappedBy = "member")
     private List<Goal> goals;
@@ -44,19 +52,8 @@ public class Member extends BaseTimeEntity {
     @Builder.Default
     private List<Category> categories = new ArrayList<>();
 
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST)
-    private List<Expense> expenses;
-
-    // 연관 관계 메서드
-    public void addExpense(Expense expense) {
-        expense.setMember(this);
-        this.expenses.add(expense);
-    }
-
-    public void addCategory(Category category) {
-        category.setMember(this);
-        this.categories.add(category);
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public void addGoal(Goal goal) {
@@ -65,5 +62,50 @@ public class Member extends BaseTimeEntity {
 
     public void removeGoal(Goal goal) {
         this.goals.remove(goal);
+    }
+
+    public void addCategory(Category category) {
+        category.setMember(this);
+        this.categories.add(category);
+    }
+
+    @Override
+    public boolean isNew() {
+        return getCreatedAt() == null;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(role);
+    }
+
+    @Override
+    public String getPassword() {
+        return null;
+    }
+
+    @Override
+    public String getUsername() {
+        return id;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return status.isActive();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return status.isActive();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return status.isActive();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return status.isActive();
     }
 }

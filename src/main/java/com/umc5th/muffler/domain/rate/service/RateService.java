@@ -29,8 +29,7 @@ public class RateService {
     private final GoalRepository goalRepository;
     private final RateRepository rateRepository;
 
-    public RateCriteriaResponse getRateCriteria(LocalDate date){
-        Long memberId = 1L; // 임시
+    public RateCriteriaResponse getRateCriteria(LocalDate date, String memberId){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
         Goal goal = findGoal(date, member.getId());
@@ -42,8 +41,7 @@ public class RateService {
     }
 
     @Transactional
-    public void createRate(RateCreateRequest request){
-        Long memberId = 1L; // 임시
+    public void createRate(RateCreateRequest request, String memberId){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
         Goal goal = findGoal(request.getDate(), member.getId());
@@ -61,8 +59,7 @@ public class RateService {
     }
 
     @Transactional
-    public void updateRate(RateUpdateRequest request){
-        Long memberId = 1L; // 임시
+    public void updateRate(RateUpdateRequest request, String memberId){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
         Rate rate = rateRepository.findById(request.getRateId())
@@ -77,9 +74,9 @@ public class RateService {
         }
     }
 
-    private Goal findGoal(LocalDate date, Long memberId) {
+    private Goal findGoal(LocalDate date, String memberId) {
         return goalRepository.findByDateBetweenJoin(date, memberId)
-                .orElseThrow(() -> new GoalException(ErrorCode._NO_GOAL_IN_GIVEN_DATE));
+                .orElseThrow(() -> new GoalException(ErrorCode.NO_GOAL_IN_GIVEN_DATE));
     }
 
     private DailyPlan findDailyPlan(Goal goal, LocalDate date) {
@@ -93,6 +90,7 @@ public class RateService {
     }
 
     private CategoryGoal findCategoryGoal(Goal goal, Long categoryGoalId) {
+        log.info("cateogyrGoal: {}", goal.getCategoryGoals());
         return Optional.ofNullable(goal.getCategoryGoals())
                 .flatMap(categoryGoals -> categoryGoals.stream()
                         .filter(cg -> cg.getId().equals(categoryGoalId))

@@ -25,12 +25,13 @@ public class WeeklyRoutineProcessor implements RoutineProcessor {
     public List<LocalDate> getRoutineDates(LocalDate startDate, LocalDate endDate, Routine routine) {
         List<LocalDate> result = new ArrayList<>();
         long numberOfDays = ChronoUnit.DAYS.between(startDate, endDate);
+        int weeklyTerm = routine.getWeeklyTerm();
         List<DayOfWeek> routineDayOfWeeks = getDayOfWeeks(routine);
 
         Stream.iterate(startDate.plusDays(1), date -> date.plusDays(1))
                 .limit(numberOfDays + 1)
                 .forEach(date -> {
-                    if (isRoutineDay(startDate, routine.getWeeklyTerm(), date, routineDayOfWeeks)) {
+                    if (isRoutineDay(startDate, weeklyTerm, date, routineDayOfWeeks)) {
                         result.add(date);
                     }
                 });

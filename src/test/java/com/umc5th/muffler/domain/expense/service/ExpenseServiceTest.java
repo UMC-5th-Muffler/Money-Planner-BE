@@ -1,5 +1,12 @@
 package com.umc5th.muffler.domain.expense.service;
 
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
 import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseDetailsResponse;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
@@ -9,6 +16,11 @@ import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.fixture.ExpenseFixture;
 import com.umc5th.muffler.fixture.MemberFixture;
 import com.umc5th.muffler.global.response.exception.MemberException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,16 +29,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 class ExpenseServiceTest {
@@ -45,7 +47,7 @@ class ExpenseServiceTest {
         int pageSize = 10;
         LocalDate testDate = LocalDate.of(2024, 1, 1);
         Pageable pageable = PageRequest.of(0, pageSize);
-        Long memberId = 1L;
+        String memberId = "1";
 
         Member mockMember = MemberFixture.create();
 
@@ -74,7 +76,7 @@ class ExpenseServiceTest {
 
         LocalDate testDate = LocalDate.now();
         Pageable pageable = PageRequest.of(0, 10);
-        Long memberId = 1L;
+        String memberId = "1";
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
 
@@ -86,7 +88,7 @@ class ExpenseServiceTest {
     public void 주간_소비내역_조회_성공(){
 
         int pageSize = 10;
-        Long memberId = 1L;
+        String memberId = "1";
         Pageable pageable = PageRequest.of(0, pageSize);
         LocalDate date = LocalDate.of(2024, 1, 1);
         LocalDate startDate = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));

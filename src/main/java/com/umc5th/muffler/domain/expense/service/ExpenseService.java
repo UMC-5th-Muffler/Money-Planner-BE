@@ -40,7 +40,7 @@ public class ExpenseService {
     private final GoalRepository goalRepository;
 
     public DailyExpenseDetailsResponse getDailyExpenseDetails(LocalDate date, Pageable pageable){
-        Long memberId = 1L; // 임시
+        String memberId = "1"; // 임시
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
@@ -54,10 +54,10 @@ public class ExpenseService {
     }
 
     public WeeklyExpenseDetailsResponse getWeeklyExpenseDetails(LocalDate date, Pageable pageable){
-        Long memberId = 1L; // 임시
+        String memberId = "1"; // 임시
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-        
+
         // 해당 주 월요일 날짜
         LocalDate startDate = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
@@ -89,7 +89,7 @@ public class ExpenseService {
         Category category = categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), member.getId())
                 .orElseThrow(() -> new ExpenseException(ErrorCode.CATEGORY_NOT_FOUND));
         Goal goal = goalRepository.findByDateBetween(request.getExpenseDate(), request.getUserId())
-                .orElseThrow(() -> new ExpenseException(ErrorCode._NO_GOAL_IN_GIVEN_DATE));
+                .orElseThrow(() -> new ExpenseException(ErrorCode.NO_GOAL_IN_GIVEN_DATE));
 
         Expense expense = ExpenseConverter.toExpenseEntity(request, member, category);
         expense = expenseRepository.save(expense);

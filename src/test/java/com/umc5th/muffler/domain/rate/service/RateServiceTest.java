@@ -47,7 +47,7 @@ class RateServiceTest {
     public void 평가항목조회_기존_평가가_없는_경우(){
 
         LocalDate date = LocalDate.of(2024, 1, 2);
-        Long memberId = 1L;
+        String memberId = "1";
         Member mockMember = MemberFixture.create();
         Goal mockGoal = GoalFixture.createWithoutCategoryGoals();
         Long dailyTotalCost = DailyPlanFixture.DAILY_PLAN_TWO.getTotalCost();
@@ -56,7 +56,7 @@ class RateServiceTest {
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.of(mockGoal));
 
-        RateCriteriaResponse response = rateService.getRateCriteria(date);
+        RateCriteriaResponse response = rateService.getRateCriteria(date, memberId);
 
         assertNotNull(response);
         assertEquals(dailyPlanBudget, response.getDailyPlanBudget());
@@ -72,7 +72,7 @@ class RateServiceTest {
     public void 평가항목조회_기존_평가가_있는_경우(){
 
         LocalDate date = LocalDate.of(2024, 1, 1);
-        Long memberId = 1L;
+        String memberId = "1";
         Member mockMember = MemberFixture.create();
         Goal mockGoal = GoalFixture.create();
         Long dailyTotalCost = DailyPlanFixture.DAILY_PLAN_ONE.getTotalCost();
@@ -83,7 +83,7 @@ class RateServiceTest {
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.of(mockGoal));
 
-        RateCriteriaResponse response = rateService.getRateCriteria(date);
+        RateCriteriaResponse response = rateService.getRateCriteria(date, memberId);
 
         assertNotNull(response);
         assertEquals(dailyPlanBudget, response.getDailyPlanBudget());
@@ -94,6 +94,7 @@ class RateServiceTest {
         assertEquals(categoryRate.getLevel(), response.getCategoryRateList().get(0).getLevel());
         assertEquals(categoryRate.getId(), response.getCategoryRateList().get(0).getCategoryRateId());
 
+
         verify(goalRepository).findByDateBetweenJoin(date, memberId);
     }
 
@@ -101,32 +102,32 @@ class RateServiceTest {
     public void 평가항목조회_오늘날짜에_목표가_없는_경우(){
 
         LocalDate date = LocalDate.now();
-        Long memberId = 1L;
+        String memberId = "1";
         Member mockMember = MemberFixture.create();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByDateBetweenJoin(date, memberId)).thenThrow(new GoalException(ErrorCode._NO_GOAL_IN_GIVEN_DATE));
+        when(goalRepository.findByDateBetweenJoin(date, memberId)).thenThrow(new GoalException(ErrorCode.NO_GOAL_IN_GIVEN_DATE));
 
-        assertThrows(GoalException.class, () -> rateService.getRateCriteria(date));
+        assertThrows(GoalException.class, () -> rateService.getRateCriteria(date, memberId));
     }
 
     @Test
     public void 평가항목조회_오늘날짜에_일일계획이_없는_경우(){
         LocalDate date = LocalDate.now();
-        Long memberId = 1L;
+        String memberId = "1";
         Member mockMember = MemberFixture.create();
         Goal mockGoal = GoalFixture.create();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.of(mockGoal));
 
-        assertThrows(RateException.class, () -> rateService.getRateCriteria(date));
+        assertThrows(RateException.class, () -> rateService.getRateCriteria(date, memberId));
     }
 
     @Test
     public void 평가_등록_성공(){
         LocalDate date = LocalDate.of(2024, 1, 1);
-        Long memberId = 1L;
+        String memberId = "1";
         RateCreateRequest request = RateCreateRequestFixture.create();
 
         Member mockMember = MemberFixture.create();
@@ -137,7 +138,7 @@ class RateServiceTest {
         when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.of(mockGoal));
         when(rateRepository.save(any())).thenReturn(mockRate);
 
-        rateService.createRate(request);
+        rateService.createRate(request, memberId);
 
         verify(rateRepository).save(any(Rate.class));
     }
@@ -145,14 +146,14 @@ class RateServiceTest {
     @Test
     public void 평가_등록_목표가_없는_경우() {
         LocalDate date = LocalDate.of(2024, 1, 1);
-        Long memberId = 1L;
+        String memberId = "1";
         RateCreateRequest request = RateCreateRequestFixture.create();
         Member mockMember = MemberFixture.create();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.empty());
 
-        assertThrows(GoalException.class, () -> rateService.createRate(request));
+        assertThrows(GoalException.class, () -> rateService.createRate(request, memberId));
 
         verifyNoInteractions(rateRepository);
     }
@@ -160,7 +161,7 @@ class RateServiceTest {
     @Test
     public void 평가_등록_일일계획이_없는_경우() {
         LocalDate date = LocalDate.of(2024, 1, 1);
-        Long memberId = 1L;
+        String memberId = "1";
         RateCreateRequest request = RateCreateRequestFixture.create();
         Member mockMember = MemberFixture.create();
         Goal mockGoal = GoalFixture.createWithoutDailyPlans();
@@ -168,7 +169,7 @@ class RateServiceTest {
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.of(mockGoal));
 
-        assertThrows(RateException.class, () -> rateService.createRate(request));
+        assertThrows(RateException.class, () -> rateService.createRate(request, memberId));
 
         verifyNoInteractions(rateRepository);
     }
@@ -176,7 +177,7 @@ class RateServiceTest {
     @Test
     public void 평가_등록_일치하는_카테고리목표가_없는_경우() {
         LocalDate date = LocalDate.of(2024, 1, 1);
-        Long memberId = 1L;
+        String memberId = "1";
         RateCreateRequest request = RateCreateRequestFixture.create();
         Member mockMember = MemberFixture.create();
         Goal mockGoal = GoalFixture.createWithoutCategoryGoals();
@@ -184,7 +185,7 @@ class RateServiceTest {
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.of(mockGoal));
 
-        assertThrows(GoalException.class, () -> rateService.createRate(request));
+        assertThrows(GoalException.class, () -> rateService.createRate(request, memberId));
 
         verifyNoInteractions(rateRepository);
     }
@@ -192,7 +193,7 @@ class RateServiceTest {
     @Test
     void 평가_수정_성공() {
         LocalDate date = LocalDate.of(2024, 1, 1);
-        Long memberId = 1L;
+        String memberId = "1";
         Long rateId = 1L;
         RateUpdateRequest request = RateUpdateRequestFixture.create();
 
@@ -212,7 +213,7 @@ class RateServiceTest {
         Level originalCategoryRateLevel = originalCategoryRate.getLevel();
         int originalCategoryRatesSize = originalRate.getCategoryRates().size();
 
-        rateService.updateRate(request);
+        rateService.updateRate(request, memberId);
 
         // 변경 후 상태 확인
         when(rateRepository.findById(rateId)).thenReturn(Optional.of(originalRate));
@@ -233,7 +234,7 @@ class RateServiceTest {
 
     @Test
     void 평가_수정_기존평가가_없는_경우() {
-        Long memberId = 1L;
+        String memberId = "1";
         RateUpdateRequest request = RateUpdateRequestFixture.create();
 
         Member mockMember = MemberFixture.create();
@@ -241,7 +242,7 @@ class RateServiceTest {
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(rateRepository.findById(request.getRateId())).thenReturn(Optional.empty());
 
-        assertThrows(RateException.class, () -> rateService.updateRate(request));
+        assertThrows(RateException.class, () -> rateService.updateRate(request, memberId));
     }
 
 

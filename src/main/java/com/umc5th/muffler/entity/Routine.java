@@ -43,7 +43,7 @@ public class Routine {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column
     private String memo;
 
     @ManyToOne(fetch = FetchType.LAZY)

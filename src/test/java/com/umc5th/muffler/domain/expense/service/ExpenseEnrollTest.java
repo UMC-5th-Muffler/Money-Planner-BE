@@ -48,9 +48,9 @@ public class ExpenseEnrollTest {
         Goal goal = Goal.builder().build();
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(Long.class)))
+        given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.of(category));
-        given(goalRepository.findByDateBetween(any(LocalDate.class), any(Long.class))).willReturn(Optional.of(goal));
+        given(goalRepository.findByDateBetween(any(LocalDate.class), any(String.class))).willReturn(Optional.of(goal));
         given(expenseRepository.save(any(Expense.class))).willReturn(expense);
 
         // given
@@ -70,7 +70,7 @@ public class ExpenseEnrollTest {
         Goal goal = Goal.builder().build();
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(Long.class)))
+        given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.empty());
 
         NewExpenseRequest req = new NewExpenseRequest(member.getId(), expense.getTitle(), expense.getCost(),
@@ -104,9 +104,9 @@ public class ExpenseEnrollTest {
         Goal goal = Goal.builder().build();
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
-        given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(Long.class)))
+        given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.of(category));
-        given(goalRepository.findByDateBetween(any(LocalDate.class), any(Long.class))).willReturn(Optional.empty());
+        given(goalRepository.findByDateBetween(any(LocalDate.class), any(String.class))).willReturn(Optional.empty());
 
         NewExpenseRequest req = new NewExpenseRequest(member.getId(), expense.getTitle(), expense.getCost(),
                 expense.getDate(), null, category.getName());
