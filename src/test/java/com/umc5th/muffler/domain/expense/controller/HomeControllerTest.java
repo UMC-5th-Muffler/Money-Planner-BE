@@ -50,7 +50,7 @@ class HomeControllerTest {
         List<Long> dailyBudgetList = Arrays.asList(5000L, 5000L);
         List<Long> dailyTotalCostList = Arrays.asList(4000L, 4000L);
         List<Boolean> isZeroDayList = Arrays.asList(false, false);
-        List<Category> categoryList = Arrays.asList(CategoryFixture.CATEGORY_ZERO, CategoryFixture.CATEGORY_ONE);
+        List<Category> categoryList = Arrays.asList(CategoryFixture.CATEGORY_ONE, CategoryFixture.CATEGORY_TWO);
         List<Long> categoryBudgetList = Arrays.asList(1000L, 1000L);
         List<Long> categoryTotalCostList = Arrays.asList(4000L, 4000L);
 

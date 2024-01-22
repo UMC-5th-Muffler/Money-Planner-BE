@@ -61,7 +61,7 @@ public class ExpenseFixture {
     }
 
     public static List<Expense> createCategoryExpenseList(int num, LocalDate date, Long categoryId){
-        Member member = Member.builder().id(1L).build();
+        Member member = Member.builder().id("1").build();
         Category category = Category.builder().id(categoryId).icon("icon").build();
 
         return IntStream.rangeClosed(1, num)

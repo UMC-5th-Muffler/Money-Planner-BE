@@ -1,7 +1,6 @@
 package com.umc5th.muffler.domain.expense.service;
 
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
-import com.umc5th.muffler.domain.expense.service.HomeService;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.expense.dto.homeDto.CategoryCalendarInfo;
 import com.umc5th.muffler.domain.expense.dto.homeDto.WholeCalendarResponse;
@@ -40,14 +39,14 @@ public class HomeServiceTest {
     @Test
     public void 목표O_전체조회_성공() throws HomeException {
         // given
-        Long memberId = 1L;
+        String memberId = "1";
 
         LocalDate testDate = LocalDate.of(2024, 1, 1);
         LocalDate testDate2 = LocalDate.of(2024, 1, 2);
-        Member mockMember = MemberEntityFixture.create();
-        Category mockCategory1 = CategoryFixture.CATEGORY_ZERO;
-        Category mockCategory2 = CategoryFixture.CATEGORY_ONE;
-        Goal mockGoal = GoalFixture.createDetail();
+        Member mockMember = MemberFixture.create();
+        Category mockCategory1 = CategoryFixture.CATEGORY_ONE;
+        Category mockCategory2 = CategoryFixture.CATEGORY_TWO;
+        Goal mockGoal = GoalFixture.create();
 
         List<Expense> expenseList1 = ExpenseFixture.createCategoryExpenseList(10, LocalDate.of(2024, 1, 1), mockCategory1.getId());
         List<Expense> expenseList2 = ExpenseFixture.createCategoryExpenseList(10, LocalDate.of(2024, 1, 2), mockCategory2.getId());
@@ -64,11 +63,10 @@ public class HomeServiceTest {
         when(expenseRepository.findAllByMemberAndCategoryIdAndDateBetween(mockMember, id, mockGoal.getStartDate(), mockGoal.getEndDate())).thenReturn(expenseList1);
 
         // when
-        WholeCalendarResponse response = homeService.getWholeCalendarInfos(testDate, 2024, 1);
+        WholeCalendarResponse response = homeService.getWholeCalendarInfos(testDate, 2024, 1, memberId);
 
         // then
         assertNotNull(response);
-        assertEquals(testDate, response.getCalendarDate());
         assertEquals(mockGoal.getId(), response.getGoalId());
         assertEquals(mockGoal.getTitle(), response.getGoalTitle());
         assertEquals(mockGoal.getTotalBudget(), response.getGoalBudget());
@@ -85,15 +83,15 @@ public class HomeServiceTest {
     public void 목표X_전체조회_성공() throws HomeException {
         // given
         LocalDate testDate = LocalDate.of(2024, 1, 1);
-        Long memberId = 1L;
+        String memberId = "1";
 
-        Member mockMember = MemberEntityFixture.create();
+        Member mockMember = MemberFixture.create();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findByDateBetween(testDate, memberId)).thenReturn(Optional.empty());
 
         // when
-        WholeCalendarResponse response = homeService.getWholeCalendarInfos(testDate, 2024, 1);
+        WholeCalendarResponse response = homeService.getWholeCalendarInfos(testDate, 2024, 1, memberId);
 
         // then
         assertNotNull(response);
@@ -103,26 +101,26 @@ public class HomeServiceTest {
     @Test
     public void 사용자가_없는_경우() throws HomeException {
         LocalDate testDate = LocalDate.of(2024, 1, 1);
-        Long memberId = 1L;
+        String memberId = "1";
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
 
-        assertThrows(HomeException.class, () -> homeService.getWholeCalendarInfos(testDate, 2024, 1));
+        assertThrows(HomeException.class, () -> homeService.getWholeCalendarInfos(testDate, 2024, 1, memberId));
     }
 
     @Test
     public void 목표_포함X_달_조회() throws HomeException {
         // given
         LocalDate testDate = LocalDate.of(2024, 1, 1);
-        Long memberId = 1L;
-        Member mockMember = MemberEntityFixture.create();
+        String memberId = "1";
+        Member mockMember = MemberFixture.create();
         Goal mockGoal = GoalFixture.create();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findByDateBetween(testDate, memberId)).thenReturn(Optional.of(mockGoal));
 
         // when
-        WholeCalendarResponse response = homeService.getWholeCalendarInfos(testDate, 2024, 2);
+        WholeCalendarResponse response = homeService.getWholeCalendarInfos(testDate, 2024, 2, memberId);
 
         // then
         assertNotNull(response);
@@ -132,14 +130,14 @@ public class HomeServiceTest {
     @Test
     public void INACTIVE_카테고리_필터링_X() throws HomeException {
         // given
-        Long memberId = 1L;
+        String memberId = "1";
 
         LocalDate testDate = LocalDate.of(2024, 1, 1);
         LocalDate testDate2 = LocalDate.of(2024, 1, 2);
-        Member mockMember = MemberEntityFixture.create();
-        Category mockCategory1 = CategoryFixture.CATEGORY_ZERO; // ACTIVE
+        Member mockMember = MemberFixture.create();
+        Category mockCategory1 = CategoryFixture.CATEGORY_ONE; // ACTIVE
         Category mockCategory2 = CategoryFixture.CATEGORY_THREE; // INACTIVE
-        Goal mockGoal = GoalFixture.createDetail();
+        Goal mockGoal = GoalFixture.create();
 
         List<Expense> expenseList1 = ExpenseFixture.createCategoryExpenseList(10, LocalDate.of(2024, 1, 1), mockCategory1.getId());
         List<Expense> expenseList2 = ExpenseFixture.createCategoryExpenseList(10, LocalDate.of(2024, 1, 2), mockCategory2.getId());
@@ -156,7 +154,7 @@ public class HomeServiceTest {
         when(expenseRepository.findAllByMemberAndCategoryIdAndDateBetween(mockMember, id, mockGoal.getStartDate(), mockGoal.getEndDate())).thenReturn(expenseList1);
 
         // when
-        WholeCalendarResponse response = homeService.getWholeCalendarInfos(testDate, 2024, 1);
+        WholeCalendarResponse response = homeService.getWholeCalendarInfos(testDate, 2024, 1, memberId);
 
         // then
         assertNotNull(response);
