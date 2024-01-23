@@ -1,7 +1,6 @@
 package com.umc5th.muffler.domain.expense.controller;
 
 import com.umc5th.muffler.domain.expense.dto.homeDto.CategoryCalendarInfo;
-import com.umc5th.muffler.domain.expense.dto.homeDto.CategoryCalendarDailyInfo;
 import com.umc5th.muffler.domain.expense.dto.homeDto.WholeCalendarDailyInfo;
 import com.umc5th.muffler.domain.expense.dto.homeDto.WholeCalendarResponse;
 import com.umc5th.muffler.domain.expense.service.HomeService;

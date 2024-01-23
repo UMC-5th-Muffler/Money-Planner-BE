@@ -19,6 +19,5 @@ public class CategoryCalendarInfo {
     private String name;
     private Long categoryBudget;
     private Long categoryTotalCost;
-    private List<CategoryCalendarDailyInfo> categoryGoalSummary;
-    private List<Long> noGoalDailyTotalCost;
+    private List<Long> categoryDailyTotalCost;
 }

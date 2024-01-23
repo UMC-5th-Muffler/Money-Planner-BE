@@ -137,13 +137,8 @@ public class HomeService {
         Long categoryTotalCost = calculateTotalCost(expensesByCategory);
         List<Long> dailyCategoryTotalCostList = calculateDailyTotalCostList(expensesByCategory, startDate, endDate);
 
-        List<CategoryCalendarDailyInfo> dailyCategoryInfoList = budget != null ?
-                dailyCategoryTotalCostList.stream()
-                        .map(cost -> new CategoryCalendarDailyInfo(cost, Level.HIGH))
-                        .collect(Collectors.toList()) : null;
-
         return new CategoryCalendarInfo(category.getId(), category.getName(), budget,
-                categoryTotalCost, dailyCategoryInfoList, budget == null ? dailyCategoryTotalCostList : null);
+                categoryTotalCost, dailyCategoryTotalCostList);
     }
 
     private Long calculateTotalCost(List<Expense> expenses) {
