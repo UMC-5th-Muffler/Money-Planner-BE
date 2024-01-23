@@ -13,8 +13,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,12 +29,6 @@ import org.hibernate.annotations.DynamicUpdate;
 @Builder
 @Entity
 @Getter
-@Table(uniqueConstraints = {
-        @UniqueConstraint(
-            name = "category_name_member_unique",
-            columnNames = {"member_id", "name"}
-        )
-})
 public class Category extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
