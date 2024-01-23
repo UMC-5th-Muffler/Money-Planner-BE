@@ -11,8 +11,9 @@ import java.util.List;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-    @Query(value = "select c from Category c where c.member.id = :memberId and c.name = :name")
+    @Query(value = "select c from Category c where c.member.id = :memberId and c.name = :name and c.status = 'ACTIVE'")
     Optional<Category> findCategoryWithNameAndMemberId(@Param("name") String name, @Param("memberId") String memberId);
-    
+    @Query(value = "select c from Category c join fetch Member m where c.id = :categoryId")
+    Optional<Category> findByIdWithFetchMember(@Param("categoryId") Long id);
     List<Category> findAllByMember(Member member);
 }

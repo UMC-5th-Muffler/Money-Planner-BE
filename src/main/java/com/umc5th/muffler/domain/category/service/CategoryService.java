@@ -33,16 +33,11 @@ public class CategoryService {
         Category newCategory;
 
         if (duplicatedCategory.isPresent()) {
-            Category category = duplicatedCategory.get();
-            if (category.getStatus() == Status.ACTIVE)
-                throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
-            category.setStatus(Status.ACTIVE);
-            newCategory = categoryRepository.save(category);
-        } else {
-            newCategory = CategoryConverter.toEntity(request);
-            member.addCategory(newCategory);
-            newCategory = categoryRepository.save(newCategory);
+            throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
         }
+        newCategory = CategoryConverter.toEntity(request);
+        member.addCategory(newCategory);
+        newCategory = categoryRepository.save(newCategory);
         return new CategoryDto(newCategory.getId(), newCategory.getName());
     }
 

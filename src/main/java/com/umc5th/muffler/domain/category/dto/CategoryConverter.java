@@ -1,6 +1,7 @@
 package com.umc5th.muffler.domain.category.dto;
 
 import com.umc5th.muffler.entity.Category;
+import com.umc5th.muffler.entity.constant.CategoryType;
 import com.umc5th.muffler.entity.constant.Status;
 
 public class CategoryConverter {
@@ -8,6 +9,8 @@ public class CategoryConverter {
         return Category.builder()
                 .icon(dto.getIcon())
                 .name(dto.getCategoryName())
+                .priority(dto.getPriority())
+                .type(CategoryType.CUSTOM)
                 .status(Status.ACTIVE)
                 .build();
     }
