@@ -47,19 +47,16 @@ public class CategoryService {
         Category originalCategory = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        if (!originalCategory.getMember().getId().equals(request.getMemberId()))
+        if (!originalCategory.isOwnMember(memberId))
             throw new CategoryException(ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
         Optional<Category> duplicatedCategory = categoryRepository.findCategoryWithNameAndMemberId(request.getName(), memberId);
         Category updatedCategory;
 
-        if (duplicatedCategory.isPresent()) {
-            updatedCategory = duplicatedCategory.get();
-            if (updatedCategory.getStatus() == Status.INACTIVE) {
-                updatedCategory.setStatus(Status.ACTIVE);
-            } else throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
-        } else {
-            updatedCategory = CategoryConverter.toEntity(originalCategory, request);
-        }
+        if (duplicatedCategory.isPresent())
+            throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
+        if (!originalCategory.isIconUpdatable(request.getIcon()))
+            throw new CategoryException(ErrorCode.CANNOT_UPDATE_DEFAULT_ICON);
+        updatedCategory = CategoryConverter.toEntity(originalCategory, request);
         categoryRepository.save(updatedCategory);
     }
 }

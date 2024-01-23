@@ -67,4 +67,10 @@ public class Category extends BaseTimeEntity {
         this.member = member;
     }
 
+    public Boolean isIconUpdatable(String icon) {
+        return this.icon.equals(icon) || this.type == CategoryType.CUSTOM;
+    }
+    public Boolean isOwnMember(String memberId) {
+        return this.member.getId().equals(memberId);
+    }
 }
