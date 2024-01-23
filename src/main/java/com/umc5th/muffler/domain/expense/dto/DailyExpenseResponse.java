@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.expense.dto;
 
+import com.umc5th.muffler.entity.constant.Level;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +18,8 @@ public class DailyExpenseResponse {
     private LocalDate date;
     private Boolean isZeroDay;
     private Long dailyTotalCost;
-    private List<CategoryDetailDto> categoryList;
+    private Level rateLevel;
+    private String rateMemo;
     private List<ExpenseDetailDto> expenseDetailDtoList;
     private boolean hasNext;
 }

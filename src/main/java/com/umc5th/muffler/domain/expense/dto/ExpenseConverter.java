@@ -1,9 +1,6 @@
 package com.umc5th.muffler.domain.expense.dto;
 
-import com.umc5th.muffler.entity.Category;
-import com.umc5th.muffler.entity.DailyPlan;
-import com.umc5th.muffler.entity.Expense;
-import com.umc5th.muffler.entity.Member;
+import com.umc5th.muffler.entity.*;
 import com.umc5th.muffler.entity.constant.Status;
 import org.springframework.data.domain.Slice;
 
@@ -26,16 +23,16 @@ public class ExpenseConverter {
             .build();
     }
 
-    public static DailyExpenseResponse toDailyExpenseDetailsList(Slice<Expense> expenseList, List<Category> categoryList, LocalDate date, DailyPlan dailyPlan) {
+    public static DailyExpenseResponse toDailyExpenseDetailsList(LocalDate date, Slice<Expense> expenseList, DailyPlan dailyPlan, Rate rate) {
         List<ExpenseDetailDto> expenseDetails = toExpensesDetails(expenseList.getContent());
-        List<CategoryDetailDto> categoryDetails = toCategoryDetails(categoryList);
 
         return DailyExpenseResponse.builder()
                 .dailyTotalCost(dailyPlan.getTotalCost())
                 .date(date)
                 .isZeroDay(dailyPlan.getIsZeroDay())
+                .rateLevel((rate != null) ? rate.getTotalLevel() : null)
+                .rateMemo((rate != null) ? rate.getMemo() : null)
                 .expenseDetailDtoList(expenseDetails)
-                .categoryList(categoryDetails)
                 .hasNext(expenseList.hasNext())
                 .build();
     }
@@ -91,6 +88,7 @@ public class ExpenseConverter {
                         .categoryIcon(expense.getCategory().getIcon())
                         .categoryId(expense.getCategory().getId())
                         .cost(expense.getCost())
+                        .memo(expense.getMemo())
                         .build())
                 .collect(Collectors.toList());
     }

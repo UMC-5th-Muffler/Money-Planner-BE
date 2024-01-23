@@ -11,9 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ExpenseDetailDto { // 소비내역 상세
 
-    private Long expenseId; // 소비내역 id
-    private String title; // 제목
-    private Long cost; // 금액
-    private Long categoryId; // 카테고리 id
-    private String categoryIcon; // 카테고리 아이콘
+    private Long expenseId;
+    private String title;
+    private Long cost;
+    private String memo;
+    private Long categoryId;
+    private String categoryIcon;
 }
