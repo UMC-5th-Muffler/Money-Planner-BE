@@ -19,13 +19,8 @@ public class HomeController {
     private final HomeService homeService;
 
     @GetMapping
-    public Response<WholeCalendarResponse> getCalendar(
-            @RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
-            @RequestParam(name = "year") Integer year,
-            @RequestParam(name = "month") Integer month,
-            Authentication authentication)
-    {
-        WholeCalendarResponse response = homeService.getWholeCalendarInfos(date, year, month, authentication.getName());
+    public Response<WholeCalendarResponse> getCalendar(Authentication authentication) {
+        WholeCalendarResponse response = homeService.getWholeCalendarInfos(authentication.getName());
         return Response.success(response);
     }
 

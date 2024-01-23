@@ -96,7 +96,7 @@ class HomeControllerTest {
                 .categoryCalendarInfo(categoryCalendarInfo)
                 .build();
 
-        when(homeService.getWholeCalendarInfos(testDate, 2024, 1, memberId)).thenReturn(mockResponse);
+        when(homeService.getWholeCalendarInfos(memberId)).thenReturn(mockResponse);
 
         mockMvc.perform(get("/home")
                         .param("date", "2024-01-01")

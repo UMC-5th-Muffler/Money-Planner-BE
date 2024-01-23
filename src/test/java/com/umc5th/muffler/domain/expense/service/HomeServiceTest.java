@@ -63,7 +63,7 @@ public class HomeServiceTest {
         when(expenseRepository.findAllByMemberAndCategoryIdAndDateBetween(mockMember, id, mockGoal.getStartDate(), mockGoal.getEndDate())).thenReturn(expenseList1);
 
         // when
-        WholeCalendarResponse response = homeService.getWholeCalendarInfos(testDate, 2024, 1, memberId);
+        WholeCalendarResponse response = homeService.getWholeCalendarInfos(memberId);
 
         // then
         assertNotNull(response);
@@ -91,7 +91,7 @@ public class HomeServiceTest {
         when(goalRepository.findByDateBetween(testDate, memberId)).thenReturn(Optional.empty());
 
         // when
-        WholeCalendarResponse response = homeService.getWholeCalendarInfos(testDate, 2024, 1, memberId);
+        WholeCalendarResponse response = homeService.getWholeCalendarInfos(memberId);
 
         // then
         assertNotNull(response);
@@ -105,7 +105,7 @@ public class HomeServiceTest {
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
 
-        assertThrows(HomeException.class, () -> homeService.getWholeCalendarInfos(testDate, 2024, 1, memberId));
+        assertThrows(HomeException.class, () -> homeService.getWholeCalendarInfos(memberId));
     }
 
     @Test
@@ -120,7 +120,7 @@ public class HomeServiceTest {
         when(goalRepository.findByDateBetween(testDate, memberId)).thenReturn(Optional.of(mockGoal));
 
         // when
-        WholeCalendarResponse response = homeService.getWholeCalendarInfos(testDate, 2024, 2, memberId);
+        WholeCalendarResponse response = homeService.getWholeCalendarInfos(memberId);
 
         // then
         assertNotNull(response);
@@ -154,7 +154,7 @@ public class HomeServiceTest {
         when(expenseRepository.findAllByMemberAndCategoryIdAndDateBetween(mockMember, id, mockGoal.getStartDate(), mockGoal.getEndDate())).thenReturn(expenseList1);
 
         // when
-        WholeCalendarResponse response = homeService.getWholeCalendarInfos(testDate, 2024, 1, memberId);
+        WholeCalendarResponse response = homeService.getWholeCalendarInfos(memberId);
 
         // then
         assertNotNull(response);

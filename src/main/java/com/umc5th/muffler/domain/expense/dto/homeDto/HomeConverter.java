@@ -11,14 +11,14 @@ import java.util.stream.IntStream;
 public class HomeConverter {
 
     public static WholeCalendarResponse toWholeCalendar(
-            Goal goal, LocalDate startDate, LocalDate endDate, Long totalCost,
-            List<Long> dailyBudgetList, List<Long> dailyTotalCostList, List<Boolean> isZeroDayList, List<CategoryCalendarInfo> categoryCalendarInfo)
+            Goal goal, LocalDate startDate, LocalDate endDate, Long totalCost, List<Long> dailyBudgetList, List<Long> dailyTotalCostList,
+            List<Level> dailyRateList, List<Boolean> isZeroDayList, List<CategoryCalendarInfo> categoryCalendarInfo, List<OtherGoalsInfo> otherGoalsInfoList)
     {
         List<WholeCalendarDailyInfo> dailyInfoList = IntStream.range(0, dailyBudgetList.size())
                 .mapToObj(i -> WholeCalendarDailyInfo.builder()
                         .dailyBudget(dailyBudgetList.get(i))
                         .dailyTotalCost(dailyTotalCostList.get(i))
-                        .dailyRate(Level.HIGH) // 임시
+                        .dailyRate(dailyRateList.get(i))
                         .isZeroDay(isZeroDayList.get(i))
                         .build())
                 .collect(Collectors.toList());
@@ -32,6 +32,7 @@ public class HomeConverter {
                 .totalCost(totalCost)
                 .categoryCalendarInfo(categoryCalendarInfo)
                 .dailyList(dailyInfoList)
+                .otherGoalsInfo(otherGoalsInfoList)
                 .build();
     }
 }
