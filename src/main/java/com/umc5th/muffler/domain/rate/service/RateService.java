@@ -63,7 +63,7 @@ public class RateService {
     }
 
     private Goal findGoal(LocalDate date, String memberId) {
-        return goalRepository.findByDateBetweenJoin(date, memberId)
+        return goalRepository.findByDateBetween(date, memberId)
                 .orElseThrow(() -> new GoalException(ErrorCode.NO_GOAL_IN_GIVEN_DATE));
     }
 

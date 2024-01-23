@@ -53,7 +53,7 @@ class RateServiceTest {
         Long dailyPlanBudget = DailyPlanFixture.DAILY_PLAN_TWO.getBudget();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.of(mockGoal));
+        when(goalRepository.findByDateBetween(date, memberId)).thenReturn(Optional.of(mockGoal));
 
         RateCriteriaResponse response = rateService.getRateCriteria(date, memberId);
 
@@ -63,7 +63,7 @@ class RateServiceTest {
         assertEquals(null, response.getRateId());
 
 
-        verify(goalRepository).findByDateBetweenJoin(date, memberId);
+        verify(goalRepository).findByDateBetween(date, memberId);
     }
 
     @Test
@@ -78,7 +78,7 @@ class RateServiceTest {
         Rate rate = RateFixture.RATE_ONE;
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.of(mockGoal));
+        when(goalRepository.findByDateBetween(date, memberId)).thenReturn(Optional.of(mockGoal));
 
         RateCriteriaResponse response = rateService.getRateCriteria(date, memberId);
 
@@ -88,7 +88,7 @@ class RateServiceTest {
         assertEquals(rate.getId(), response.getRateId());
         assertEquals(rate.getTotalLevel(), response.getTotalLevel());
 
-        verify(goalRepository).findByDateBetweenJoin(date, memberId);
+        verify(goalRepository).findByDateBetween(date, memberId);
     }
 
     @Test
@@ -99,7 +99,7 @@ class RateServiceTest {
         Member mockMember = MemberFixture.create();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByDateBetweenJoin(date, memberId)).thenThrow(new GoalException(ErrorCode.NO_GOAL_IN_GIVEN_DATE));
+        when(goalRepository.findByDateBetween(date, memberId)).thenThrow(new GoalException(ErrorCode.NO_GOAL_IN_GIVEN_DATE));
 
         assertThrows(GoalException.class, () -> rateService.getRateCriteria(date, memberId));
     }
@@ -112,7 +112,7 @@ class RateServiceTest {
         Goal mockGoal = GoalFixture.create();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.of(mockGoal));
+        when(goalRepository.findByDateBetween(date, memberId)).thenReturn(Optional.of(mockGoal));
 
         assertThrows(RateException.class, () -> rateService.getRateCriteria(date, memberId));
     }
@@ -128,7 +128,7 @@ class RateServiceTest {
         Rate mockRate = mock(Rate.class);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.of(mockGoal));
+        when(goalRepository.findByDateBetween(date, memberId)).thenReturn(Optional.of(mockGoal));
         when(rateRepository.save(any())).thenReturn(mockRate);
 
         rateService.createRate(request, memberId);
@@ -144,7 +144,7 @@ class RateServiceTest {
         Member mockMember = MemberFixture.create();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.empty());
+        when(goalRepository.findByDateBetween(date, memberId)).thenReturn(Optional.empty());
 
         assertThrows(GoalException.class, () -> rateService.createRate(request, memberId));
 
@@ -160,7 +160,7 @@ class RateServiceTest {
         Goal mockGoal = GoalFixture.createWithoutDailyPlans();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.of(mockGoal));
+        when(goalRepository.findByDateBetween(date, memberId)).thenReturn(Optional.of(mockGoal));
 
         assertThrows(RateException.class, () -> rateService.createRate(request, memberId));
 
@@ -179,7 +179,7 @@ class RateServiceTest {
         Rate originalRate = RateFixture.RATE_ONE; // 초기 Rate 상태
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByDateBetweenJoin(date, memberId)).thenReturn(Optional.of(mockGoal));
+        when(goalRepository.findByDateBetween(date, memberId)).thenReturn(Optional.of(mockGoal));
         when(rateRepository.findById(rateId)).thenReturn(Optional.of(originalRate));
 
         // 변경 전 상태 확인
