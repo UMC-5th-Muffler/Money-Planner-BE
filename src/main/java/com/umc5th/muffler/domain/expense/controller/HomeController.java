@@ -29,4 +29,12 @@ public class HomeController {
         WholeCalendarResponse response = homeService.getGoalCalendarInfos(goalId, authentication.getName());
         return Response.success(response);
     }
+
+    @GetMapping("/{goalId}/{year}")
+    public Response<WholeCalendarResponse> turnPageOfCalendar(
+            @PathVariable Long goalId, @PathVariable Integer year,
+            @RequestParam(name = "month") Integer month, Authentication authentication) {
+        WholeCalendarResponse response = homeService.getTurnPage(goalId, authentication.getName(), year, month);
+        return Response.success(response);
+    }
 }

@@ -62,7 +62,7 @@ public class HomeService {
     public WholeCalendarResponse getGoalCalendarInfos(Long goalId, String memberId) {
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new HomeException(ErrorCode.MEMBER_NOT_FOUND));
-        Goal goal = goalRepository.findById(goalId).orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND)); // goalId로 goal을 구해오고. 그 달에 존재하는 다른 goal에 대해 찾아봐야 함.
+        Goal goal = goalRepository.findById(goalId).orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
 
         LocalDate startDate = goal.getStartDate();
         LocalDate endDate = adjustEndDate(startDate.getYear(), startDate.getMonthValue(), goal.getEndDate());
@@ -76,6 +76,32 @@ public class HomeService {
                 .collect(Collectors.toList());
 
         List<OtherGoalsInfo> otherGoalsInfoList = createOtherGoalsInfoList(otherGoals, startDate.getYear(), startDate.getMonthValue());
+        return process(goal, member, startDate, endDate, otherGoalsInfoList);
+    }
+
+    public WholeCalendarResponse getTurnPage(Long goalId, String memberId, Integer year, Integer month) {
+
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new HomeException(ErrorCode.MEMBER_NOT_FOUND));
+
+        YearMonth yearMonth = YearMonth.of(year, month);
+        LocalDate startOfMonth = yearMonth.atDay(1); LocalDate endOfMonth = yearMonth.atEndOfMonth();
+        List<Goal> goalList = goalRepository.findGoalsByMonth(startOfMonth, endOfMonth, memberId)
+                .orElse(Collections.emptyList());
+
+        Optional<Goal> matchingGoal = goalList.stream()
+                .filter(goal -> goal.getId().equals(goalId))
+                .findFirst();
+        List<Goal> otherGoals = goalList.stream()
+                .filter(goal -> !goal.getId().equals(goalId))
+                .collect(Collectors.toList());
+        List<OtherGoalsInfo> otherGoalsInfoList = createOtherGoalsInfoList(otherGoals, year, month);
+
+        if (!matchingGoal.isPresent()) {
+            return HomeConverter.toOtherGoalsCalendar(otherGoalsInfoList);
+        }
+        Goal goal = matchingGoal.get();
+        LocalDate startDate = adjustStartDate(year, month, goal.getStartDate());
+        LocalDate endDate = adjustEndDate(year, month, goal.getEndDate());
         return process(goal, member, startDate, endDate, otherGoalsInfoList);
     }
 
