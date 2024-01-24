@@ -52,21 +52,22 @@ public class CategoryService {
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
         Category originalCategory = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
+        Category updatedCategory;
 
         if (!originalCategory.isOwnMember(memberId))
             throw new CategoryException(ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
-        Optional<Category> duplicatedCategory = categoryRepository.findCategoryWithNameAndMemberId(request.getName(), memberId);
-        Category updatedCategory;
 
+        if (!originalCategory.isIconUpdatable(request.getIcon()))
+            throw new CategoryException(ErrorCode.CANNOT_UPDATE_DEFAULT_ICON);
+        if (!originalCategory.isNameUpdatable(request.getName()))
+            throw new CategoryException(ErrorCode.CANNOT_UPDATE_ETC_CATEGORY_NAME);
+
+        Optional<Category> duplicatedCategory = categoryRepository.findCategoryWithNameAndMemberId(request.getName(), memberId);
         if (duplicatedCategory.isPresent()) {
             Category category = duplicatedCategory.get();
             if (!category.getId().equals(request.getCategoryId()))
                 throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
         }
-        if (!originalCategory.isIconUpdatable(request.getIcon()))
-            throw new CategoryException(ErrorCode.CANNOT_UPDATE_DEFAULT_ICON);
-        if (!originalCategory.isNameUpdatable(request.getName()))
-            throw new CategoryException(ErrorCode.CANNOT_UPDATE_ETC_CATEGORY_NAME);
         updatedCategory = CategoryConverter.toEntity(originalCategory, request);
         categoryRepository.save(updatedCategory);
     }

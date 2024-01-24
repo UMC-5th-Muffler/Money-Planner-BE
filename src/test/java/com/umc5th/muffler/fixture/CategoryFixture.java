@@ -31,6 +31,13 @@ public class CategoryFixture {
             .type(CategoryType.DEFAULT)
             .status(Status.ACTIVE)
             .build();
+    public static final Category ETC_CATEGORY = Category.builder()
+            .id(5L)
+            .name(Category.ETC_CATEGORY_NAME)
+            .icon("ICON")
+            .type(CategoryType.DEFAULT)
+            .status(Status.ACTIVE)
+            .build();
     public static Category createSameNamedDifferentCategory(Category category) {
         return Category.builder()
                 .id(category.getId() + 100L)

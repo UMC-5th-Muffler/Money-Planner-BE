@@ -104,8 +104,6 @@ public class CategoryUpdateTest {
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
         given(categoryRepository.findById(any(Long.class))).willReturn(Optional.of(category));
-        given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
-                .willReturn(Optional.empty());
 
         assertThatThrownBy(() ->categoryService.updateCategory(member.getId(), request))
                 .isInstanceOf(CategoryException.class)
@@ -158,8 +156,6 @@ public class CategoryUpdateTest {
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
         given(categoryRepository.findById(any(Long.class))).willReturn(Optional.of(category));
-        given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
-                .willReturn(Optional.empty());
 
         assertThatThrownBy(() ->categoryService.updateCategory(member.getId(), request))
                 .isInstanceOf(CategoryException.class)
@@ -173,7 +169,7 @@ public class CategoryUpdateTest {
         Category category = CategoryFixture.DEFAULT_CATEGORY_FOUR;
         Category sameNamed = CategoryFixture.createSameNamedDifferentCategory(category);
         UpdateCategoryRequest request = new UpdateCategoryRequest(member.getId(), category.getId(),
-                "수정이름", "수정아이콘", Boolean.FALSE, 0L);
+                "수정이름", category.getIcon(), Boolean.FALSE, 0L);
         member.addCategory(category);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
