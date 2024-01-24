@@ -1,6 +1,7 @@
 package com.umc5th.muffler.domain.category.controller;
 
 import com.umc5th.muffler.domain.category.dto.CategoryDto;
+import com.umc5th.muffler.domain.category.dto.DeleteCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryRequest;
 import com.umc5th.muffler.domain.category.dto.UpdateCategoryRequest;
 import com.umc5th.muffler.domain.category.service.CategoryService;
@@ -34,8 +35,8 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{categoryId}")
-    private Response<Void> deleteCategory(Principal principal, @PathVariable("categoryId") Long categoryId) {
-        categoryService.deactivateCategory(principal.getName(), categoryId);
-        return Response.success();
+    private Response<DeleteCategoryResponse> deleteCategory(Principal principal, @PathVariable("categoryId") Long categoryId) {
+        DeleteCategoryResponse response = categoryService.deactivateCategory(principal.getName(), categoryId);
+        return Response.success(response);
     }
 }

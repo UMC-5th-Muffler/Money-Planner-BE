@@ -30,6 +30,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @Entity
 @Getter
 public class Category extends BaseTimeEntity {
+    public static final String ETC_CATEGORY_NAME = "기타";
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -67,10 +68,13 @@ public class Category extends BaseTimeEntity {
         this.member = member;
     }
 
-    public Boolean isIconUpdatable(String icon) {
-        return this.icon.equals(icon) || this.type == CategoryType.CUSTOM;
+    public Boolean isIconUpdatable(String newIcon) {
+        return icon.equals(newIcon) || type == CategoryType.CUSTOM;
     }
     public Boolean isOwnMember(String memberId) {
-        return this.member.getId().equals(memberId);
+        return member.getId().equals(memberId);
+    }
+    public Boolean isNameUpdatable(String newName) {
+        return name.equals(newName) || !name.equals(ETC_CATEGORY_NAME);
     }
 }

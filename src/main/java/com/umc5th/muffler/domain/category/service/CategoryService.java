@@ -2,16 +2,20 @@ package com.umc5th.muffler.domain.category.service;
 
 import com.umc5th.muffler.domain.category.dto.CategoryConverter;
 import com.umc5th.muffler.domain.category.dto.CategoryDto;
+import com.umc5th.muffler.domain.category.dto.DeleteCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryRequest;
 import com.umc5th.muffler.domain.category.dto.UpdateCategoryRequest;
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
+import com.umc5th.muffler.domain.routine.repository.RoutineRepository;
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Member;
+import com.umc5th.muffler.entity.Routine;
 import com.umc5th.muffler.entity.constant.CategoryType;
 import com.umc5th.muffler.entity.constant.Status;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.CategoryException;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CategoryService {
     private final MemberRepository memberRepository;
+    private final RoutineRepository routineRepository;
     private final CategoryRepository categoryRepository;
 
     public CategoryDto createNewCategory(String memberId, NewCategoryRequest request) throws CategoryException {
@@ -60,11 +65,13 @@ public class CategoryService {
         }
         if (!originalCategory.isIconUpdatable(request.getIcon()))
             throw new CategoryException(ErrorCode.CANNOT_UPDATE_DEFAULT_ICON);
+        if (!originalCategory.isNameUpdatable(request.getName()))
+            throw new CategoryException(ErrorCode.CANNOT_UPDATE_ETC_CATEGORY_NAME);
         updatedCategory = CategoryConverter.toEntity(originalCategory, request);
         categoryRepository.save(updatedCategory);
     }
 
-    public void deactivateCategory(String memberId, Long categoryId) throws CategoryException {
+    public DeleteCategoryResponse deactivateCategory(String memberId, Long categoryId) throws CategoryException {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
         Category category = categoryRepository.findById(categoryId)
@@ -78,5 +85,10 @@ public class CategoryService {
             throw new CategoryException(ErrorCode.CANNOT_DELETE_DEFAULT_CATEGORY);
         category.setStatus(Status.INACTIVE);
         categoryRepository.save(category);
+
+        Category etcCategory = categoryRepository.findCategoryWithNameAndMemberId(Category.ETC_CATEGORY_NAME, memberId)
+                .orElseThrow(() -> new CategoryException(ErrorCode.ETC_CATEGORY_NOT_FOUND));
+        int updatedRows = routineRepository.updateRoutinesWithDeletedCategory(categoryId, etcCategory.getId());
+        return new DeleteCategoryResponse(updatedRows);
     }
 }
