@@ -38,6 +38,14 @@ public class CategoryFixture {
             .type(CategoryType.DEFAULT)
             .status(Status.ACTIVE)
             .build();
+    public static final Category INACTIVE_CATEGORY_SIX = Category.builder()
+            .id(6L)
+            .name("카테고리6")
+            .icon("ICON")
+            .type(CategoryType.CUSTOM)
+            .status(Status.INACTIVE)
+            .build();
+
     public static Category createSameNamedDifferentCategory(Category category) {
         return Category.builder()
                 .id(category.getId() + 100L)
