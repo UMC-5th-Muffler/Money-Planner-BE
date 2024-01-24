@@ -84,7 +84,7 @@ public class GoalFixture {
                 .icon("icon")
                 .totalBudget(10000L)
                 .categoryGoals(List.of(CategoryGoalFixture.CATEGORY_GOAL_ONE, CategoryGoalFixture.CATEGORY_GOAL_TWO))
-                .dailyPlans(List.of(DailyPlanFixture.DAILY_PLAN_THREE, DailyPlanFixture.DAILY_PLAN_FOUR))
+                .dailyPlans(List.of(DailyPlanFixture.DAILY_PLAN_FIVE, DailyPlanFixture.DAILY_PLAN_SIX))
                 .build();
     }
 }
