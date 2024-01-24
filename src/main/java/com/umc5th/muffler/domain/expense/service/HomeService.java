@@ -31,49 +31,30 @@ public class HomeService {
     public WholeCalendarResponse getWholeCalendarInfos(String memberId) {
 
         LocalDate date = LocalDate.now();
-        int year = date.getYear();
-        int month = date.getMonthValue();
-
+        Integer year = date.getYear(); Integer month = date.getMonthValue();
         LocalDate startOfMonth = date.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate endOfMonth = date.with(TemporalAdjusters.lastDayOfMonth());
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new HomeException(ErrorCode.MEMBER_NOT_FOUND));
-        Optional<List<Goal>> goalOpList = goalRepository.findGoalsByMonth(startOfMonth, endOfMonth, memberId);
+        List<Goal> goalList = goalRepository.findGoalsByMonth(startOfMonth, endOfMonth, memberId)
+                .orElse(Collections.emptyList());
 
-        if (!goalOpList.isPresent()) {
+        if (goalList.isEmpty()) { // 아무런 목표도 없음
             return new WholeCalendarResponse();
         }
 
-        List<Goal> goalList = goalOpList.get();
-        Optional<Goal> goalWithinDate = goalList.stream()
-                .filter(goal -> !date.isBefore(goal.getStartDate()) && !date.isAfter(goal.getEndDate()))
-                .findFirst();
-        List<Goal> otherGoals = goalList.stream()
-                .filter(goal -> date.isBefore(goal.getStartDate()) || date.isAfter(goal.getEndDate()))
-                .collect(Collectors.toList());
+        Map<Boolean, List<Goal>> partitionGoals = goalList.stream()
+                .collect(Collectors.partitioningBy(goal -> !date.isBefore(goal.getStartDate()) && !date.isAfter(goal.getEndDate())));
+        Optional<Goal> goalWithinDate = partitionGoals.get(true).stream().findFirst();
+        List<Goal> otherGoals = partitionGoals.get(false);
+        List<OtherGoalsInfo> otherGoalsInfoList = createOtherGoalsInfoList(otherGoals, year, month);
 
-        Goal goal = goalWithinDate.orElse(null);
-
-        LocalDate goalStartDate = goal.getStartDate(); LocalDate goalEndDate = goal.getEndDate();
-        LocalDate startDate = adjustStartDate(year, month, goalStartDate);
-        LocalDate endDate = adjustEndDate(year, month, goalEndDate);
-
-        List<OtherGoalsInfo> otherGoalsInfoList = new ArrayList<>();
-        if (!otherGoals.isEmpty()) {
-            for (Goal otherGoal : otherGoals) {
-                LocalDate otherStartDate = adjustStartDate(year, month, otherGoal.getStartDate());
-                LocalDate otherEndDate = adjustEndDate(year, month, otherGoal.getEndDate());
-
-                List<Level> dailyRate = extractRates(otherGoal, otherStartDate, otherEndDate);
-
-                OtherGoalsInfo otherGoalsInfo = OtherGoalsInfo.builder()
-                        .otherStartDate(otherStartDate)
-                        .otherEndDate(otherEndDate)
-                        .totalLevelList(dailyRate)
-                        .build();
-                otherGoalsInfoList.add(otherGoalsInfo);
-            }
+        if (!goalWithinDate.isPresent()) { // 오늘 날짜에 해당되는 목표X, 다른 목표는 존재
+            return HomeConverter.toOtherGoalsCalendar(otherGoalsInfoList);
         }
+        Goal goal = goalWithinDate.get();
+        LocalDate startDate = adjustStartDate(year, month, goal.getStartDate());
+        LocalDate endDate = adjustEndDate(year, month, goal.getEndDate());
 
         return process(goal, member, startDate, endDate, otherGoalsInfoList);
     }
@@ -81,11 +62,20 @@ public class HomeService {
     public WholeCalendarResponse getGoalCalendarInfos(Long goalId, String memberId) {
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new HomeException(ErrorCode.MEMBER_NOT_FOUND));
-        Goal goal = goalRepository.findById(goalId).orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
+        Goal goal = goalRepository.findById(goalId).orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND)); // goalId로 goal을 구해오고. 그 달에 존재하는 다른 goal에 대해 찾아봐야 함.
 
         LocalDate startDate = goal.getStartDate();
         LocalDate endDate = adjustEndDate(startDate.getYear(), startDate.getMonthValue(), goal.getEndDate());
-        List<OtherGoalsInfo> otherGoalsInfoList = new ArrayList<>();
+
+        LocalDate startOfMonth = startDate.with(TemporalAdjusters.firstDayOfMonth());
+        LocalDate endOfMonth = startDate.with(TemporalAdjusters.lastDayOfMonth());
+        List<Goal> otherGoals = goalRepository.findGoalsByMonth(startOfMonth, endOfMonth, memberId)
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(otherGoal -> !otherGoal.equals(goal))
+                .collect(Collectors.toList());
+
+        List<OtherGoalsInfo> otherGoalsInfoList = createOtherGoalsInfoList(otherGoals, startDate.getYear(), startDate.getMonthValue());
         return process(goal, member, startDate, endDate, otherGoalsInfoList);
     }
 
@@ -102,6 +92,25 @@ public class HomeService {
         List<CategoryCalendarInfo> categoryInfoList = getCategoryInfo(goal, member, startDate, endDate);
 
         return HomeConverter.toWholeCalendar(goal, startDate, endDate, totalCost, dailyBudgetList, dailyTotalCostList, dailyRateList, isZeroDayList, categoryInfoList, otherGoalsInfoList);
+    }
+
+    private List<OtherGoalsInfo> createOtherGoalsInfoList(List<Goal> otherGoals, Integer year, Integer month) {
+        if (otherGoals.isEmpty()) {
+            return null;
+        }
+        return otherGoals.stream()
+                .map(otherGoal -> {
+                    LocalDate otherStartDate = adjustStartDate(year, month, otherGoal.getStartDate());
+                    LocalDate otherEndDate = adjustEndDate(year, month, otherGoal.getEndDate());
+                    List<Level> dailyRate = extractRates(otherGoal, otherStartDate, otherEndDate);
+
+                    return OtherGoalsInfo.builder()
+                            .otherStartDate(otherStartDate)
+                            .otherEndDate(otherEndDate)
+                            .totalLevelList(dailyRate)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 
     private List<CategoryCalendarInfo> getCategoryInfo(Goal goal, Member member, LocalDate startDate, LocalDate endDate) {

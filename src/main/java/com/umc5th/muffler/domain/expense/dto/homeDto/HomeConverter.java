@@ -35,4 +35,11 @@ public class HomeConverter {
                 .otherGoalsInfo(otherGoalsInfoList)
                 .build();
     }
+
+    public static WholeCalendarResponse toOtherGoalsCalendar(List<OtherGoalsInfo> otherGoalsInfoList) {
+
+        return WholeCalendarResponse.builder()
+                .otherGoalsInfo(otherGoalsInfoList)
+                .build();
+    }
 }
