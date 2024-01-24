@@ -181,4 +181,21 @@ public class CategoryUpdateTest {
                 .isInstanceOf(CategoryException.class)
                 .hasFieldOrPropertyWithValue("errorCode",ErrorCode.DUPLICATED_CATEGORY_NAME);
     }
+
+    @Test
+    @Transactional
+    void 기타_카테고리의_이름을_수정하려는_경우_실패() {
+        Member member = MemberFixture.MEMBER_ONE;
+        Category category = CategoryFixture.ETC_CATEGORY;
+        UpdateCategoryRequest request = new UpdateCategoryRequest(member.getId(), category.getId(),
+                "수정이름", category.getIcon(), Boolean.FALSE, 0L);
+        member.addCategory(category);
+
+        given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
+        given(categoryRepository.findById(any(Long.class))).willReturn(Optional.of(category));
+
+        assertThatThrownBy(() ->categoryService.updateCategory(member.getId(), request))
+                .isInstanceOf(CategoryException.class)
+                .hasFieldOrPropertyWithValue("errorCode",ErrorCode.CANNOT_UPDATE_ETC_CATEGORY_NAME);
+    }
 }
