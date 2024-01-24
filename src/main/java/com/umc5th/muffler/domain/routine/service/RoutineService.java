@@ -40,6 +40,7 @@ public class RoutineService {
     private final ExpenseRepository expenseRepository;
     private final MemberRepository memberRepository;
 
+    // TODO : 소비 등록 서비스와 연결
     @Transactional
     public void create(Long expenseId, RoutineRequest request) {
         Expense expense = expenseRepository.findById(expenseId)

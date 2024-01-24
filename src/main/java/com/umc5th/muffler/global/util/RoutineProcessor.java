@@ -6,6 +6,5 @@ import java.util.List;
 
 public interface RoutineProcessor {
     boolean isRoutineDay(LocalDate date, Routine routine);
-
     List<LocalDate> getRoutineDates(LocalDate startDate, LocalDate endDate, Routine routine);
 }

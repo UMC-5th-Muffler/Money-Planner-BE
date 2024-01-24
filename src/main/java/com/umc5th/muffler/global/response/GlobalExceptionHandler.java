@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
                 .body(Response.error("Request is incomplete.", errors));
     }
 
-    @ExceptionHandler(value = CustomException.class)
+    @ExceptionHandler(CustomException.class)
     public ResponseEntity<Object> handleCustomException(CustomException e) {
         log.error("Error occurs {}", e.toString());
         ErrorCode errorCode = e.getErrorCode();

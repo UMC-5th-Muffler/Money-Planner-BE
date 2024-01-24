@@ -45,7 +45,7 @@ public class ExpenseFixture {
     }
 
     public static List<Expense> createList(int num, LocalDate date){
-        Member member = Member.builder().id(1L).build();
+        Member member = Member.builder().id("1").build();
         Category category = Category.builder().id(1L).icon("icon").build();
 
         return IntStream.rangeClosed(1, num)
