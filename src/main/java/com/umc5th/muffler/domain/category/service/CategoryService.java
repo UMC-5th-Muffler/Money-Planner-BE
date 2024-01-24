@@ -8,6 +8,7 @@ import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Member;
+import com.umc5th.muffler.entity.constant.CategoryType;
 import com.umc5th.muffler.entity.constant.Status;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.CategoryException;
@@ -61,5 +62,21 @@ public class CategoryService {
             throw new CategoryException(ErrorCode.CANNOT_UPDATE_DEFAULT_ICON);
         updatedCategory = CategoryConverter.toEntity(originalCategory, request);
         categoryRepository.save(updatedCategory);
+    }
+
+    public void deactivateCategory(String memberId, Long categoryId) throws CategoryException {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        if (!category.isOwnMember(memberId))
+            throw new CategoryException(ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
+        if (category.getStatus() == Status.INACTIVE)
+            throw new CategoryException(ErrorCode.ALREADY_INACTIVE_CATEGORY);
+        if (category.getType() == CategoryType.DEFAULT)
+            throw new CategoryException(ErrorCode.CANNOT_DELETE_DEFAULT_CATEGORY);
+        category.setStatus(Status.INACTIVE);
+        categoryRepository.save(category);
     }
 }

@@ -39,8 +39,9 @@ public enum ErrorCode {
     // Routine 에러
     INVALID_ROUTINE_INPUT(HttpStatus.BAD_REQUEST, "올바르지 않은 루틴 입력입니다."),
     ROUTINE_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "루틴 타입이 없거나 유효하지 않습니다."),
-    ;
-
+    ALREADY_INACTIVE_CATEGORY(HttpStatus.BAD_REQUEST, "이미 삭제된 카테고리 입니다."),
+    CANNOT_DELETE_DEFAULT_CATEGORY(HttpStatus.BAD_REQUEST,"기본 카테고리는 삭제할 수 없습니다."),
+    CANNOT_UPDATE_DEFAULT_ICON(HttpStatus.BAD_REQUEST, "디폴트 카테고리는 아이콘을 수정할 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
