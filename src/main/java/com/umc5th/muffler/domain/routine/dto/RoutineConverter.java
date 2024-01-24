@@ -28,9 +28,10 @@ public class RoutineConverter {
                     RoutineDetailDto.RoutineDetailDtoBuilder builder = RoutineDetailDto.builder()
                             .routineId(routine.getId())
                             .routineTitle(routine.getTitle())
-                            .endDate(routine.getEndDate())
-                            .categoryId(routine.getCategory().getId())
-                            .categoryIcon(routine.getCategory().getIcon());
+                            .routineMemo(routine.getMemo())
+                            .routineCost(routine.getCost())
+                            .categoryIcon(routine.getCategory().getIcon())
+                            .categoryName(routine.getCategory().getName());
 
                     if (weeklyDetailDtoList.containsKey(routine.getId())) {
                         builder.weeklyDetail(weeklyDetailDtoList.get(routine.getId()));

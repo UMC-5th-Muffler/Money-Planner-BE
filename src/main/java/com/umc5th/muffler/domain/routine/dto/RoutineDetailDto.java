@@ -16,9 +16,10 @@ import java.time.LocalDate;
 public class RoutineDetailDto {
     private Long routineId;
     private String routineTitle;
-    private LocalDate endDate;
-    private Long categoryId;
+    private String routineMemo;
+    private Long routineCost;
     private String categoryIcon;
+    private String categoryName;
     private Integer monthlyRepeatDay;
     private RoutineWeeklyDetailDto weeklyDetail;
 }

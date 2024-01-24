@@ -125,10 +125,8 @@ public class RoutineService {
     @Transactional
     public void delete(Long routineId, String memberId) {
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
-        Routine routine = routineRepository.findById(routineId)
-                .orElseThrow(() -> new RoutineException(ROUTINE_NOT_FOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
+        Routine routine = routineRepository.findById(routineId).orElseThrow(() -> new RoutineException(ROUTINE_NOT_FOUND));
 
         if(!Objects.equals(member.getId(), routine.getMember().getId())) {
             throw new CommonException(INVALID_PERMISSION);
