@@ -27,4 +27,33 @@ public class DailyPlanFixture {
             .totalCost(2000L)
             .build();
 
+    public static final DailyPlan DAILY_PLAN_THREE = DailyPlan.builder()
+            .id(3L)
+            .date(LocalDate.now())
+            .budget(5000L)
+            .totalCost(1000L)
+            .rate(RateFixture.RATE_ONE)
+            .build();
+
+    public static final DailyPlan DAILY_PLAN_FOUR = DailyPlan.builder()
+            .id(4L)
+            .date(LocalDate.now().plusDays(1))
+            .budget(5000L)
+            .totalCost(2000L)
+            .build();
+
+    public static final DailyPlan DAILY_PLAN_FIVE = DailyPlan.builder()
+            .id(5L)
+            .date(LocalDate.of(2024, 1, 31))
+            .budget(5000L)
+            .totalCost(1000L)
+            .rate(RateFixture.RATE_ONE)
+            .build();
+
+    public static final DailyPlan DAILY_PLAN_SIX = DailyPlan.builder()
+            .id(6L)
+            .date(LocalDate.of(2024, 2, 1))
+            .budget(5000L)
+            .totalCost(2000L)
+            .build();
 }

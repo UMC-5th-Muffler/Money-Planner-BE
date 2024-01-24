@@ -28,4 +28,12 @@ public class CategoryFixture {
             .priority(3L)
             .isVisible(true)
             .build();
+    public static final Category CATEGORY_FOUR = Category.builder()
+            .id(4L)
+            .name("카테고리4")
+            .icon("ICON")
+            .status(Status.ACTIVE)
+            .priority(4L)
+            .isVisible(false)
+            .build();
 }

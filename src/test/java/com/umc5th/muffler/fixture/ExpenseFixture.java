@@ -60,9 +60,8 @@ public class ExpenseFixture {
                         .collect(Collectors.toList());
     }
 
-    public static List<Expense> createCategoryExpenseList(int num, LocalDate date, Long categoryId){
-        Member member = Member.builder().id("1").build();
-        Category category = Category.builder().id(categoryId).icon("icon").build();
+    public static List<Expense> createCategoryExpenseList(int num, LocalDate date, Category category){
+        Member member = MemberFixture.MEMBER_ONE;
 
         return IntStream.rangeClosed(1, num)
                 .mapToObj(i -> Expense.builder()
