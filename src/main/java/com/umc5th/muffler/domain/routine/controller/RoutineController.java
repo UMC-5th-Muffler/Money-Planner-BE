@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,15 +19,16 @@ public class RoutineController {
 
     @GetMapping
     public Response<RoutineResponse> getRoutine(
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            Authentication authentication) {
 
-        RoutineResponse response = routineService.getRoutine(pageable);
+        RoutineResponse response = routineService.getRoutine(pageable, authentication.getName());
         return Response.success(response);
     }
 
     @DeleteMapping("/{routineId}")
-    public Response<Void> delete(@PathVariable Long routineId) {
-        routineService.delete(routineId);
+    public Response<Void> delete(@PathVariable Long routineId, Authentication authentication) {
+        routineService.delete(routineId, authentication.getName());
         return Response.success();
     }
 }

@@ -99,22 +99,21 @@ public class RoutineService {
         );
     }
 
-    public RoutineResponse getRoutine(Pageable pageable) {
+    public RoutineResponse getRoutine(Pageable pageable, String memberId) {
 
-        Long memberId = 1L;
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         Slice<Routine> routineList = routineRepository.findAllByMember(member, pageable);
 
-        Map<Long, RoutineWeeklyDetailDto> weeklyDetailDto = getRoutineDetail(routineList);
+        Map<Long, RoutineWeeklyDetailDto> weeklyDetailDto = getWeeklyRoutine(routineList);
         List<RoutineDetailDto> routineInfoList  = RoutineConverter.toRoutineInfo(routineList, weeklyDetailDto);
         RoutineResponse response = RoutineConverter.toRoutineResponse(routineInfoList, routineList.hasNext());
 
         return response;
     }
 
-    private static Map<Long, RoutineWeeklyDetailDto> getRoutineDetail(Slice<Routine> routineList) {
+    private static Map<Long, RoutineWeeklyDetailDto> getWeeklyRoutine(Slice<Routine> routineList) {
         return routineList.stream()
                 .filter(routine -> routine.getType() == RoutineType.WEEKLY)
                 .collect(Collectors.toMap(
@@ -124,8 +123,8 @@ public class RoutineService {
     }
 
     @Transactional
-    public void delete(Long routineId) {
-        Long memberId = 1L;
+    public void delete(Long routineId, String memberId) {
+
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
         Routine routine = routineRepository.findById(routineId)
