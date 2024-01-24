@@ -38,8 +38,8 @@ class CategoryServiceTest {
     public void 정상실행() throws CategoryException {
         //given
         Member member = MemberFixture.MEMBER_ONE;
-        Category category = CategoryFixture.CATEGORY_ONE;
-        NewCategoryRequest request = new NewCategoryRequest(member.getId(),category.getName(), category.getIcon());
+        Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
+        NewCategoryRequest request = new NewCategoryRequest(member.getId(),category.getName(), category.getIcon(), 0L);
 
         given(categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), request.getMemberId()))
                 .willReturn(Optional.empty());
@@ -57,10 +57,10 @@ class CategoryServiceTest {
     public void 중복_이름() throws CategoryException {
         // given
         Member member = MemberFixture.MEMBER_ONE;
-        Category haveCategory = CategoryFixture.CATEGORY_ONE;
+        Category haveCategory = CategoryFixture.CUSTOM_CATEGORY_ONE;
         member.addCategory(haveCategory);
 
-        NewCategoryRequest request = new NewCategoryRequest(member.getId(),haveCategory.getName(), haveCategory.getIcon());
+        NewCategoryRequest request = new NewCategoryRequest(member.getId(),haveCategory.getName(), haveCategory.getIcon(), 0L);
         // when
         given(memberRepository.findById(member.getId())).willReturn(Optional.ofNullable(member));
         given(categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), request.getMemberId()))
@@ -75,8 +75,8 @@ class CategoryServiceTest {
     public void 사용자_아이디가_없는경우() throws CategoryException {
         //given
         Member member = MemberFixture.MEMBER_TWO;
-        Category category = CategoryFixture.CATEGORY_ONE;
-        NewCategoryRequest request = new NewCategoryRequest(member.getId(), category.getName(), category.getIcon());
+        Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
+        NewCategoryRequest request = new NewCategoryRequest(member.getId(), category.getName(), category.getIcon(), 0L);
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
         // when

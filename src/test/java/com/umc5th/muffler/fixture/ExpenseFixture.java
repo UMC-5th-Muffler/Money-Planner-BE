@@ -40,7 +40,7 @@ public class ExpenseFixture {
                 .cost(100L)
                 .memo("memo")
                 .member(MemberFixture.MEMBER_ONE)
-                .category(CategoryFixture.CATEGORY_ONE)
+                .category(CategoryFixture.CUSTOM_CATEGORY_ONE)
                 .build();
     }
 

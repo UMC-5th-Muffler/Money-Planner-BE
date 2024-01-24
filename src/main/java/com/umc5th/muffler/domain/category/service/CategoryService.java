@@ -41,7 +41,7 @@ public class CategoryService {
         return new CategoryDto(newCategory.getId(), newCategory.getName());
     }
 
-    public void renameCategory(String memberId, UpdateCategoryRequest request) throws CategoryException {
+    public void updateCategory(String memberId, UpdateCategoryRequest request) throws CategoryException {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
         Category originalCategory = categoryRepository.findById(request.getCategoryId())
@@ -52,8 +52,11 @@ public class CategoryService {
         Optional<Category> duplicatedCategory = categoryRepository.findCategoryWithNameAndMemberId(request.getName(), memberId);
         Category updatedCategory;
 
-        if (duplicatedCategory.isPresent())
-            throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
+        if (duplicatedCategory.isPresent()) {
+            Category category = duplicatedCategory.get();
+            if (!category.getId().equals(request.getCategoryId()))
+                throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
+        }
         if (!originalCategory.isIconUpdatable(request.getIcon()))
             throw new CategoryException(ErrorCode.CANNOT_UPDATE_DEFAULT_ICON);
         updatedCategory = CategoryConverter.toEntity(originalCategory, request);

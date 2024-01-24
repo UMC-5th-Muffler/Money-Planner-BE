@@ -43,7 +43,7 @@ public class ExpenseEnrollTest {
     @Test
     public void 정상_입력() {
         Member member = MemberFixture.MEMBER_ONE;
-        Category category = CategoryFixture.CATEGORY_ONE;
+        Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
         Expense expense = ExpenseFixture.EXPENSE_ONE;
         Goal goal = Goal.builder().build();
 
@@ -65,7 +65,7 @@ public class ExpenseEnrollTest {
     @Test
     public void 등록_안된_카테고리의_경우() {
         Member member = MemberFixture.MEMBER_ONE;
-        Category category = CategoryFixture.CATEGORY_ONE;
+        Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
         Expense expense = ExpenseFixture.EXPENSE_ONE;
         Goal goal = Goal.builder().build();
 
@@ -83,7 +83,7 @@ public class ExpenseEnrollTest {
     @Test
     public void 멤버가_등록_안된_경우() {
         Member member = MemberFixture.MEMBER_ONE;
-        Category category = CategoryFixture.CATEGORY_ONE;
+        Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
         Expense expense = ExpenseFixture.EXPENSE_ONE;
         Goal goal = Goal.builder().build();
 
@@ -99,7 +99,7 @@ public class ExpenseEnrollTest {
     @Test
     public void 목표가_등록_안된_경우() {
         Member member = MemberFixture.MEMBER_ONE;
-        Category category = CategoryFixture.CATEGORY_ONE;
+        Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
         Expense expense = ExpenseFixture.EXPENSE_ONE;
         Goal goal = Goal.builder().build();
 
