@@ -3,7 +3,10 @@ package com.umc5th.muffler.fixture;
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Member;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -49,14 +52,20 @@ public class ExpenseFixture {
         Category category = Category.builder().id(1L).icon("icon").build();
 
         return IntStream.rangeClosed(1, num)
-                .mapToObj(i -> Expense.builder()
-                        .date(date)
-                        .title("title")
-                        .cost(100L)
-                        .memo("memo")
-                        .member(member)
-                        .category(category)
-                        .build())
-                        .collect(Collectors.toList());
+                .mapToObj(i -> {
+                    Expense expense = Expense.builder()
+                            .id(Long.valueOf(i))
+                            .date(date)
+                            .title("title")
+                            .cost(100L)
+                            .memo("memo")
+                            .member(member)
+                            .category(category)
+                            .build();
+                    // createdAt 오름차순으로 생성
+                    ReflectionTestUtils.setField(expense, "createdAt", LocalDateTime.now().plusHours(i));
+                    return expense;
+                })
+                .collect(Collectors.toList());
     }
 }

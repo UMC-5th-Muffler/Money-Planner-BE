@@ -4,7 +4,9 @@ import com.umc5th.muffler.config.TestSecurityConfig;
 import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.entity.Expense;
+import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.fixture.ExpenseFixture;
+import com.umc5th.muffler.fixture.MemberFixture;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,6 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.DayOfWeek;
@@ -42,26 +45,24 @@ class ExpenseControllerTest {
 
 
     @Test
-    void 일일_소비내역_조회() throws Exception{
-        String memberId = "1";
+    @WithMockUser
+    void 일일_소비내역_조회() throws Exception {
         LocalDate testDate = LocalDate.of(2024, 1, 1);
         List<Expense> expenses = ExpenseFixture.createList(10, testDate);
         List<ExpenseDetailDto> expenseDetailDtos = expenses.stream()
-                .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getCategory().getId(), expense.getCategory().getIcon()))
+                .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getMemo(), expense.getCategory().getId(), expense.getCategory().getIcon()))
                 .collect(Collectors.toList());
-        List<CategoryDetailDto> categoryList = List.of(CategoryDetailDto.builder().id(1L).name("icon").build());
         long expDailyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
 
         DailyExpenseResponse mockResponse = DailyExpenseResponse.builder()
                 .date(testDate)
                 .dailyTotalCost(expDailyTotalCost)
                 .expenseDetailDtoList(expenseDetailDtos)
-                .categoryList(categoryList)
                 .build();
 
-        when(expenseViewService.getDailyExpenseDetails(memberId, eq(testDate), any(Pageable.class))).thenReturn(mockResponse);
+        when(expenseViewService.getDailyExpenseDetails(any(), eq(testDate), any(Pageable.class)))
+                .thenReturn(mockResponse);
 
-        // then
         mockMvc.perform(get("/expense/daily")
                         .param("date", testDate.toString())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -71,6 +72,7 @@ class ExpenseControllerTest {
                 .andExpect(jsonPath("$.result.dailyTotalCost", is((int) expDailyTotalCost)))
                 .andExpect(jsonPath("$.result.date", is(testDate.toString())));
     }
+
 
     @Test
     public void 주간_소비내역_조회() throws Exception{
@@ -90,7 +92,7 @@ class ExpenseControllerTest {
                     LocalDate dailyDate = entry.getKey();
                     List<Expense> dailyExpenses = entry.getValue();
                     List<ExpenseDetailDto> expenseDetailDtos = dailyExpenses.stream()
-                            .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getCategory().getId(), expense.getCategory().getIcon()))
+                            .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getMemo(), expense.getCategory().getId(), expense.getCategory().getIcon()))
                             .collect(Collectors.toList());
 
                     Long dailyTotalCost = dailyExpenses.stream().mapToLong(Expense::getCost).sum();
