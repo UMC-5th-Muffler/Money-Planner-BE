@@ -68,4 +68,26 @@ public class ExpenseFixture {
                 })
                 .collect(Collectors.toList());
     }
+
+    public static List<Expense> createListWithStartNum(int start, int num, LocalDate date){
+        Member member = Member.builder().id("1").build();
+        Category category = Category.builder().id(1L).icon("icon").build();
+
+        return IntStream.rangeClosed(start, start+num-1)
+                .mapToObj(i -> {
+                    Expense expense = Expense.builder()
+                            .id(Long.valueOf(i))
+                            .date(date)
+                            .title("title")
+                            .cost(100L)
+                            .memo("memo")
+                            .member(member)
+                            .category(category)
+                            .build();
+                    // createdAt 오름차순으로 생성
+                    ReflectionTestUtils.setField(expense, "createdAt", LocalDateTime.now().plusHours(i));
+                    return expense;
+                })
+                .collect(Collectors.toList());
+    }
 }
