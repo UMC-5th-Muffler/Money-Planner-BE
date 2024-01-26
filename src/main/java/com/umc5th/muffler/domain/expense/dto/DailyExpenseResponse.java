@@ -20,6 +20,6 @@ public class DailyExpenseResponse {
     private Long dailyTotalCost;
     private Level rateLevel;
     private String rateMemo;
-    private List<ExpenseDetailDto> expenseDetailDtoList;
+    private List<ExpenseDetailDto> expenseDetailList;
     private boolean hasNext;
 }

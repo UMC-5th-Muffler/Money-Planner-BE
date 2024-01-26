@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ExpenseConverter {
 
@@ -32,7 +33,7 @@ public class ExpenseConverter {
                 .isZeroDay(dailyPlan.getIsZeroDay())
                 .rateLevel((rate != null) ? rate.getTotalLevel() : null)
                 .rateMemo((rate != null) ? rate.getMemo() : null)
-                .expenseDetailDtoList(expenseDetails)
+                .expenseDetailList(expenseDetails)
                 .hasNext(expenseList.hasNext())
                 .build();
     }
@@ -63,9 +64,58 @@ public class ExpenseConverter {
             return DailyExpensesDto.builder()
                     .date(dailyDate)
                     .dailyTotalCost(dailyTotalCost)
-                    .expenseDetailDtoList(expenseDetails)
+                    .expenseDetailList(expenseDetails)
                     .build();
         }).collect(Collectors.toList());
+    }
+
+    public static List<DailyExpensesDto> toMonthlyDailyExpenseDetailsList(Map<LocalDate, List<Expense>> expensesByDate, Map<LocalDate, Long> dailyTotalCostMap, String order) {
+        Stream<Map.Entry<LocalDate, List<Expense>>> stream = expensesByDate.entrySet().stream();
+
+        if ("ASC".equalsIgnoreCase(order)) {
+            stream = stream.sorted(Map.Entry.comparingByKey());
+        }
+
+        return stream.map(entry -> {
+            LocalDate dailyDate = entry.getKey();
+            List<Expense> dailyExpenseList = entry.getValue();
+            Long dailyTotalCost = dailyTotalCostMap.getOrDefault(dailyDate, 0L);
+
+            List<ExpenseDetailDto> expenseDetails = toMonthlyExpensesDetails(dailyExpenseList);
+
+            return DailyExpensesDto.builder()
+                    .date(dailyDate)
+                    .dailyTotalCost(dailyTotalCost)
+                    .expenseDetailList(expenseDetails)
+                    .build();
+        }).collect(Collectors.toList());
+    }
+
+    public static List<DailyExpensesDto> toMonthlyDailyExpenseDetailsList(Map<LocalDate, List<Expense>> expensesByDate, String order) {
+        Stream<Map.Entry<LocalDate, List<Expense>>> stream = expensesByDate.entrySet().stream();
+
+        if ("ASC".equalsIgnoreCase(order)) {
+            stream = stream.sorted(Map.Entry.comparingByKey());
+        }
+
+        return stream.map(entry -> {
+            LocalDate dailyDate = entry.getKey();
+            List<Expense> dailyExpenseList = entry.getValue();
+
+            List<ExpenseDetailDto> expenseDetails = toMonthlyExpensesDetails(dailyExpenseList);
+
+            return DailyExpensesDto.builder()
+                    .date(dailyDate)
+                    .expenseDetailList(expenseDetails)
+                    .build();
+        }).collect(Collectors.toList());
+    }
+
+    public static MonthlyExpenseResponse toMonthlyExpensesResponse(List<DailyExpensesDto> dailyExpensesDtos, Slice<Expense> expenseList) {
+        return MonthlyExpenseResponse.builder()
+                .hasNext(expenseList.hasNext())
+                .dailyExpenseList(dailyExpensesDtos)
+                .build();
     }
 
     private static List<CategoryDetailDto> toCategoryDetails(List<Category> categoryList) {
@@ -89,6 +139,18 @@ public class ExpenseConverter {
                         .categoryId(expense.getCategory().getId())
                         .cost(expense.getCost())
                         .memo(expense.getMemo())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private static List<ExpenseDetailDto> toMonthlyExpensesDetails(List<Expense> expenseList) {
+
+        return expenseList.stream()
+                .map(expense -> ExpenseDetailDto.builder()
+                        .expenseId(expense.getId())
+                        .title(expense.getTitle())
+                        .categoryIcon(expense.getCategory().getIcon())
+                        .cost(expense.getCost())
                         .build())
                 .collect(Collectors.toList());
     }
