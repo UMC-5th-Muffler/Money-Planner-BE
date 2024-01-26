@@ -43,7 +43,8 @@ public enum ErrorCode {
     CANNOT_DELETE_DEFAULT_CATEGORY(HttpStatus.BAD_REQUEST,"기본 카테고리는 삭제할 수 없습니다."),
     CANNOT_UPDATE_DEFAULT_ICON(HttpStatus.BAD_REQUEST, "디폴트 카테고리는 아이콘을 수정할 수 없습니다."),
     ETC_CATEGORY_NOT_FOUND(HttpStatus.BAD_REQUEST, "활성화 된 기타 카테고리를 찾을 수 없습니다."),
-    CANNOT_UPDATE_ETC_CATEGORY_NAME(HttpStatus.BAD_REQUEST, "기타 카테고리는 이름을 변경할 수 없습니다.");
+    CANNOT_UPDATE_ETC_CATEGORY_NAME(HttpStatus.BAD_REQUEST, "기타 카테고리는 이름을 변경할 수 없습니다."),
+    CATEGORY_BATCH_INSERT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "DB 연결 문제로 기본 카테고리를 생성할 수 없었습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
