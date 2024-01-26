@@ -7,7 +7,6 @@ import lombok.Getter;
 @Builder
 @Getter
 @AllArgsConstructor
-public class CategoryDto {
+public class NewCategoryResponse {
     private Long id;
-    private String name;
 }

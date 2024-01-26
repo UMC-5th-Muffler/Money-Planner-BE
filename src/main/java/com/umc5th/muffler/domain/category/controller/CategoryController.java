@@ -1,6 +1,6 @@
 package com.umc5th.muffler.domain.category.controller;
 
-import com.umc5th.muffler.domain.category.dto.CategoryDto;
+import com.umc5th.muffler.domain.category.dto.NewCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.DeleteCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryRequest;
 import com.umc5th.muffler.domain.category.dto.UpdateCategoryRequest;
@@ -24,13 +24,13 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public Response<CategoryDto> createCategory(@RequestBody @Valid NewCategoryRequest request) {
-        CategoryDto newCategory = categoryService.createNewCategory(request.getMemberId(), request);
+    public Response<NewCategoryResponse> createCategory(Principal principal, @RequestBody @Valid NewCategoryRequest request) {
+        NewCategoryResponse newCategory = categoryService.createNewCategory(principal.getName(), request);
         return Response.success(newCategory);
     }
     @PatchMapping
-    private Response<Void> updateCategory(@RequestBody @Valid UpdateCategoryRequest request) {
-        categoryService.updateCategory(request.getMemberId(), request);
+    private Response<Void> updateCategory(Principal principal, @RequestBody @Valid UpdateCategoryRequest request) {
+        categoryService.updateCategory(principal.getName(), request);
         return Response.success();
     }
 

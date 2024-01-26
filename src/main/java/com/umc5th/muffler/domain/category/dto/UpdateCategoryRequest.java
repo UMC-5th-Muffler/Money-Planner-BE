@@ -11,8 +11,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UpdateCategoryRequest {
     @NotNull
-    private String memberId;
-    @NotNull
     private Long categoryId;
     @NotBlank
     private String name;

@@ -1,11 +1,10 @@
 package com.umc5th.muffler.domain.category.service;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
-
-import com.umc5th.muffler.domain.category.dto.CategoryDto;
+import com.umc5th.muffler.domain.category.dto.NewCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryRequest;
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
@@ -20,6 +19,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
@@ -34,23 +35,29 @@ class CategoryServiceTest {
     private MemberRepository memberRepository;
     @InjectMocks
     private CategoryService categoryService;
+    @Captor
+    private ArgumentCaptor<Category> categoryArgumentCaptor;
+
     @Test
     public void 정상실행() throws CategoryException {
         //given
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
-        NewCategoryRequest request = new NewCategoryRequest(member.getId(),category.getName(), category.getIcon(), 0L);
+        NewCategoryRequest request = new NewCategoryRequest(category.getName(), category.getIcon(), 0L);
 
-        given(categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), request.getMemberId()))
+        given(categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), member.getId()))
                 .willReturn(Optional.empty());
-        given(memberRepository.findById(request.getMemberId()))
+        given(memberRepository.findById(member.getId()))
                 .willReturn(Optional.ofNullable(member));
         given(categoryRepository.save(any(Category.class))).willReturn(category);
 
         // when
-        CategoryDto newCategory = categoryService.createNewCategory("1", request);
+        NewCategoryResponse newCategory = categoryService.createNewCategory("1", request);
         //then
-        assertEquals(request.getCategoryName(), newCategory.getName());
+        verify(categoryRepository).save(categoryArgumentCaptor.capture());
+
+        Category saved = categoryArgumentCaptor.getValue();
+        Assertions.assertEquals(request.getCategoryName(), saved.getName());
     }
 
     @Test
@@ -60,10 +67,10 @@ class CategoryServiceTest {
         Category haveCategory = CategoryFixture.CUSTOM_CATEGORY_ONE;
         member.addCategory(haveCategory);
 
-        NewCategoryRequest request = new NewCategoryRequest(member.getId(),haveCategory.getName(), haveCategory.getIcon(), 0L);
+        NewCategoryRequest request = new NewCategoryRequest(haveCategory.getName(), haveCategory.getIcon(), 0L);
         // when
         given(memberRepository.findById(member.getId())).willReturn(Optional.ofNullable(member));
-        given(categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), request.getMemberId()))
+        given(categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), member.getId()))
                 .willReturn(Optional.of(haveCategory));
 
         // then
@@ -76,10 +83,10 @@ class CategoryServiceTest {
         //given
         Member member = MemberFixture.MEMBER_TWO;
         Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
-        NewCategoryRequest request = new NewCategoryRequest(member.getId(), category.getName(), category.getIcon(), 0L);
+        NewCategoryRequest request = new NewCategoryRequest(category.getName(), category.getIcon(), 0L);
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
         // when
-        Assertions.assertThrows(CategoryException.class, () -> categoryService.createNewCategory(request.getMemberId(), request));
+        Assertions.assertThrows(CategoryException.class, () -> categoryService.createNewCategory(member.getId(), request));
     }
 }

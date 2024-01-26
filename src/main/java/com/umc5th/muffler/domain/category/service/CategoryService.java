@@ -1,7 +1,7 @@
 package com.umc5th.muffler.domain.category.service;
 
 import com.umc5th.muffler.domain.category.dto.CategoryConverter;
-import com.umc5th.muffler.domain.category.dto.CategoryDto;
+import com.umc5th.muffler.domain.category.dto.NewCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.DeleteCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryRequest;
 import com.umc5th.muffler.domain.category.dto.UpdateCategoryRequest;
@@ -10,12 +10,10 @@ import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.domain.routine.repository.RoutineRepository;
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Member;
-import com.umc5th.muffler.entity.Routine;
 import com.umc5th.muffler.entity.constant.CategoryType;
 import com.umc5th.muffler.entity.constant.Status;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.CategoryException;
-import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +29,7 @@ public class CategoryService {
     private final RoutineRepository routineRepository;
     private final CategoryRepository categoryRepository;
 
-    public CategoryDto createNewCategory(String memberId, NewCategoryRequest request) throws CategoryException {
+    public NewCategoryResponse createNewCategory(String memberId, NewCategoryRequest request) throws CategoryException {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
         Optional<Category> duplicatedCategory = categoryRepository.findCategoryWithNameAndMemberId(
@@ -44,7 +42,7 @@ public class CategoryService {
         newCategory = CategoryConverter.toEntity(request);
         member.addCategory(newCategory);
         newCategory = categoryRepository.save(newCategory);
-        return new CategoryDto(newCategory.getId(), newCategory.getName());
+        return new NewCategoryResponse(newCategory.getId());
     }
 
     public void updateCategory(String memberId, UpdateCategoryRequest request) throws CategoryException {
