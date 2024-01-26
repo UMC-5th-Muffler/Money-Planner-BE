@@ -77,4 +77,16 @@ public class Category extends BaseTimeEntity {
     public Boolean isNameUpdatable(String newName) {
         return name.equals(newName) || !name.equals(ETC_CATEGORY_NAME);
     }
+
+    // 생성 메서드
+    public static Category defaultCategory(String name, String icon, Long priority) {
+        return Category.builder()
+                .name(name)
+                .icon(icon)
+                .priority(priority)
+                .isVisible(true)
+                .type(CategoryType.DEFAULT)
+                .status(Status.ACTIVE)
+                .build();
+    }
 }
