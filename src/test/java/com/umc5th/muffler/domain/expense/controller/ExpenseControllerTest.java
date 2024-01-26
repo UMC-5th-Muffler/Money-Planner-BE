@@ -172,7 +172,7 @@ class ExpenseControllerTest {
 
         System.out.println("mockResponse.getDailyExpenseList().size() = " + mockResponse.getDailyExpenseList().size());
 
-        when(expenseViewService.getHomeMonthlyExpenses(any(), eq(year), eq(month), eq(goalId), eq(order), any(Pageable.class)))
+        when(expenseViewService.getMonthlyExpenses(any(), eq(year), eq(month), eq(goalId), eq(order), any(Pageable.class)))
                 .thenReturn(mockResponse);
 
         mockMvc.perform(get("/expense/monthly")

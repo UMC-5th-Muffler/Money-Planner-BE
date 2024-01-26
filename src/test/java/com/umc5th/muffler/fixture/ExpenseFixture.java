@@ -8,6 +8,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -71,10 +72,14 @@ public class ExpenseFixture {
 
     public static List<Expense> createListWithStartNum(int start, int num, LocalDate date){
         Member member = Member.builder().id("1").build();
-        Category category = Category.builder().id(1L).icon("icon").build();
+        Random random = new Random();
 
-        return IntStream.rangeClosed(start, start+num-1)
+        return IntStream.rangeClosed(start, start + num - 1)
                 .mapToObj(i -> {
+                    // Category ID를 1 또는 2로 랜덤하게 설정
+                    Long categoryId = (long) (random.nextInt(2) + 1);
+                    Category category = Category.builder().id(categoryId).icon(String.valueOf(categoryId)).build();
+
                     Expense expense = Expense.builder()
                             .id(Long.valueOf(i))
                             .date(date)
