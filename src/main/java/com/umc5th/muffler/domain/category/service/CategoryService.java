@@ -75,7 +75,7 @@ public class CategoryService {
     public DeleteCategoryResponse deactivateCategory(String memberId, Long categoryId) throws CategoryException {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
-        Category category = categoryRepository.findById(categoryId)
+        Category category = categoryRepository.findByIdWithFetchMember(categoryId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
 
         if (!category.isOwnMember(memberId))
