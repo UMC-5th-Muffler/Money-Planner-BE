@@ -1,6 +1,7 @@
 package com.umc5th.muffler.domain.expense.service;
 
 import com.umc5th.muffler.domain.expense.dto.homeDto.OtherGoalsInfo;
+import com.umc5th.muffler.domain.expense.dto.homeDto.OtherGoalsResponse;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.expense.dto.homeDto.CategoryCalendarInfo;
@@ -77,8 +78,8 @@ public class HomeServiceTest {
         assertEquals(mockGoalToday.getEndDate(), response.getGoalEndDate());
         assertEquals(goalTotalCost, response.getTotalCost());
         assertEquals(mockCategory1.getId(), response.getCategoryCalendarInfo().stream().map(CategoryCalendarInfo::getId).findFirst().get());
-        assertEquals(test1, response.getOtherGoalsInfo().stream().map(OtherGoalsInfo::getOtherStartDate).findFirst().get());
-        assertEquals(test2, response.getOtherGoalsInfo().stream().map(OtherGoalsInfo::getOtherEndDate).findFirst().get());
+        assertEquals(test1, response.getOtherGoalsInfo().getOtherGoalsInfoList().stream().map(OtherGoalsInfo::getOtherStartDate).findFirst().get());
+        assertEquals(test2, response.getOtherGoalsInfo().getOtherGoalsInfoList().stream().map(OtherGoalsInfo::getOtherEndDate).findFirst().get());
 
         verify(goalRepository).findGoalsByMonth(startOfMonth, endOfMonth, memberId);
         verify(expenseRepository).findAllByMemberAndDateBetween(mockMember, mockGoalToday.getStartDate(), mockGoalToday.getEndDate());
@@ -132,7 +133,7 @@ public class HomeServiceTest {
         when(expenseRepository.findAllByMemberAndDateBetween(mockMember, mockGoal.getStartDate(), mockGoal.getEndDate())).thenReturn(expenseList);
 
         // when
-        WholeCalendarResponse response = homeService.getGoalCalendarInfos(goalId, memberId);
+        WholeCalendarResponse response = homeService.getGoalCalendarInfos(memberId, goalId);
 
         // then
         assertNotNull(response);
@@ -143,8 +144,8 @@ public class HomeServiceTest {
         assertEquals(mockGoal.getEndDate(), response.getGoalEndDate());
         assertEquals(goalTotalCost, response.getTotalCost());
         assertEquals(mockCategory1.getId(), response.getCategoryCalendarInfo().stream().map(CategoryCalendarInfo::getId).findFirst().get());
-        assertEquals(LocalDate.now(), response.getOtherGoalsInfo().stream().map(OtherGoalsInfo::getOtherStartDate).findFirst().get());
-        assertEquals(LocalDate.now().plusDays(1), response.getOtherGoalsInfo().stream().map(OtherGoalsInfo::getOtherEndDate).findFirst().get());
+        assertEquals(LocalDate.now(), response.getOtherGoalsInfo().getOtherGoalsInfoList().stream().map(OtherGoalsInfo::getOtherStartDate).findFirst().get());
+        assertEquals(LocalDate.now().plusDays(1), response.getOtherGoalsInfo().getOtherGoalsInfoList().stream().map(OtherGoalsInfo::getOtherEndDate).findFirst().get());
 
         verify(goalRepository).findGoalsByMonth(startOfMonth, endOfMonth, memberId);
         verify(expenseRepository).findAllByMemberAndDateBetween(mockMember, mockGoal.getStartDate(), mockGoal.getEndDate());
@@ -159,7 +160,7 @@ public class HomeServiceTest {
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findById(goalId)).thenReturn(Optional.empty());
 
-        assertThrows(GoalException.class, () -> homeService.getGoalCalendarInfos(goalId, memberId));
+        assertThrows(GoalException.class, () -> homeService.getGoalCalendarInfos(memberId, goalId));
     }
 
     @Test
@@ -199,7 +200,7 @@ public class HomeServiceTest {
         when(expenseRepository.findAllByMemberAndDateBetween(mockMember, mockGoal.getStartDate(), mockGoal.getEndDate())).thenReturn(expenseList);
 
         // when
-        WholeCalendarResponse response = homeService.getTurnPage(goalId, memberId, testYear, testMonth);
+        WholeCalendarResponse response = homeService.getGoalTurnPage(memberId, goalId, testYear, testMonth);
 
         // then
         assertNotNull(response);

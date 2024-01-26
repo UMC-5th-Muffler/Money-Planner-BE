@@ -28,65 +28,52 @@ public class HomeService {
     private final ExpenseRepository expenseRepository;
 
     public WholeCalendarResponse getWholeCalendarInfos(String memberId) {
-
         LocalDate date = LocalDate.now();
         return generateCalendarResponse(memberId, null, date.getYear(), date.getMonthValue());
     }
 
-    public WholeCalendarResponse getGoalCalendarInfos(Long goalId, String memberId) {
-
+    public WholeCalendarResponse getGoalCalendarInfos(String memberId, Long goalId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
         Goal goal = goalRepository.findById(goalId).orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
         return generateGoalCalendarResponse(member, goal);
     }
 
-    public WholeCalendarResponse getTurnPage(Long goalId, String memberId, Integer year, Integer month) {
+    public OtherGoalsResponse getTurnPage(String memberId, Integer year, Integer month) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+
+        List<Goal> goalList = findGoalsByMonth(memberId, year, month);
+
+        if (goalList.isEmpty()) {
+            return new OtherGoalsResponse();
+        }
+        OtherGoalsResponse otherGoalsInfo = goalList.isEmpty() ? null : HomeConverter.toOtherGoals(goalList, year, month);
+        return otherGoalsInfo;
+    }
+
+    public WholeCalendarResponse getGoalTurnPage(String memberId, Long goalId, Integer year, Integer month) {
         return generateCalendarResponse(memberId, goalId, year, month);
     }
 
     private WholeCalendarResponse generateCalendarResponse(String memberId, Long goalId, Integer year, Integer month) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        YearMonth yearMonth = YearMonth.of(year, month);
-        LocalDate startOfMonth = yearMonth.atDay(1);
-        LocalDate endOfMonth = yearMonth.atEndOfMonth();
-
-        List<Goal> goalList = goalRepository.findGoalsByMonth(startOfMonth, endOfMonth, memberId)
-                .orElse(Collections.emptyList());
+        List<Goal> goalList = findGoalsByMonth(memberId, year, month);
 
         if (goalList.isEmpty()) {
             return new WholeCalendarResponse();
         }
-        Optional<Goal> goalWithinDate = (goalId == null) ?
-                findRelevantGoal(goalList, LocalDate.now()) :
-                goalList.stream().filter(goal -> goal.getId().equals(goalId)).findFirst();
-
+        Optional<Goal> goalWithinDate = findGoal(goalList, goalId, LocalDate.now());
         List<Goal> otherGoals = excludeGoalFromList(goalList, goalWithinDate.orElse(null));
-        List<OtherGoalsInfo> otherGoalsInfoList = createOtherGoalsInfoList(otherGoals, year, month);
+        OtherGoalsResponse otherGoalsInfoList = otherGoals.isEmpty() ? null : HomeConverter.toOtherGoals(otherGoals, year, month);
 
         if (!goalWithinDate.isPresent()) {
-            return HomeConverter.toOtherGoalsCalendar(otherGoalsInfoList);
+            return HomeConverter.otherToWholeCalendar(otherGoalsInfoList);
         }
 
         Goal goal = goalWithinDate.get();
         LocalDate startDate = adjustStartDate(year, month, goal.getStartDate());
         LocalDate endDate = adjustEndDate(year, month, goal.getEndDate());
         return process(goal, member, startDate, endDate, otherGoalsInfoList);
-    }
-
-    private Optional<Goal> findRelevantGoal(List<Goal> goalList, LocalDate date) {
-        return goalList.stream()
-                .filter(goal -> !date.isBefore(goal.getStartDate()) && !date.isAfter(goal.getEndDate()))
-                .findFirst();
-    }
-
-    private List<Goal> excludeGoalFromList(List<Goal> goalList, Goal excludeGoal) {
-        if (excludeGoal == null) {
-            return new ArrayList<>(goalList);
-        }
-        return goalList.stream()
-                .filter(goal -> !goal.equals(excludeGoal))
-                .collect(Collectors.toList());
     }
 
     private WholeCalendarResponse generateGoalCalendarResponse(Member member, Goal goal) {
@@ -103,30 +90,36 @@ public class HomeService {
                 .filter(otherGoal -> !otherGoal.equals(goal))
                 .collect(Collectors.toList());
 
-        List<OtherGoalsInfo> otherGoalsInfoList = createOtherGoalsInfoList(otherGoals, startDate.getYear(), startDate.getMonthValue());
+        OtherGoalsResponse otherGoalsInfoList = otherGoals.isEmpty() ? null : HomeConverter.toOtherGoals(otherGoals, startDate.getYear(), startDate.getMonthValue());
         return process(goal, member, startDate, endDate, otherGoalsInfoList);
     }
 
-    private List<OtherGoalsInfo> createOtherGoalsInfoList(List<Goal> otherGoals, Integer year, Integer month) {
-        if (otherGoals.isEmpty()) {
-            return null;
-        }
-        return otherGoals.stream()
-                .map(otherGoal -> {
-                    LocalDate otherStartDate = adjustStartDate(year, month, otherGoal.getStartDate());
-                    LocalDate otherEndDate = adjustEndDate(year, month, otherGoal.getEndDate());
-                    List<Level> dailyRate = extractRates(otherGoal, otherStartDate, otherEndDate);
+    private List<Goal> findGoalsByMonth(String memberId, Integer year, Integer month) {
+        YearMonth yearMonth = YearMonth.of(year, month);
+        LocalDate startOfMonth = yearMonth.atDay(1);
+        LocalDate endOfMonth = yearMonth.atEndOfMonth();
+        return goalRepository.findGoalsByMonth(startOfMonth, endOfMonth, memberId)
+                .orElse(Collections.emptyList());
+    }
 
-                    return OtherGoalsInfo.builder()
-                            .otherStartDate(otherStartDate)
-                            .otherEndDate(otherEndDate)
-                            .totalLevelList(dailyRate)
-                            .build();
-                })
+    private Optional<Goal> findGoal(List<Goal> goalList, Long goalId, LocalDate date) {
+        return (goalId == null) ?
+                goalList.stream()
+                        .filter(goal -> !date.isBefore(goal.getStartDate()) && !date.isAfter(goal.getEndDate()))
+                        .findFirst() :
+                goalList.stream().filter(goal -> goal.getId().equals(goalId)).findFirst();
+    }
+
+    private List<Goal> excludeGoalFromList(List<Goal> goalList, Goal excludeGoal) {
+        if (excludeGoal == null) {
+            return goalList;
+        }
+        return goalList.stream()
+                .filter(goal -> !goal.equals(excludeGoal))
                 .collect(Collectors.toList());
     }
 
-    private WholeCalendarResponse process(Goal goal, Member member, LocalDate startDate, LocalDate endDate, List<OtherGoalsInfo> otherGoalsInfoList) {
+    private WholeCalendarResponse process(Goal goal, Member member, LocalDate startDate, LocalDate endDate, OtherGoalsResponse otherGoalsInfoList) {
         List<Expense> expensesAll = expenseRepository.findAllByMemberAndDateBetween(member, goal.getStartDate(), goal.getEndDate());
         Long totalCost = calculateTotalCost(expensesAll);
 

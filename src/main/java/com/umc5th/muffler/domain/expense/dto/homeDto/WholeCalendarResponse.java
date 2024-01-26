@@ -24,5 +24,5 @@ public class WholeCalendarResponse {
     private Long totalCost;
     private List<WholeCalendarDailyInfo> dailyList;
     private List<CategoryCalendarInfo> categoryCalendarInfo;
-    private List<OtherGoalsInfo> otherGoalsInfo;
+    private OtherGoalsResponse otherGoalsInfo;
 }

@@ -55,7 +55,7 @@ class HomeControllerTest {
 
         WholeCalendarResponse mockResponse = WholeCalendarResponseFixture.create(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 2));
 
-        when(homeService.getGoalCalendarInfos(1L,"user")).thenReturn(mockResponse);
+        when(homeService.getGoalCalendarInfos("user", 1L)).thenReturn(mockResponse);
 
         mockMvc.perform(get("/home/{goalId}", 1))
                 .andExpect(status().isOk())
@@ -77,7 +77,7 @@ class HomeControllerTest {
 
         WholeCalendarResponse mockResponse = new WholeCalendarResponse();
 
-        when(homeService.getTurnPage(1L,"user", 2024, 2)).thenReturn(mockResponse);
+        when(homeService.getGoalTurnPage("user", 1L, 2024, 2)).thenReturn(mockResponse);
 
         mockMvc.perform(get("/home/{goalId}", 1))
                 .andExpect(status().isOk())
