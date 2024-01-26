@@ -74,9 +74,9 @@ public class ExpenseController {
 
         MonthlyExpenseResponse response;
         if (categoryId != null) {
-            response = expenseViewService.getHomeExpensesWithCategory(authentication.getName(), year, month, goalId, categoryId, order, pageable);
+            response = expenseViewService.getMonthlyExpensesWithCategory(authentication.getName(), year, month, goalId, categoryId, order, pageable);
         } else {
-            response = expenseViewService.getHomeMonthlyExpenses(authentication.getName(), year, month, goalId, order, pageable);
+            response = expenseViewService.getMonthlyExpenses(authentication.getName(), year, month, goalId, order, pageable);
         }
         return Response.success(response);
     }

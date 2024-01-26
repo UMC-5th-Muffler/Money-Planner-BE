@@ -83,7 +83,7 @@ public class ExpenseViewService {
     }
 
 
-    public MonthlyExpenseResponse getHomeMonthlyExpenses(String memberId, Integer year, Integer month, Long goalId, String order, Pageable pageable){
+    public MonthlyExpenseResponse getMonthlyExpenses(String memberId, Integer year, Integer month, Long goalId, String order, Pageable pageable){
         if (goalId == null){
             return new MonthlyExpenseResponse();
         }
@@ -119,7 +119,7 @@ public class ExpenseViewService {
         return ExpenseConverter.toMonthlyExpensesResponse(dailyExpensesDtos, expenseList);
     }
 
-    public MonthlyExpenseResponse getHomeExpensesWithCategory(String memberId, Integer year, Integer month, Long goalId, Long categoryId, String order, Pageable pageable){
+    public MonthlyExpenseResponse getMonthlyExpensesWithCategory(String memberId, Integer year, Integer month, Long goalId, Long categoryId, String order, Pageable pageable){
         if (goalId == null){
             return new MonthlyExpenseResponse();
         }
