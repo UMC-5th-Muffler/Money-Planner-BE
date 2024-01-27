@@ -11,7 +11,6 @@ import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseResponse;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.goal.repository.DailyPlanRepository;
-import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.DailyPlan;
@@ -46,7 +45,8 @@ public class ExpenseEnrollTest {
     private ExpenseUpdateService expenseService;
     @Captor
     private ArgumentCaptor<Expense> expenseArgumentCaptor;
-
+    @Captor
+    private ArgumentCaptor<DailyPlan> dailyPlanArgumentCaptor;
     @Test
     public void 정상_입력() {
         Member member = MemberFixture.MEMBER_ONE;
@@ -70,8 +70,12 @@ public class ExpenseEnrollTest {
         expenseService.enrollExpense(member.getId(), req);
         // then
         verify(expenseRepository).save(expenseArgumentCaptor.capture());
-        Expense result = expenseArgumentCaptor.getValue();
-        assertEquals(req.getExpenseCost(), result.getCost());
+        verify(dailyPlanRepository).save(dailyPlanArgumentCaptor.capture());
+
+        Expense expenseResult = expenseArgumentCaptor.getValue();
+        DailyPlan dailyPlanResult = dailyPlanArgumentCaptor.getValue();
+        assertEquals(req.getExpenseCost(), expenseResult.getCost());
+        assertEquals(expense.getCost(), dailyPlanResult.getTotalCost());
     }
 
     @Test
