@@ -25,6 +25,13 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     Slice<Expense> findAllByMemberAndDateBetween(Member member, LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-    @Query("SELECT Expense FROM Expense e join fetch e.member WHERE e.id = :expenseId")
+    @Query("SELECT SUM(e.cost) FROM Expense e WHERE e.member.id = :memberId "
+            + "AND e.date BETWEEN :startDate AND :endDate "
+            + "AND e.category.id = :categoryId")
+    Long getSumOfCategoryCost(@Param("memberId")String memberId,
+                              @Param("startDate")LocalDate startDate,
+                              @Param("endDate")LocalDate endDate,
+                              @Param("categoryId") Long categoryId);
+    @Query("SELECT e FROM Expense e join fetch e.member WHERE e.id = :expenseId")
     Optional<Expense> findExpenseByIdFetchMember(@Param("expenseId") Long expenseId);
 }

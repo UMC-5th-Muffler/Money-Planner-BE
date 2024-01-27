@@ -26,6 +26,7 @@ public class ExpenseUpdateService {
     private final MemberRepository memberRepository;
     private final DailyPlanRepository dailyPlanRepository;
     private final CategoryRepository categoryRepository;
+    private final CategoryGoalRepository  categoryGoalRepository;
 
     public NewExpenseResponse enrollExpense(String memberId, NewExpenseRequest request) {
         Member member = memberRepository.findById(memberId)
@@ -34,12 +35,30 @@ public class ExpenseUpdateService {
                 .orElseThrow(() -> new ExpenseException(ErrorCode.CATEGORY_NOT_FOUND));
         DailyPlan dailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(request.getExpenseDate(), memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
+        Optional<CategoryGoal> optionalCategoryGoal = categoryGoalRepository.findCategoryGoalWithGoalIdAndCategoryId(
+                category.getId(), dailyPlan.getGoal().getId());
 
         Expense expense = ExpenseConverter.toExpenseEntity(request, member, category);
-        expense = expenseRepository.save(expense);
+        expenseRepository.save(expense);
         dailyPlan.addExpenseDifference(expense.getCost());
+
+        NewExpenseResponseBuilder resBuilder = NewExpenseResponse.builder().expenseId(expense.getId());
+        if (dailyPlan.isPossibleToAlarm()) {
+            resBuilder = resBuilder.dailyBudgetAlarm(new AlarmControlDTO(dailyPlan.getBudget(), dailyPlan.getTotalCost()));
+            dailyPlan.turnOffAlarm();
+        }
+        if (optionalCategoryGoal.isPresent()) {
+            CategoryGoal categoryGoal = optionalCategoryGoal.get();
+            Long sumOfCategoryCost = expenseRepository.getSumOfCategoryCost(memberId,
+                    dailyPlan.getGoal().getStartDate(), dailyPlan.getGoal().getEndDate(), category.getId());
+            if (categoryGoal.isPossibleToAlarm(sumOfCategoryCost)) {
+                resBuilder = resBuilder.categoryBudgetAlarm(new AlarmControlDTO(categoryGoal.getBudget(), sumOfCategoryCost));
+                categoryGoal.turnOffAlarm();
+                categoryGoalRepository.save(categoryGoal);
+            }
+        }
         dailyPlanRepository.save(dailyPlan);
-        return new NewExpenseResponse(expense.getId());
+        return resBuilder.build();
     }
 
     public void updateExpense(String memberId, UpdateExpenseRequest request) {

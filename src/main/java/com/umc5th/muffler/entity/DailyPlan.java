@@ -5,10 +5,13 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@DynamicInsert
 @Entity
 @Getter
 public class DailyPlan extends BaseTimeEntity {
@@ -28,8 +31,12 @@ public class DailyPlan extends BaseTimeEntity {
     private Boolean isZeroDay = false;
 
     @Column(nullable = false)
-    @Builder.Default
-    private Long totalCost = 0L;
+    @ColumnDefault("0")
+    private Long totalCost;
+
+    @Column(nullable = false)
+    @ColumnDefault("false")
+    private Boolean isAlarmed;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "goal_id")
@@ -53,7 +60,12 @@ public class DailyPlan extends BaseTimeEntity {
     public void setRate(Rate rate){
         this.rate = rate;
     }
+    public void turnOffAlarm() { isAlarmed = true;}
     public void addExpenseDifference(Long difference) {
         this.totalCost += difference;
+    }
+
+    public Boolean isPossibleToAlarm() {
+        return !isAlarmed && budget < totalCost;
     }
 }

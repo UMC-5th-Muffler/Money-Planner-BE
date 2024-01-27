@@ -10,7 +10,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DailyPlanRepository extends JpaRepository<DailyPlan, Long> {
-    @Query("SELECT DailyPlan FROM DailyPlan dailyPlan WHERE dailyPlan.date = :date AND dailyPlan.goal.member.id = :memberId")
-    Optional<DailyPlan> findDailyPlanByDateAndMemberId(@Param("date") LocalDate date, @Param("memberID") String memberId);
-
+    @Query("SELECT dailyPlan FROM DailyPlan dailyPlan "
+            + "JOIN FETCH dailyPlan.goal "
+            + "WHERE dailyPlan.date = :date "
+            + "AND dailyPlan.goal.member.id = :memberId")
+    Optional<DailyPlan> findDailyPlanByDateAndMemberId(@Param("date") LocalDate date, @Param("memberId") String memberId);
 }
