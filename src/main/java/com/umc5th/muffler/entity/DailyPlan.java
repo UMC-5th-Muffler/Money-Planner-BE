@@ -2,7 +2,6 @@ package com.umc5th.muffler.entity;
 
 import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -53,5 +52,8 @@ public class DailyPlan extends BaseTimeEntity {
 
     public void setRate(Rate rate){
         this.rate = rate;
+    }
+    public void addExpenseDifference(Long difference) {
+        this.totalCost += difference;
     }
 }

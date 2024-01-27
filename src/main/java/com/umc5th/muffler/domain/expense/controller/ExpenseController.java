@@ -5,10 +5,10 @@ import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseDetailsResponse;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseResponse;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
+import com.umc5th.muffler.domain.expense.service.ExpenseUpdateService;
 import com.umc5th.muffler.global.response.Response;
 import java.security.Principal;
 import javax.validation.Valid;
-import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,9 +20,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 
@@ -31,10 +29,11 @@ import java.time.LocalDate;
 @RequestMapping("/expense")
 public class ExpenseController {
     private final ExpenseService expenseService;
+    private final ExpenseUpdateService expenseUpdateService;
 
     @PostMapping("")
     public Response<NewExpenseResponse> enrollNewExpense(Principal principal, @RequestBody @Valid NewExpenseRequest request) {
-        NewExpenseResponse result = expenseService.enrollExpense(principal.getName(), request);
+        NewExpenseResponse result = expenseUpdateService.enrollExpense(principal.getName(), request);
         return Response.success(result);
     }
 

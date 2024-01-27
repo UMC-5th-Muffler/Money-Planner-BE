@@ -10,9 +10,11 @@ import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseResponse;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
+import com.umc5th.muffler.domain.goal.repository.DailyPlanRepository;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Category;
+import com.umc5th.muffler.entity.DailyPlan;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.Member;
@@ -39,9 +41,9 @@ public class ExpenseEnrollTest {
     @Mock
     private ExpenseRepository expenseRepository;
     @Mock
-    private GoalRepository goalRepository;
+    private DailyPlanRepository dailyPlanRepository;
     @InjectMocks
-    private ExpenseService expenseService;
+    private ExpenseUpdateService expenseService;
     @Captor
     private ArgumentCaptor<Expense> expenseArgumentCaptor;
 
@@ -50,12 +52,15 @@ public class ExpenseEnrollTest {
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.CATEGORY_ONE;
         Expense expense = ExpenseFixture.EXPENSE_ONE;
-        Goal goal = Goal.builder().build();
+        DailyPlan dailyPlan = DailyPlan.builder()
+                .totalCost(0L)
+                .build();
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.of(category));
-        given(goalRepository.findByDateBetween(any(LocalDate.class), any(String.class))).willReturn(Optional.of(goal));
+        given(dailyPlanRepository.findDailyPlanByDateAndMemberId(any(LocalDate.class), any(String.class)))
+                .willReturn(Optional.of(dailyPlan));
         given(expenseRepository.save(any(Expense.class))).willReturn(expense);
 
         // given
@@ -92,7 +97,6 @@ public class ExpenseEnrollTest {
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.CATEGORY_ONE;
         Expense expense = ExpenseFixture.EXPENSE_ONE;
-        Goal goal = Goal.builder().build();
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
 
@@ -108,12 +112,12 @@ public class ExpenseEnrollTest {
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.CATEGORY_ONE;
         Expense expense = ExpenseFixture.EXPENSE_ONE;
-        Goal goal = Goal.builder().build();
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.of(category));
-        given(goalRepository.findByDateBetween(any(LocalDate.class), any(String.class))).willReturn(Optional.empty());
+        given(dailyPlanRepository.findDailyPlanByDateAndMemberId(any(LocalDate.class), any(String.class)))
+                .willReturn(Optional.empty());
 
         NewExpenseRequest req = new NewExpenseRequest(expense.getTitle(), expense.getCost(),
                 expense.getDate(), null, category.getName());
