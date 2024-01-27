@@ -33,6 +33,18 @@ public class HomeService {
         return generateCalendarResponse(memberId, null, date.getYear(), date.getMonthValue());
     }
 
+    public OtherGoalsResponse getNoGoalTurnPage(String memberId, Integer year, Integer month) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+
+        List<Goal> goalList = findGoalsByMonth(memberId, year, month);
+
+        if (goalList.isEmpty()) {
+            return new OtherGoalsResponse();
+        }
+        OtherGoalsResponse otherGoalsInfo = goalList.isEmpty() ? null : HomeConverter.toOtherGoals(goalList, year, month);
+        return otherGoalsInfo;
+    }
+
     public WholeCalendarResponse getGoalCalendarInfos(String memberId, Long goalId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
         Goal goal = goalRepository.findById(goalId).orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
@@ -44,18 +56,6 @@ public class HomeService {
 
         OtherGoalsResponse otherGoalsInfoList = otherGoals.isEmpty() ? null : HomeConverter.toOtherGoals(otherGoals, startDate.getYear(), startDate.getMonthValue());
         return process(goal, member, startDate, endDate, otherGoalsInfoList);
-    }
-
-    public OtherGoalsResponse getTurnPage(String memberId, Integer year, Integer month) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-
-        List<Goal> goalList = findGoalsByMonth(memberId, year, month);
-
-        if (goalList.isEmpty()) {
-            return new OtherGoalsResponse();
-        }
-        OtherGoalsResponse otherGoalsInfo = goalList.isEmpty() ? null : HomeConverter.toOtherGoals(goalList, year, month);
-        return otherGoalsInfo;
     }
 
     public WholeCalendarResponse getGoalTurnPage(String memberId, Long goalId, Integer year, Integer month) {

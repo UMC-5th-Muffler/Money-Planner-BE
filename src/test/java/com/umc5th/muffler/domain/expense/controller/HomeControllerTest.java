@@ -91,7 +91,7 @@ class HomeControllerTest {
 
         OtherGoalsResponse mockResponse = new OtherGoalsResponse();
 
-        when(homeService.getTurnPage("user", 2024, 1)).thenReturn(mockResponse);
+        when(homeService.getNoGoalTurnPage("user", 2024, 1)).thenReturn(mockResponse);
 
         mockMvc.perform(get("/home/{year}/{month}", 2024, 1))
                 .andExpect(status().isOk())

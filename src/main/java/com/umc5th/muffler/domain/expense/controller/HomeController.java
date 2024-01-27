@@ -24,8 +24,8 @@ public class HomeController {
     }
 
     @GetMapping("/{year}/{month}")
-    public Response<OtherGoalsResponse> turnPage(@PathVariable Integer year, @PathVariable Integer month, Authentication authentication) {
-        OtherGoalsResponse response = homeService.getTurnPage(authentication.getName(), year, month);
+    public Response<OtherGoalsResponse> noGoalTurnPageOfCalendar(@PathVariable Integer year, @PathVariable Integer month, Authentication authentication) {
+        OtherGoalsResponse response = homeService.getNoGoalTurnPage(authentication.getName(), year, month);
         return Response.success(response);
     }
 
@@ -36,7 +36,7 @@ public class HomeController {
     }
 
     @GetMapping("/{goalId}/{year}/{month}")
-    public Response<WholeCalendarResponse> turnPageOfCalendar(
+    public Response<WholeCalendarResponse> goalTurnPageOfCalendar(
             @PathVariable Long goalId, @PathVariable Integer year,
             @PathVariable Integer month, Authentication authentication) {
         WholeCalendarResponse response = homeService.getGoalTurnPage(authentication.getName(), goalId, year, month);
