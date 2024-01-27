@@ -59,4 +59,5 @@ public class Expense extends BaseTimeEntity {
     public void setCategory(Category category) {
         this.category = category;
     }
+    public Boolean isOwnMember(String memberId) { return member.getId().equals(memberId);}
 }

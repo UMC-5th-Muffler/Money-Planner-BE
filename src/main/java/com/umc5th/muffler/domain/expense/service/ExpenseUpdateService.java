@@ -4,6 +4,7 @@ import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.expense.dto.ExpenseConverter;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseResponse;
+import com.umc5th.muffler.domain.expense.dto.UpdateExpenseRequest;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.goal.repository.DailyPlanRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
@@ -39,5 +40,24 @@ public class ExpenseUpdateService {
         dailyPlan.addExpenseDifference(expense.getCost());
         dailyPlanRepository.save(dailyPlan);
         return new NewExpenseResponse(expense.getId());
+    }
+
+    public void updateExpense(String memberId, UpdateExpenseRequest request) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ExpenseException(ErrorCode.MEMBER_NOT_FOUND));
+        Expense oldExpense = expenseRepository.findExpenseByIdFetchMember(request.getExpenseId())
+                .orElseThrow(() -> new ExpenseException(ErrorCode.EXPENSE_NOT_FOUND));
+        if (!oldExpense.isOwnMember(memberId))
+            throw new ExpenseException(ErrorCode.CANNOT_UPDATE_OTHER_MEMBER_EXPENSE);
+        Category category = categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), member.getId())
+                .orElseThrow(() -> new ExpenseException(ErrorCode.CATEGORY_NOT_FOUND));
+        DailyPlan dailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(request.getExpenseDate(), memberId)
+                .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
+
+        Expense newExpense = ExpenseConverter.toExpenseEntity(request, member, category);
+        long difference = request.getExpenseCost() - oldExpense.getCost();
+        dailyPlan.addExpenseDifference(difference);
+        expenseRepository.save(newExpense);
+        dailyPlanRepository.save(dailyPlan);
     }
 }
