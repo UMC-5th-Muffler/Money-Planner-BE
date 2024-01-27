@@ -1,11 +1,10 @@
 package com.umc5th.muffler.fixture;
 
-import com.umc5th.muffler.domain.expense.dto.homeDto.CategoryCalendarInfo;
-import com.umc5th.muffler.domain.expense.dto.homeDto.WholeCalendarDailyInfo;
-import com.umc5th.muffler.domain.expense.dto.homeDto.WholeCalendarResponse;
+import com.umc5th.muffler.domain.dailyplan.dto.CategoryCalendarInfo;
+import com.umc5th.muffler.domain.dailyplan.dto.WholeCalendarDailyInfo;
+import com.umc5th.muffler.domain.dailyplan.dto.WholeCalendarResponse;
 import com.umc5th.muffler.entity.Category;
-import com.umc5th.muffler.entity.constant.Level;
-
+import com.umc5th.muffler.entity.constant.Rate;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,7 +34,7 @@ public class WholeCalendarResponseFixture {
                 .mapToObj(i -> WholeCalendarDailyInfo.builder()
                         .dailyBudget(5000L)
                         .dailyTotalCost(4000L)
-                        .dailyRate(Level.MEDIUM)
+                        .dailyRate(Rate.MEDIUM)
                         .isZeroDay(false)
                         .build())
                 .collect(Collectors.toList());

@@ -5,7 +5,7 @@ import com.umc5th.muffler.domain.dailyplan.dto.RateInfoResponse;
 import com.umc5th.muffler.domain.dailyplan.dto.RateUpdateRequest;
 import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
 import com.umc5th.muffler.entity.DailyPlan;
-import com.umc5th.muffler.entity.constant.Level;
+import com.umc5th.muffler.entity.constant.Rate;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.DailyPlanException;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class RateService {
         DailyPlan dailyPlan = dailyPlanRepository.findByDate(date)
                 .orElseThrow(() -> new DailyPlanException(ErrorCode.DAILYPLAN_NOT_FOUND));
 
-        dailyPlan.updateRate(request.getMemo(), Level.valueOf(request.getRate()));
+        dailyPlan.updateRate(request.getMemo(), Rate.valueOf(request.getRate()));
     }
 
 }

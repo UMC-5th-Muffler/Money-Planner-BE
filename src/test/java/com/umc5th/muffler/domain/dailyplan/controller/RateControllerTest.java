@@ -5,7 +5,7 @@ import com.umc5th.muffler.config.TestSecurityConfig;
 import com.umc5th.muffler.domain.dailyplan.dto.RateInfoResponse;
 import com.umc5th.muffler.domain.dailyplan.dto.RateUpdateRequest;
 import com.umc5th.muffler.domain.dailyplan.service.RateService;
-import com.umc5th.muffler.entity.constant.Level;
+import com.umc5th.muffler.entity.constant.Rate;
 import com.umc5th.muffler.fixture.RateUpdateRequestFixture;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +49,7 @@ class RateControllerTest {
                 .isZeroDay(false)
                 .dailyTotalCost(1000L)
                 .dailyPlanBudget(5000L)
-                .rate(Level.HIGH)
+                .rate(Rate.HIGH)
                 .memo("memo")
                 .build();
 

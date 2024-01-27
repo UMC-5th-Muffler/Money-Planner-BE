@@ -1,24 +1,26 @@
 package com.umc5th.muffler.domain.dailyplan.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.umc5th.muffler.domain.dailyplan.dto.RateInfoResponse;
 import com.umc5th.muffler.domain.dailyplan.dto.RateUpdateRequest;
 import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
 import com.umc5th.muffler.entity.DailyPlan;
-import com.umc5th.muffler.entity.constant.Level;
+import com.umc5th.muffler.entity.constant.Rate;
 import com.umc5th.muffler.fixture.DailyPlanFixture;
 import com.umc5th.muffler.fixture.RateUpdateRequestFixture;
 import com.umc5th.muffler.global.response.exception.DailyPlanException;
+import java.time.LocalDate;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-
-import java.time.LocalDate;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 
 @SpringBootTest
@@ -79,7 +81,7 @@ class RateServiceTest {
         when(dailyPlanRepository.findByDate(date)).thenReturn(Optional.of(originalDailyPlan));
 
         // 변경 전 상태 확인
-        Level originalRate = originalDailyPlan.getRate();
+        Rate originalRate = originalDailyPlan.getRate();
         String originalMemo = originalDailyPlan.getRateMemo();
 
         rateService.updateRate(date, request);
