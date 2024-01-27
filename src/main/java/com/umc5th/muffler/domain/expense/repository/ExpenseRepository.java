@@ -28,5 +28,5 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     Slice<Expense> findAllByMemberAndDateBetween(Member member, LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-    Slice<Expense> findByTitleContaining(String searchKeyword, Pageable pageable);
+    Slice<Expense> findByMemberAndTitleContaining(Member member, String searchKeyword, Pageable pageable);
 }

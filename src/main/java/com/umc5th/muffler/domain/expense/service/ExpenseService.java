@@ -101,7 +101,7 @@ public class ExpenseService {
         Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Sort sort = Sort.by(direction,"date").and(Sort.by(Sort.Direction.DESC, "createdAt"));
         PageRequest pageable = PageRequest.of(page, size, sort);
-        Slice<Expense> expenses = expenseRepository.findByTitleContaining(searchKeyword, pageable);
+        Slice<Expense> expenses = expenseRepository.findByMemberAndTitleContaining(member, searchKeyword, pageable);
 
         Comparator<LocalDate> comparator = sortDirection.equalsIgnoreCase("DESC") ? Comparator.reverseOrder() : Comparator.naturalOrder();
         Map<LocalDate, List<Expense>> expensesByDate = expenses.getContent().stream()
