@@ -2,7 +2,7 @@ package com.umc5th.muffler.domain.dailyplan.controller;
 
 import com.umc5th.muffler.domain.dailyplan.dto.RateInfoResponse;
 import com.umc5th.muffler.domain.dailyplan.dto.RateUpdateRequest;
-import com.umc5th.muffler.domain.dailyplan.service.DailyPlanService;
+import com.umc5th.muffler.domain.dailyplan.service.RateService;
 import com.umc5th.muffler.global.response.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,19 +14,19 @@ import java.time.LocalDate;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/dailyplan")
-public class DailyPlanController {
+public class RateController {
 
-    private final DailyPlanService dailyPlanService;
+    private final RateService rateService;
 
     @GetMapping("/rate")
     public Response<RateInfoResponse> getRateInfo(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
-        RateInfoResponse response = dailyPlanService.getRateInfo(date);
+        RateInfoResponse response = rateService.getRateInfo(date);
         return Response.success(response);
     }
 
     @PatchMapping("/rate/{date}")
     public Response<Void> updateRate(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, @RequestBody @Valid RateUpdateRequest request){
-        dailyPlanService.updateRate(date, request);
+        rateService.updateRate(date, request);
         return Response.success();
     }
 }

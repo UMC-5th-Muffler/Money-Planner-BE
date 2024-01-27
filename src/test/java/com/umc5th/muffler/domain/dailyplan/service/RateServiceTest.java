@@ -22,10 +22,10 @@ import static org.mockito.Mockito.when;
 
 
 @SpringBootTest
-class DailyPlanServiceTest {
+class RateServiceTest {
 
     @Autowired
-    private DailyPlanService dailyPlanService;
+    private RateService rateService;
 
     @MockBean
     private DailyPlanRepository dailyPlanRepository;
@@ -37,7 +37,7 @@ class DailyPlanServiceTest {
 
         when(dailyPlanRepository.findByDate(date)).thenReturn(Optional.of(dailyPlan));
 
-        RateInfoResponse response = dailyPlanService.getRateInfo(date);
+        RateInfoResponse response = rateService.getRateInfo(date);
 
         assertNotNull(response);
         assertEquals(dailyPlan.getBudget(), response.getDailyPlanBudget());
@@ -53,7 +53,7 @@ class DailyPlanServiceTest {
 
         when(dailyPlanRepository.findByDate(date)).thenReturn(Optional.of(dailyPlan));
 
-        RateInfoResponse response = dailyPlanService.getRateInfo(date);
+        RateInfoResponse response = rateService.getRateInfo(date);
 
         assertNotNull(response);
         assertEquals(dailyPlan.getBudget(), response.getDailyPlanBudget());
@@ -67,7 +67,7 @@ class DailyPlanServiceTest {
     @Test
     public void 평가항목조회_오늘날짜에_일일계획이_없는_경우(){
         LocalDate date = LocalDate.now();
-        assertThrows(DailyPlanException.class, () -> dailyPlanService.getRateInfo(date));
+        assertThrows(DailyPlanException.class, () -> rateService.getRateInfo(date));
     }
 
     @Test
@@ -82,7 +82,7 @@ class DailyPlanServiceTest {
         Level originalRate = originalDailyPlan.getRate();
         String originalMemo = originalDailyPlan.getRateMemo();
 
-        dailyPlanService.updateRate(date, request);
+        rateService.updateRate(date, request);
 
         // 변경 후 상태 확인
         DailyPlan updatedDailyPlan = dailyPlanRepository.findByDate(date).get();

@@ -1,6 +1,6 @@
 package com.umc5th.muffler.domain.dailyplan.service;
 
-import com.umc5th.muffler.domain.dailyplan.dto.DailyPlanConverter;
+import com.umc5th.muffler.domain.dailyplan.dto.RateConverter;
 import com.umc5th.muffler.domain.dailyplan.dto.RateInfoResponse;
 import com.umc5th.muffler.domain.dailyplan.dto.RateUpdateRequest;
 import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
@@ -18,7 +18,7 @@ import java.time.LocalDate;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class DailyPlanService {
+public class RateService {
 
     private final DailyPlanRepository dailyPlanRepository;
 
@@ -26,7 +26,7 @@ public class DailyPlanService {
         DailyPlan dailyPlan = dailyPlanRepository.findByDate(date)
                 .orElseThrow(() -> new DailyPlanException(ErrorCode.DAILYPLAN_NOT_FOUND));
 
-        return DailyPlanConverter.toRateInfoResponse(dailyPlan);
+        return RateConverter.toRateInfoResponse(dailyPlan);
     }
 
     @Transactional

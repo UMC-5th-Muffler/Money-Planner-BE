@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.umc5th.muffler.config.TestSecurityConfig;
 import com.umc5th.muffler.domain.dailyplan.dto.RateInfoResponse;
 import com.umc5th.muffler.domain.dailyplan.dto.RateUpdateRequest;
-import com.umc5th.muffler.domain.dailyplan.service.DailyPlanService;
+import com.umc5th.muffler.domain.dailyplan.service.RateService;
 import com.umc5th.muffler.entity.constant.Level;
 import com.umc5th.muffler.fixture.RateUpdateRequestFixture;
 import org.junit.jupiter.api.Test;
@@ -32,14 +32,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(TestSecurityConfig.class)
-class DailyPlanControllerTest {
+class RateControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
-    private DailyPlanService dailyPlanService;
+    private RateService rateService;
 
     @Test
     @WithMockUser
@@ -53,7 +53,7 @@ class DailyPlanControllerTest {
                 .memo("memo")
                 .build();
 
-        when(dailyPlanService.getRateInfo(date)).thenReturn(mockResponse);
+        when(rateService.getRateInfo(date)).thenReturn(mockResponse);
 
         mockMvc.perform(get("/dailyplan/rate")
                         .param("date", date.toString()))
@@ -71,6 +71,6 @@ class DailyPlanControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(mockRequest)))
                 .andExpect(status().isOk());
-        verify(dailyPlanService).updateRate(eq(date), any(RateUpdateRequest.class));
+        verify(rateService).updateRate(eq(date), any(RateUpdateRequest.class));
     }
 }
