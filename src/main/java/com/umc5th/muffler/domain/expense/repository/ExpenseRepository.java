@@ -27,4 +27,6 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     Long calculateTotalCostByMemberAndDateBetween(@Param("member")Member member, @Param("startDate")LocalDate startDate, @Param("endDate")LocalDate endDate);
 
     Slice<Expense> findAllByMemberAndDateBetween(Member member, LocalDate startDate, LocalDate endDate, Pageable pageable);
+
+    Slice<Expense> findByTitleContaining(String searchKeyword, Pageable pageable);
 }

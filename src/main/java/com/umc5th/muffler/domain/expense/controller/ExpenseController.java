@@ -1,14 +1,15 @@
 package com.umc5th.muffler.domain.expense.controller;
 
-import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
-import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseDetailsResponse;
-import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
-import com.umc5th.muffler.domain.expense.dto.NewExpenseResponse;
+import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
 import com.umc5th.muffler.global.response.Response;
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
+
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,4 +59,15 @@ public class ExpenseController {
         return Response.success(response);
     }
 
+    @GetMapping("/search")
+    public Response<SearchResponse> getSearchExpense(
+            @RequestParam(name = "title") String title,
+            @RequestParam(name = "page", defaultValue = "0") @Min(value = 0) int page,
+            @RequestParam(name = "size", defaultValue = "10") @Positive int size,
+            @RequestParam(name = "sort", defaultValue = "DESC") String sortDirection,
+            Authentication authentication) {
+
+        SearchResponse response = expenseService.searchExpense(authentication.getName(), title, page, size, sortDirection);
+        return Response.success(response);
+    }
 }
