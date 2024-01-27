@@ -2,12 +2,10 @@ package com.umc5th.muffler.domain.rate.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.umc5th.muffler.config.TestSecurityConfig;
-import com.umc5th.muffler.domain.rate.dto.RateCreateRequest;
-import com.umc5th.muffler.domain.rate.dto.RateCriteriaResponse;
-import com.umc5th.muffler.domain.rate.dto.RateUpdateRequest;
-import com.umc5th.muffler.domain.rate.service.RateService;
+import com.umc5th.muffler.domain.dailyplan.dto.RateInfoResponse;
+import com.umc5th.muffler.domain.dailyplan.dto.RateUpdateRequest;
+import com.umc5th.muffler.domain.dailyplan.service.DailyPlanService;
 import com.umc5th.muffler.entity.constant.Level;
-import com.umc5th.muffler.fixture.RateCreateRequestFixture;
 import com.umc5th.muffler.fixture.RateUpdateRequestFixture;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +21,10 @@ import java.time.LocalDate;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,49 +39,38 @@ class RateControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
-    private RateService rateService;
+    private DailyPlanService dailyPlanService;
 
     @Test
     @WithMockUser
     void 평가_화면_조회() throws Exception {
         LocalDate date = LocalDate.now();
-        RateCriteriaResponse mockResponse = RateCriteriaResponse.builder()
+        RateInfoResponse mockResponse = RateInfoResponse.builder()
                 .isZeroDay(false)
                 .dailyTotalCost(1000L)
                 .dailyPlanBudget(5000L)
-                .totalLevel(Level.HIGH)
-                .rateId(1L)
+                .rate(Level.HIGH)
                 .memo("memo")
                 .build();
 
-        when(rateService.getRateCriteria(date, "user")).thenReturn(mockResponse);
+        when(dailyPlanService.getRateInfo(date)).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/rate")
+        mockMvc.perform(get("/dailyplan/rate")
                         .param("date", date.toString()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.totalLevel", is(mockResponse.getTotalLevel().toString())));
+                .andExpect(jsonPath("$.result.rate", is(mockResponse.getRate().toString())));
     }
 
     @Test
     @WithMockUser
-    void 평가_등록() throws Exception {
-        RateCreateRequest mockRequest = RateCreateRequestFixture.create();
-        mockMvc.perform(post("/rate")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(mockRequest)))
-                .andExpect(status().isOk());
-        verify(rateService).createRate(any(RateCreateRequest.class), any());
-    }
-
-    @Test
-    @WithMockUser
-    void 평가_수정() throws Exception {
+    void 평가_등록_수정() throws Exception {
+        LocalDate date = LocalDate.of(2024, 1, 1);
         RateUpdateRequest mockRequest = RateUpdateRequestFixture.create();
 
-        mockMvc.perform(patch("/rate")
+        mockMvc.perform(patch("/dailyplan/rate/{date}", date.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(mockRequest)))
                 .andExpect(status().isOk());
-        verify(rateService).updateRate(any(RateUpdateRequest.class));
+        verify(dailyPlanService).updateRate(eq(date), any(RateUpdateRequest.class));
     }
 }
