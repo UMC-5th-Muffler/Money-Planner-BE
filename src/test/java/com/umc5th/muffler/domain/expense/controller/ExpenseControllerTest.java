@@ -170,8 +170,6 @@ class ExpenseControllerTest {
                 .dailyExpenseList(dailyExpensesDtos)
                 .build();
 
-        System.out.println("mockResponse.getDailyExpenseList().size() = " + mockResponse.getDailyExpenseList().size());
-
         when(expenseViewService.getMonthlyExpenses(any(), eq(year), eq(month), eq(goalId), eq(order), any(Pageable.class)))
                 .thenReturn(mockResponse);
 

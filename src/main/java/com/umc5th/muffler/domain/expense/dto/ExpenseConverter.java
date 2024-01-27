@@ -31,6 +31,7 @@ public class ExpenseConverter {
                 .dailyTotalCost(dailyPlan.getTotalCost())
                 .date(date)
                 .isZeroDay(dailyPlan.getIsZeroDay())
+                .rateId((rate != null) ? rate.getId() : null)
                 .rateLevel((rate != null) ? rate.getTotalLevel() : null)
                 .rateMemo((rate != null) ? rate.getMemo() : null)
                 .expenseDetailList(expenseDetails)
