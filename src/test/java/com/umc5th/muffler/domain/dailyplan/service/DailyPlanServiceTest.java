@@ -1,9 +1,8 @@
-package com.umc5th.muffler.domain.rate.service;
+package com.umc5th.muffler.domain.dailyplan.service;
 
 import com.umc5th.muffler.domain.dailyplan.dto.RateInfoResponse;
 import com.umc5th.muffler.domain.dailyplan.dto.RateUpdateRequest;
 import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
-import com.umc5th.muffler.domain.dailyplan.service.DailyPlanService;
 import com.umc5th.muffler.entity.DailyPlan;
 import com.umc5th.muffler.entity.constant.Level;
 import com.umc5th.muffler.fixture.DailyPlanFixture;
@@ -23,7 +22,7 @@ import static org.mockito.Mockito.when;
 
 
 @SpringBootTest
-class RateServiceTest {
+class DailyPlanServiceTest {
 
     @Autowired
     private DailyPlanService dailyPlanService;
@@ -48,7 +47,7 @@ class RateServiceTest {
     }
 
     @Test
-    public void 평가항목조회_기존_평가가_있는_경우(){
+    public void 평가항목조회_기존_f평가가_있는_경우(){
         LocalDate date = LocalDate.of(2024, 1, 1);
         DailyPlan dailyPlan = DailyPlanFixture.DAILY_PLAN_ONE;
 

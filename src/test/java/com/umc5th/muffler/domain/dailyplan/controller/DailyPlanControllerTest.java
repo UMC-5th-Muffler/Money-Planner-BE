@@ -1,4 +1,4 @@
-package com.umc5th.muffler.domain.rate.controller;
+package com.umc5th.muffler.domain.dailyplan.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.umc5th.muffler.config.TestSecurityConfig;
@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(TestSecurityConfig.class)
-class RateControllerTest {
+class DailyPlanControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
