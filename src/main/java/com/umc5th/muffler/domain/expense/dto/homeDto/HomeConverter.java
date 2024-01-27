@@ -1,29 +1,23 @@
 package com.umc5th.muffler.domain.expense.dto.homeDto;
 
+import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.DailyPlan;
+import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.constant.Level;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class HomeConverter {
 
     public static WholeCalendarResponse toWholeCalendar(
-            Goal goal, LocalDate startDate, LocalDate endDate, Long totalCost, List<Long> dailyBudgetList, List<Long> dailyTotalCostList,
-            List<Level> dailyRateList, List<Boolean> isZeroDayList, List<CategoryCalendarInfo> categoryCalendarInfo, OtherGoalsResponse otherGoalsInfoList)
-    {
-        List<WholeCalendarDailyInfo> dailyInfoList = IntStream.range(0, dailyBudgetList.size())
-                .mapToObj(i -> WholeCalendarDailyInfo.builder()
-                        .dailyBudget(dailyBudgetList.get(i))
-                        .dailyTotalCost(dailyTotalCostList.get(i))
-                        .dailyRate(dailyRateList.get(i))
-                        .isZeroDay(isZeroDayList.get(i))
-                        .build())
-                .collect(Collectors.toList());
+            Goal goal, LocalDate startDate, LocalDate endDate, Long totalCost, List<WholeCalendarDailyInfo> dailyInfoList,
+            List<CategoryCalendarInfo> categoryCalendarInfo, OtherGoalsResponse otherGoalsInfoList) {
 
         return WholeCalendarResponse.builder()
                 .goalId(goal.getId())
@@ -36,6 +30,17 @@ public class HomeConverter {
                 .dailyList(dailyInfoList)
                 .otherGoalsInfo(otherGoalsInfoList)
                 .build();
+    }
+
+    public static List<WholeCalendarDailyInfo> convertDailyPlansToDailyInfo(List<DailyPlan> dailyPlans) {
+        return dailyPlans.stream()
+                .map(dailyPlan -> WholeCalendarDailyInfo.builder()
+                        .dailyBudget(dailyPlan.getTotalCost() == 0 ? null : dailyPlan.getBudget())
+                        .dailyTotalCost(dailyPlan.getTotalCost())
+                        .dailyRate(dailyPlan.getRate() != null ? dailyPlan.getRate().getTotalLevel() : null)
+                        .isZeroDay(dailyPlan.getIsZeroDay())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     public static WholeCalendarResponse otherToWholeCalendar(OtherGoalsResponse otherGoalsInfoList) {

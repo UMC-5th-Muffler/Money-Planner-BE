@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -35,7 +36,14 @@ public class HomeService {
     public WholeCalendarResponse getGoalCalendarInfos(String memberId, Long goalId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
         Goal goal = goalRepository.findById(goalId).orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
-        return generateGoalCalendarResponse(member, goal);
+
+        LocalDate startDate = goal.getStartDate();
+        LocalDate endDate = adjustEndDate(startDate.getYear(), startDate.getMonthValue(), goal.getEndDate());
+
+        List<Goal> otherGoals = findOtherGoalsByMonth(memberId, goal, startDate);
+
+        OtherGoalsResponse otherGoalsInfoList = otherGoals.isEmpty() ? null : HomeConverter.toOtherGoals(otherGoals, startDate.getYear(), startDate.getMonthValue());
+        return process(goal, member, startDate, endDate, otherGoalsInfoList);
     }
 
     public OtherGoalsResponse getTurnPage(String memberId, Integer year, Integer month) {
@@ -76,24 +84,6 @@ public class HomeService {
         return process(goal, member, startDate, endDate, otherGoalsInfoList);
     }
 
-    private WholeCalendarResponse generateGoalCalendarResponse(Member member, Goal goal) {
-
-        LocalDate startDate = goal.getStartDate();
-        LocalDate endDate = adjustEndDate(startDate.getYear(), startDate.getMonthValue(), goal.getEndDate());
-        YearMonth yearMonth = YearMonth.of(startDate.getYear(), startDate.getMonthValue());
-        LocalDate startOfMonth = yearMonth.atDay(1);
-        LocalDate endOfMonth = yearMonth.atEndOfMonth();
-
-        List<Goal> otherGoals = goalRepository.findGoalsByMonth(startOfMonth, endOfMonth, member.getId())
-                .orElse(Collections.emptyList())
-                .stream()
-                .filter(otherGoal -> !otherGoal.equals(goal))
-                .collect(Collectors.toList());
-
-        OtherGoalsResponse otherGoalsInfoList = otherGoals.isEmpty() ? null : HomeConverter.toOtherGoals(otherGoals, startDate.getYear(), startDate.getMonthValue());
-        return process(goal, member, startDate, endDate, otherGoalsInfoList);
-    }
-
     private List<Goal> findGoalsByMonth(String memberId, Integer year, Integer month) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate startOfMonth = yearMonth.atDay(1);
@@ -119,27 +109,38 @@ public class HomeService {
                 .collect(Collectors.toList());
     }
 
+    private List<Goal> findOtherGoalsByMonth(String memberId, Goal goal, LocalDate startDate) {
+        return goalRepository.findGoalsByMonth(startDate.withDayOfMonth(1), startDate.withDayOfMonth(startDate.lengthOfMonth()), memberId)
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(otherGoal -> !otherGoal.equals(goal))
+                .collect(Collectors.toList());
+    }
+
     private WholeCalendarResponse process(Goal goal, Member member, LocalDate startDate, LocalDate endDate, OtherGoalsResponse otherGoalsInfoList) {
         List<Expense> expensesAll = expenseRepository.findAllByMemberAndDateBetween(member, goal.getStartDate(), goal.getEndDate());
         Long totalCost = calculateTotalCost(expensesAll);
 
-        List<Long> dailyBudgetList = extractDailyBudgets(goal, startDate, endDate);
-        List<Long> dailyTotalCostList = extractDailyTotalCosts(goal, startDate, endDate);
-        List<Level> dailyRateList = extractRates(goal, startDate, endDate);
-        List<Boolean> isZeroDayList = extractIsZeroDays(goal, startDate, endDate);
-        nullifyBudgetToZeroCost(dailyTotalCostList, dailyBudgetList);
+        List<DailyPlan> relevantDailyPlans = filterDailyPlansByDate(goal.getDailyPlans(), startDate, endDate);
+        List<WholeCalendarDailyInfo> dailyInfoList = HomeConverter.convertDailyPlansToDailyInfo(relevantDailyPlans);
 
         List<CategoryCalendarInfo> categoryInfoList = getCategoryInfo(goal, startDate, endDate, expensesAll);
 
-        return HomeConverter.toWholeCalendar(goal, startDate, endDate, totalCost, dailyBudgetList, dailyTotalCostList, dailyRateList, isZeroDayList, categoryInfoList, otherGoalsInfoList);
+        return HomeConverter.toWholeCalendar(goal, startDate, endDate, totalCost, dailyInfoList, categoryInfoList, otherGoalsInfoList);
+    }
+
+    private List<DailyPlan> filterDailyPlansByDate(List<DailyPlan> dailyPlans, LocalDate startDate, LocalDate endDate) {
+        return dailyPlans.stream()
+                .filter(dailyPlan -> !dailyPlan.getDate().isBefore(startDate) && !dailyPlan.getDate().isAfter(endDate))
+                .collect(Collectors.toList());
     }
 
     private List<CategoryCalendarInfo> getCategoryInfo(Goal goal, LocalDate startDate, LocalDate endDate, List<Expense> expenseList) {
 
-        List<Category> expenseCategoryList = expenseList.stream().map(Expense::getCategory).distinct()
-                .collect(Collectors.toList());
+        List<Category> expenseCategoryList = expenseList.stream().map(Expense::getCategory).distinct().collect(Collectors.toList());
         Map<Category, Long> expenseCategoryMap = new HashMap<>();
         expenseCategoryList.forEach(category -> expenseCategoryMap.put(category, null));
+
         Map<Category, Long> goalCategoryMap = goal.getCategoryGoals().stream()
                 .collect(Collectors.toMap(CategoryGoal::getCategory, CategoryGoal::getBudget));
 
@@ -158,8 +159,9 @@ public class HomeService {
 
     private CategoryCalendarInfo createCategoryCalendarInfo(Category category, Long budget, LocalDate startDate, LocalDate endDate, List<Expense> expenseList) {
         List<Expense> expensesByCategory = expenseList.stream()
-                .filter(expense -> expense.getCategory() != null && expense.getCategory().getId().equals(category.getId()))
+                .filter(expense -> expense.getCategory().equals(category))
                 .collect(Collectors.toList());
+
         Long categoryTotalCost = calculateTotalCost(expensesByCategory);
         List<Long> dailyCategoryTotalCostList = calculateDailyTotalCostList(expensesByCategory, startDate, endDate);
 
@@ -171,53 +173,6 @@ public class HomeService {
         return expenses.stream()
                 .mapToLong(Expense::getCost)
                 .sum();
-    }
-
-    private List<Long> extractDailyBudgets(Goal goal, LocalDate startDate, LocalDate endDate) {
-        return goal.getDailyPlans().stream()
-                .filter(dailyPlan ->
-                        !dailyPlan.getDate().isBefore(startDate) &&
-                        !dailyPlan.getDate().isAfter(endDate))
-                .map(DailyPlan::getBudget)
-                .collect(Collectors.toList());
-    }
-
-    private List<Long> extractDailyTotalCosts(Goal goal, LocalDate startDate, LocalDate endDate) {
-        return goal.getDailyPlans().stream()
-                .filter(dailyPlan ->
-                        !dailyPlan.getDate().isBefore(startDate) &&
-                        !dailyPlan.getDate().isAfter(endDate))
-                .map(DailyPlan::getTotalCost)
-                .collect(Collectors.toList());
-    }
-
-    private List<Level> extractRates(Goal goal, LocalDate startDate, LocalDate endDate) {
-        return goal.getDailyPlans().stream()
-                .filter(dailyPlan ->
-                        !dailyPlan.getDate().isBefore(startDate) &&
-                        !dailyPlan.getDate().isAfter(endDate))
-                .map(DailyPlan::getRate)
-                .map(rate -> (rate != null) ? rate.getTotalLevel() : null)
-                .collect(Collectors.toList());
-    }
-
-    private List<Boolean> extractIsZeroDays(Goal goal, LocalDate startDate, LocalDate endDate) {
-        return goal.getDailyPlans().stream()
-                .filter(dailyPlan ->
-                        !dailyPlan.getDate().isBefore(startDate) &&
-                        !dailyPlan.getDate().isAfter(endDate))
-                .map(DailyPlan::getIsZeroDay)
-                .collect(Collectors.toList());
-    }
-
-    private void nullifyBudgetToZeroCost(List<Long> dailyTotalCostList, List<Long> dailyBudgetList) {
-        if (dailyTotalCostList.size() != dailyBudgetList.size()) {
-            throw new IllegalArgumentException("리스트의 크기가 서로 다릅니다.");
-        }
-
-        IntStream.range(0, dailyTotalCostList.size())
-                .filter(i -> dailyTotalCostList.get(i) == 0)
-                .forEach(i -> dailyBudgetList.set(i, null));
     }
 
     private List<Long> calculateDailyTotalCostList(List<Expense> expenses, LocalDate startDate, LocalDate endDate) {
