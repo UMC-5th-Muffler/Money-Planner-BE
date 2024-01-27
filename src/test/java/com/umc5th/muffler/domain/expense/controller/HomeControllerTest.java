@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.expense.controller;
 
+import com.umc5th.muffler.domain.expense.dto.homeDto.OtherGoalsResponse;
 import com.umc5th.muffler.domain.expense.dto.homeDto.WholeCalendarResponse;
 import com.umc5th.muffler.domain.expense.service.HomeService;
 import com.umc5th.muffler.fixture.WholeCalendarResponseFixture;
@@ -73,14 +74,27 @@ class HomeControllerTest {
 
     @Test
     @WithMockUser
-    void 달_전환_홈화면_조회() throws Exception {
+    void 목표O_달_전환_홈화면_조회() throws Exception {
 
         WholeCalendarResponse mockResponse = new WholeCalendarResponse();
 
         when(homeService.getGoalTurnPage("user", 1L, 2024, 2)).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/home/{goalId}", 1))
+        mockMvc.perform(get("/home/{goalId}/{year}/{month}", 1, 2024, 2))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.goalId").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser
+    void 목표X_달_전환_홈화면_조회() throws Exception {
+
+        OtherGoalsResponse mockResponse = new OtherGoalsResponse();
+
+        when(homeService.getTurnPage("user", 2024, 1)).thenReturn(mockResponse);
+
+        mockMvc.perform(get("/home/{year}/{month}", 2024, 1))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.otherGoalsInfoList").doesNotExist());
     }
 }
