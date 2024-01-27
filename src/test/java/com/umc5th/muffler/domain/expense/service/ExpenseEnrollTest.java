@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
@@ -23,6 +24,8 @@ import java.time.LocalDate;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -39,6 +42,8 @@ public class ExpenseEnrollTest {
     private GoalRepository goalRepository;
     @InjectMocks
     private ExpenseService expenseService;
+    @Captor
+    private ArgumentCaptor<Expense> expenseArgumentCaptor;
 
     @Test
     public void 정상_입력() {
@@ -57,9 +62,11 @@ public class ExpenseEnrollTest {
         NewExpenseRequest req = new NewExpenseRequest(expense.getTitle(), expense.getCost(),
                 expense.getDate(), null, category.getName());
         // when
-        NewExpenseResponse res = expenseService.enrollExpense(member.getId(), req);
+        expenseService.enrollExpense(member.getId(), req);
         // then
-        assertEquals(req.getExpenseCost(), res.getCost());
+        verify(expenseRepository).save(expenseArgumentCaptor.capture());
+        Expense result = expenseArgumentCaptor.getValue();
+        assertEquals(req.getExpenseCost(), result.getCost());
     }
 
     @Test

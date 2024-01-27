@@ -93,6 +93,6 @@ public class ExpenseService {
 
         Expense expense = ExpenseConverter.toExpenseEntity(request, member, category);
         expense = expenseRepository.save(expense);
-        return new NewExpenseResponse(expense.getId(), expense.getCost());
+        return new NewExpenseResponse(expense.getId());
     }
 }

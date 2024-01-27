@@ -7,5 +7,4 @@ import lombok.Getter;
 @AllArgsConstructor
 public class NewExpenseResponse {
     private Long expenseId;
-    private Long cost;
 }
