@@ -6,6 +6,7 @@ import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseResponse;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
 import com.umc5th.muffler.global.response.Response;
+import java.security.Principal;
 import javax.validation.Valid;
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +33,8 @@ public class ExpenseController {
     private final ExpenseService expenseService;
 
     @PostMapping("")
-    public Response<NewExpenseResponse> enrollNewExpense(@RequestBody @Valid NewExpenseRequest request) {
-        NewExpenseResponse result = expenseService.enrollExpense(request);
+    public Response<NewExpenseResponse> enrollNewExpense(Principal principal, @RequestBody @Valid NewExpenseRequest request) {
+        NewExpenseResponse result = expenseService.enrollExpense(principal.getName(), request);
         return Response.success(result);
     }
 

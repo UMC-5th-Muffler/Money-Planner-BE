@@ -83,12 +83,12 @@ public class ExpenseService {
     }
 
     @Transactional
-    public NewExpenseResponse enrollExpense(NewExpenseRequest request) {
-        Member member = memberRepository.findById(request.getUserId())
+    public NewExpenseResponse enrollExpense(String memberId, NewExpenseRequest request) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.MEMBER_NOT_FOUND));
         Category category = categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), member.getId())
                 .orElseThrow(() -> new ExpenseException(ErrorCode.CATEGORY_NOT_FOUND));
-        Goal goal = goalRepository.findByDateBetween(request.getExpenseDate(), request.getUserId())
+        Goal goal = goalRepository.findByDateBetween(request.getExpenseDate(), memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.NO_GOAL_IN_GIVEN_DATE));
 
         Expense expense = ExpenseConverter.toExpenseEntity(request, member, category);

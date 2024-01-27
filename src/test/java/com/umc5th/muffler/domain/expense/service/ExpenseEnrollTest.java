@@ -54,10 +54,10 @@ public class ExpenseEnrollTest {
         given(expenseRepository.save(any(Expense.class))).willReturn(expense);
 
         // given
-        NewExpenseRequest req = new NewExpenseRequest(member.getId(), expense.getTitle(), expense.getCost(),
+        NewExpenseRequest req = new NewExpenseRequest(expense.getTitle(), expense.getCost(),
                 expense.getDate(), null, category.getName());
         // when
-        NewExpenseResponse res = expenseService.enrollExpense(req);
+        NewExpenseResponse res = expenseService.enrollExpense(member.getId(), req);
         // then
         assertEquals(req.getExpenseCost(), res.getCost());
     }
@@ -73,10 +73,10 @@ public class ExpenseEnrollTest {
         given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.empty());
 
-        NewExpenseRequest req = new NewExpenseRequest(member.getId(), expense.getTitle(), expense.getCost(),
+        NewExpenseRequest req = new NewExpenseRequest(expense.getTitle(), expense.getCost(),
                 expense.getDate(), null, category.getName());
         assertThrows(ExpenseException.class, () -> {
-            NewExpenseResponse res = expenseService.enrollExpense(req);
+            NewExpenseResponse res = expenseService.enrollExpense(member.getId(), req);
         });
     }
 
@@ -89,10 +89,10 @@ public class ExpenseEnrollTest {
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
 
-        NewExpenseRequest req = new NewExpenseRequest(member.getId(), expense.getTitle(), expense.getCost(),
+        NewExpenseRequest req = new NewExpenseRequest(expense.getTitle(), expense.getCost(),
                 expense.getDate(), null, category.getName());
         assertThrows(ExpenseException.class, () -> {
-            NewExpenseResponse res = expenseService.enrollExpense(req);
+            NewExpenseResponse res = expenseService.enrollExpense(member.getId(), req);
         });
     }
 
@@ -108,10 +108,10 @@ public class ExpenseEnrollTest {
                 .willReturn(Optional.of(category));
         given(goalRepository.findByDateBetween(any(LocalDate.class), any(String.class))).willReturn(Optional.empty());
 
-        NewExpenseRequest req = new NewExpenseRequest(member.getId(), expense.getTitle(), expense.getCost(),
+        NewExpenseRequest req = new NewExpenseRequest(expense.getTitle(), expense.getCost(),
                 expense.getDate(), null, category.getName());
         assertThrows(ExpenseException.class, () -> {
-            NewExpenseResponse res = expenseService.enrollExpense(req);
+            NewExpenseResponse res = expenseService.enrollExpense(member.getId(), req);
         });
     }
 }

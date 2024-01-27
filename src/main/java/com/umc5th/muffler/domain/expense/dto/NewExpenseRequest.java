@@ -11,8 +11,6 @@ import java.time.LocalDate;
 @Getter
 @AllArgsConstructor
 public class NewExpenseRequest {
-    @NotNull
-    private String userId;
     @NotBlank
     private String expenseTitle;
     @Positive
