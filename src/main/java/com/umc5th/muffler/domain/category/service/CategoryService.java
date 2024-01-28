@@ -1,6 +1,8 @@
 package com.umc5th.muffler.domain.category.service;
 
 import com.umc5th.muffler.domain.category.dto.CategoryConverter;
+import com.umc5th.muffler.domain.category.dto.CategoryDTO;
+import com.umc5th.muffler.domain.category.dto.GetCategoryListResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.DeleteCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryRequest;
@@ -14,7 +16,9 @@ import com.umc5th.muffler.entity.constant.CategoryType;
 import com.umc5th.muffler.entity.constant.Status;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.CategoryException;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -89,5 +93,13 @@ public class CategoryService {
                 .orElseThrow(() -> new CategoryException(ErrorCode.ETC_CATEGORY_NOT_FOUND));
         int updatedRows = routineRepository.updateRoutinesWithDeletedCategory(categoryId, etcCategory.getId());
         return new DeleteCategoryResponse(updatedRows);
+    }
+    public GetCategoryListResponse getActiveCategories(String memberId) throws CategoryException {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
+        List<CategoryDTO> categories = categoryRepository.findAllByMember(member)
+                .stream().map(category -> CategoryConverter.toCategoryDTO(category))
+                .collect(Collectors.toList());
+        return new GetCategoryListResponse(categories);
     }
 }

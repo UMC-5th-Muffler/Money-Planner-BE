@@ -26,4 +26,15 @@ public class CategoryConverter {
                 .member(original.getMember())
                 .build();
     }
+
+    public static CategoryDTO toCategoryDTO(Category category) {
+        return CategoryDTO.builder()
+                .id(category.getId())
+                .icon(category.getIcon())
+                .name(category.getName())
+                .isVisible(category.getIsVisible())
+                .orderNumber(category.getPriority())
+                .type(category.getType())
+                .build();
+    }
 }

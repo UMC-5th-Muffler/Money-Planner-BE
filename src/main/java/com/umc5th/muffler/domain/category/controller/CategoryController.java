@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.category.controller;
 
+import com.umc5th.muffler.domain.category.dto.GetCategoryListResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.DeleteCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryRequest;
@@ -10,6 +11,7 @@ import java.security.Principal;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,14 +31,19 @@ public class CategoryController {
         return Response.success(newCategory);
     }
     @PatchMapping
-    private Response<Void> updateCategory(Principal principal, @RequestBody @Valid UpdateCategoryRequest request) {
+    public Response<Void> updateCategory(Principal principal, @RequestBody @Valid UpdateCategoryRequest request) {
         categoryService.updateCategory(principal.getName(), request);
         return Response.success();
     }
 
     @DeleteMapping("/{categoryId}")
-    private Response<DeleteCategoryResponse> deleteCategory(Principal principal, @PathVariable("categoryId") Long categoryId) {
+    public Response<DeleteCategoryResponse> deleteCategory(Principal principal, @PathVariable("categoryId") Long categoryId) {
         DeleteCategoryResponse response = categoryService.deactivateCategory(principal.getName(), categoryId);
+        return Response.success(response);
+    }
+    @GetMapping
+    public Response<GetCategoryListResponse> getCategoryList(Principal principal) {
+        GetCategoryListResponse response = this.categoryService.getActiveCategories(principal.getName());
         return Response.success(response);
     }
 }

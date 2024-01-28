@@ -16,4 +16,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     @Query(value = "select c from Category c join fetch c.member where c.id = :categoryId")
     Optional<Category> findByIdWithFetchMember(@Param("categoryId") Long categoryId);
     List<Category> findAllByMember(Member member);
+    @Query("SELECT c FROM Category c WHERE c.status = 'ACTIVE' AND c.member.id = :memberId ORDER BY c.priority ASC")
+    List<Category> findActiveCategoriesAsc(@Param(("memberId")) String memberId);
 }
