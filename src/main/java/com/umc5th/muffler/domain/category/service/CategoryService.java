@@ -94,6 +94,8 @@ public class CategoryService {
         int updatedRows = routineRepository.updateRoutinesWithDeletedCategory(categoryId, etcCategory.getId());
         return new DeleteCategoryResponse(updatedRows);
     }
+
+    @Transactional(readOnly = true)
     public GetCategoryListResponse getActiveCategories(String memberId) throws CategoryException {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
