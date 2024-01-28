@@ -119,4 +119,18 @@ public class ExpenseUpdateService {
         }
         return categoryAlarm;
     }
+
+    public void deleteExpense(String memberId, Long expenseId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ExpenseException(ErrorCode.MEMBER_NOT_FOUND));
+        Expense expense = expenseRepository.findExpenseByIdFetchMember(expenseId)
+                .orElseThrow(() -> new ExpenseException(ErrorCode.EXPENSE_NOT_FOUND));
+        if (!expense.isOwnMember(memberId))
+            throw new ExpenseException(ErrorCode.CANNOT_UPDATE_OTHER_MEMBER_EXPENSE);
+        DailyPlan dailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(expense.getDate(), memberId)
+                .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
+        dailyPlan.addExpenseDifference(-expense.getCost());
+        dailyPlanRepository.save(dailyPlan);
+        expenseRepository.delete(expense);
+    }
 }

@@ -11,7 +11,9 @@ import com.umc5th.muffler.global.response.Response;
 import java.security.Principal;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,6 +43,11 @@ public class ExpenseController {
     @PatchMapping
     public Response<Void> updateExpense(Principal principal, @RequestBody @Valid UpdateExpenseRequest request) {
         expenseUpdateService.updateExpense(principal.getName(), request);
+        return Response.success();
+    }
+    @DeleteMapping("/{expenseId}")
+    private Response<Void> deleteExpense(Principal principal, @PathVariable("expenseId") Long expenseId) {
+        expenseUpdateService.deleteExpense(principal.getName(), expenseId);
         return Response.success();
     }
 
