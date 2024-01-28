@@ -56,14 +56,13 @@ public class ExpenseController {
     public Response<WeeklyExpenseResponse> getWeeklyExpenseDetails(
             Authentication authentication,
             @RequestParam(name = "goalId") Long goalId,
-            @RequestParam(name = "startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
-            @RequestParam(name = "endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+            @Valid WeekRequestParam weekRequestParam,
             @PageableDefault(size = 20) @SortDefault.SortDefaults({
                     @SortDefault(sort = "date", direction = Sort.Direction.DESC),
                     @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC)
             }) Pageable pageable){
 
-        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(authentication.getName(), goalId, startDate, endDate, pageable);
+        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(authentication.getName(), goalId, weekRequestParam.getStartDate(), weekRequestParam.getEndDate(), pageable);
         return Response.success(response);
     }
 
