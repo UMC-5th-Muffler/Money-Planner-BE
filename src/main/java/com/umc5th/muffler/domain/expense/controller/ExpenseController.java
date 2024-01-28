@@ -2,6 +2,7 @@ package com.umc5th.muffler.domain.expense.controller;
 
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
 import com.umc5th.muffler.domain.expense.dto.UpdateExpenseRequest;
+import com.umc5th.muffler.domain.expense.dto.UpdateExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseDetailsResponse;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseResponse;
@@ -41,9 +42,9 @@ public class ExpenseController {
         return Response.success(result);
     }
     @PatchMapping
-    public Response<Void> updateExpense(Principal principal, @RequestBody @Valid UpdateExpenseRequest request) {
-        expenseUpdateService.updateExpense(principal.getName(), request);
-        return Response.success();
+    public Response<UpdateExpenseResponse> updateExpense(Principal principal, @RequestBody @Valid UpdateExpenseRequest request) {
+        UpdateExpenseResponse result = expenseUpdateService.updateExpense(principal.getName(), request);
+        return Response.success(result);
     }
     @DeleteMapping("/{expenseId}")
     private Response<Void> deleteExpense(Principal principal, @PathVariable("expenseId") Long expenseId) {

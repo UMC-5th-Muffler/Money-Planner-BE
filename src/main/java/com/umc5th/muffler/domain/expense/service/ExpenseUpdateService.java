@@ -49,7 +49,7 @@ public class ExpenseUpdateService {
         if (dailyPlan.isPossibleToAlarm(expense.getCost())) {
             dailyAlarm = new AlarmControlDTO(dailyPlan.getBudget(), dailyPlan.getTotalCost() + expense.getCost());
         }
-        categoryAlarm = handleCategoryGoal(memberId, category, dailyPlan.getGoal(), expense);
+        categoryAlarm = handleCategoryGoal(memberId, category, dailyPlan.getGoal(), 0L, expense);
 
         expense = expenseRepository.save(expense);
         dailyPlan.addExpenseDifference(expense.getCost());
@@ -64,7 +64,7 @@ public class ExpenseUpdateService {
                 .orElseThrow(() -> new ExpenseException(ErrorCode.EXPENSE_NOT_FOUND));
         if (!oldExpense.isOwnMember(memberId))
             throw new ExpenseException(ErrorCode.CANNOT_UPDATE_OTHER_MEMBER_EXPENSE);
-        DailyPlan oldDailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(request.getExpenseDate(), memberId)
+        DailyPlan oldDailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(oldExpense.getDate(), memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
 
         Category newCategory = categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), member.getId())
@@ -77,18 +77,18 @@ public class ExpenseUpdateService {
         AlarmControlDTO dailyAlarm, categoryAlarm;
         Expense newExpense = ExpenseConverter.toExpenseEntity(request, member, newCategory);
 
-        dailyAlarm = handleDailyPlan(request, oldExpense, oldDailyPlan, newDailyPlan, newExpense);
-        categoryAlarm = handleCategoryGoal(memberId, newCategory, newDailyPlan.getGoal(), newExpense);
+        dailyAlarm = handleDailyPlan(oldExpense, oldDailyPlan, newDailyPlan, newExpense);
+        categoryAlarm = handleCategoryGoal(memberId, newCategory, newDailyPlan.getGoal(), oldExpense.getCost(), newExpense);
 
         expenseRepository.save(newExpense);
         return new UpdateExpenseResponse(dailyAlarm, categoryAlarm);
     }
 
-    private AlarmControlDTO handleDailyPlan(UpdateExpenseRequest request, Expense oldExpense, DailyPlan oldDailyPlan,
+    private AlarmControlDTO handleDailyPlan(Expense oldExpense, DailyPlan oldDailyPlan,
                            DailyPlan newDailyPlan, Expense newExpense) {
         AlarmControlDTO dailyAlarm = null;
         if (oldDailyPlan.getId().equals(newDailyPlan.getId())) {
-            long difference = request.getExpenseCost() - oldExpense.getCost();
+            long difference = newExpense.getCost() - oldExpense.getCost();
             if (oldDailyPlan.isPossibleToAlarm(difference))
                 dailyAlarm = new AlarmControlDTO(oldDailyPlan.getBudget(), oldDailyPlan.getTotalCost() + difference);
             newDailyPlan.addExpenseDifference(difference);
@@ -104,7 +104,7 @@ public class ExpenseUpdateService {
         return dailyAlarm;
     }
 
-    private AlarmControlDTO handleCategoryGoal(String memberId, Category category, Goal goal, Expense expense) {
+    private AlarmControlDTO handleCategoryGoal(String memberId, Category category, Goal goal, Long originalCost, Expense newExpense) {
         Optional<CategoryGoal> optionalCategoryGoal = categoryGoalRepository.findCategoryGoalWithGoalIdAndCategoryId(goal.getId(), category.getId());
 
         AlarmControlDTO categoryAlarm = null;
@@ -112,8 +112,9 @@ public class ExpenseUpdateService {
             CategoryGoal categoryGoal = optionalCategoryGoal.get();
             Long sumOfCategoryCost = expenseRepository.getSumOfCategoryCost(memberId, goal.getStartDate(), goal.getEndDate(), category.getId())
                     .orElse(0L);
-            if (categoryGoal.isPossibleToAlarm(sumOfCategoryCost, expense.getCost())) {
-                categoryAlarm = new AlarmControlDTO(categoryGoal.getBudget(), sumOfCategoryCost + expense.getCost());
+            long diff = newExpense.getCost() - originalCost;
+            if (categoryGoal.isPossibleToAlarm(sumOfCategoryCost, diff)) {
+                categoryAlarm = new AlarmControlDTO(categoryGoal.getBudget(), sumOfCategoryCost + diff);
             }
         }
         return categoryAlarm;

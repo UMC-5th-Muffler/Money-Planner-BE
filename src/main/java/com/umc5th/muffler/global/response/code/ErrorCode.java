@@ -30,7 +30,7 @@ public enum ErrorCode {
     
     // DailyPlan 에러
     DAILYPLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 일일 소비 계획입니다."),
-    NO_DAILY_PLAN_GIVEN_DATE(HttpStatus.NOT_FOUND, "수정하려는 소비날짜에 맞는 일일 목표가 없습니다.\n"
+    NO_DAILY_PLAN_GIVEN_DATE(HttpStatus.NOT_FOUND, "수정하려는 소비날짜에 맞는 일일 목표가 없습니다. "
             + "목표가 설정된 다른 날로 수정을 하거나 수정하려는 날에 목표를 설정해주세요."),
 
 
