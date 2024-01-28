@@ -34,10 +34,6 @@ public class DailyPlan extends BaseTimeEntity {
     @ColumnDefault("0")
     private Long totalCost;
 
-    @Column(nullable = false)
-    @ColumnDefault("false")
-    private Boolean isAlarmed;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "goal_id")
     private Goal goal;
@@ -60,12 +56,10 @@ public class DailyPlan extends BaseTimeEntity {
     public void setRate(Rate rate){
         this.rate = rate;
     }
-    public void turnOffAlarm() { isAlarmed = true;}
     public void addExpenseDifference(Long difference) {
         this.totalCost += difference;
     }
-
-    public Boolean isPossibleToAlarm() {
-        return !isAlarmed && budget < totalCost;
+    public Boolean isPossibleToAlarm(Long addition) {
+        return totalCost <= budget && budget < totalCost + addition;
     }
 }

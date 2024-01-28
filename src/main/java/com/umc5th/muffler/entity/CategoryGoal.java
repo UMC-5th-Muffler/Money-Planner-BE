@@ -14,7 +14,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,10 +30,6 @@ public class CategoryGoal extends BaseTimeEntity {
     @Column(nullable = false)
     private Long budget;
 
-    @Column(nullable = false)
-    @ColumnDefault("false")
-    private Boolean isAlarmed;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
@@ -49,14 +44,11 @@ public class CategoryGoal extends BaseTimeEntity {
                 .category(category)
                 .build();
     }
-    public void turnOffAlarm() {
-        this.isAlarmed = true;
-    }
     public void setGoal(Goal goal) {
         this.goal = goal;
     }
 
-    public Boolean isPossibleToAlarm(Long sum) {
-        return !isAlarmed && budget < sum;
+    public Boolean isPossibleToAlarm(Long sum, Long addition) {
+        return sum <= budget && budget < sum + addition;
     }
 }
