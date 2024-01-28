@@ -21,9 +21,11 @@ import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.ExpenseException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -41,16 +43,13 @@ public class ExpenseUpdateService {
                 .orElseThrow(() -> new ExpenseException(ErrorCode.CATEGORY_NOT_FOUND));
         DailyPlan dailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(request.getExpenseDate(), memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
-        Optional<CategoryGoal> optionalCategoryGoal = categoryGoalRepository.findCategoryGoalWithGoalIdAndCategoryId(
-                category.getId(), dailyPlan.getGoal().getId());
-
         AlarmControlDTO dailyAlarm = null, categoryAlarm;
         Expense expense = ExpenseConverter.toExpenseEntity(request, member, category);
 
         if (dailyPlan.isPossibleToAlarm(expense.getCost())) {
             dailyAlarm = new AlarmControlDTO(dailyPlan.getBudget(), dailyPlan.getTotalCost() + expense.getCost());
         }
-        categoryAlarm = handleCategoryGoal(memberId, category, dailyPlan.getGoal(), optionalCategoryGoal, expense);
+        categoryAlarm = handleCategoryGoal(memberId, category, dailyPlan.getGoal(), expense);
 
         expense = expenseRepository.save(expense);
         dailyPlan.addExpenseDifference(expense.getCost());
@@ -72,8 +71,6 @@ public class ExpenseUpdateService {
                 .orElseThrow(() -> new ExpenseException(ErrorCode.CATEGORY_NOT_FOUND));
         DailyPlan newDailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(request.getExpenseDate(), memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
-        Optional<CategoryGoal> optNewCategoryGoal = categoryGoalRepository.findCategoryGoalWithGoalIdAndCategoryId(
-                newDailyPlan.getGoal().getId(), newCategory.getId());
         if (newDailyPlan.getIsZeroDay())
             throw new ExpenseException(ErrorCode.CANNOT_UPDATE_TO_ZERO_DAY);
 
@@ -81,7 +78,7 @@ public class ExpenseUpdateService {
         Expense newExpense = ExpenseConverter.toExpenseEntity(request, member, newCategory);
 
         dailyAlarm = handleDailyPlan(request, oldExpense, oldDailyPlan, newDailyPlan, newExpense);
-        categoryAlarm = handleCategoryGoal(memberId, newCategory, newDailyPlan.getGoal(), optNewCategoryGoal, newExpense);
+        categoryAlarm = handleCategoryGoal(memberId, newCategory, newDailyPlan.getGoal(), newExpense);
 
         expenseRepository.save(newExpense);
         return new UpdateExpenseResponse(dailyAlarm, categoryAlarm);
@@ -107,12 +104,14 @@ public class ExpenseUpdateService {
         return dailyAlarm;
     }
 
-    private AlarmControlDTO handleCategoryGoal(String memberId, Category category, Goal newGoal,
-                                               Optional<CategoryGoal> optionalCategoryGoal, Expense expense) {
+    private AlarmControlDTO handleCategoryGoal(String memberId, Category category, Goal goal, Expense expense) {
+        Optional<CategoryGoal> optionalCategoryGoal = categoryGoalRepository.findCategoryGoalWithGoalIdAndCategoryId(goal.getId(), category.getId());
+
         AlarmControlDTO categoryAlarm = null;
         if (optionalCategoryGoal.isPresent()) {
             CategoryGoal categoryGoal = optionalCategoryGoal.get();
-            Long sumOfCategoryCost = expenseRepository.getSumOfCategoryCost(memberId, newGoal.getStartDate(), newGoal.getEndDate(), category.getId());
+            Long sumOfCategoryCost = expenseRepository.getSumOfCategoryCost(memberId, goal.getStartDate(), goal.getEndDate(), category.getId())
+                    .orElse(0L);
             if (categoryGoal.isPossibleToAlarm(sumOfCategoryCost, expense.getCost())) {
                 categoryAlarm = new AlarmControlDTO(categoryGoal.getBudget(), sumOfCategoryCost + expense.getCost());
             }

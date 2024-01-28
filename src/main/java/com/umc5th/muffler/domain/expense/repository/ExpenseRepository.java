@@ -28,7 +28,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     @Query("SELECT SUM(e.cost) FROM Expense e WHERE e.member.id = :memberId "
             + "AND e.date BETWEEN :startDate AND :endDate "
             + "AND e.category.id = :categoryId")
-    Long getSumOfCategoryCost(@Param("memberId")String memberId,
+    Optional<Long> getSumOfCategoryCost(@Param("memberId")String memberId,
                               @Param("startDate")LocalDate startDate,
                               @Param("endDate")LocalDate endDate,
                               @Param("categoryId") Long categoryId);
