@@ -55,10 +55,12 @@ public class GoalService {
 
     public GoalPreviewResponse getGoalPreview(String memberId) {
 
-        List<Goal> goalList = goalRepository.findByMemberId(memberId);
-        if (goalList.isEmpty()) {
+        Optional<List<Goal>> goals = goalRepository.findByMemberId(memberId);
+        if (!goals.isPresent()) {
             return new GoalPreviewResponse();
         }
+
+        List<Goal> goalList = goals.get();
         goalList.sort(Comparator.comparing(Goal::getStartDate).reversed());
 
         LocalDate today = LocalDate.now();
@@ -70,7 +72,7 @@ public class GoalService {
         for (Goal goal : goalList) {
             if (goal.getEndDate().isBefore(today)) {
                 calculateGoalCost(goalAndTotalCost, goal);
-            } else if (goal.getStartDate().isBefore(today) && goal.getEndDate().isAfter(today)) {
+            } else if (!today.isBefore(goal.getStartDate()) && !today.isAfter(goal.getEndDate())) {
                 progressGoal = goal;
                 totalCost = goal.getDailyPlans().stream().mapToLong(DailyPlan::getTotalCost).sum();
             } else {

@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface GoalRepository extends JpaRepository<Goal, Long> {
 
     @Query("SELECT DISTINCT g FROM Goal g JOIN FETCH g.dailyPlans WHERE g.member.id = :memberId")
-    List<Goal> findByMemberId(String memberId);
+    Optional<List<Goal>> findByMemberId(String memberId);
 
     @Query("SELECT goal from Goal goal where :date BETWEEN goal.startDate and goal.endDate AND goal.member.id = :memberId")
     Optional<Goal> findByDateBetween(LocalDate date, String memberId);

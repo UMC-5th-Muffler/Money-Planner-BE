@@ -5,17 +5,26 @@ import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_PERMISSI
 import static com.umc5th.muffler.global.response.code.ErrorCode.MEMBER_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.umc5th.muffler.domain.goal.dto.GoalListResponse;
+import com.umc5th.muffler.domain.goal.dto.GoalPreviewResponse;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.Member;
+import com.umc5th.muffler.fixture.GoalFixture;
 import com.umc5th.muffler.global.response.exception.CommonException;
 import com.umc5th.muffler.global.response.exception.GoalException;
 import com.umc5th.muffler.global.response.exception.MemberException;
+
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,4 +125,45 @@ class GoalServiceTest {
                 .hasFieldOrPropertyWithValue("errorCode", INVALID_PERMISSION);
     }
 
+    @Test
+    void 목표_탭_조회_성공() {
+        String memberId = "1";
+        Goal mockEndedGoal = GoalFixture.create();
+        Goal mockProgressGoal = GoalFixture.create(LocalDate.now(), LocalDate.now().plusDays(1));
+        Goal mockFutureGoal = GoalFixture.create(LocalDate.of(2025, 2, 1), LocalDate.of(2025, 2, 2));
+        List<Goal> goalList = Arrays.asList(mockEndedGoal, mockProgressGoal, mockFutureGoal);
+
+        when(goalRepository.findByMemberId(memberId)).thenReturn(Optional.of(goalList));
+
+        GoalPreviewResponse response = goalService.getGoalPreview(memberId);
+
+        assertNotNull(response);
+        assertEquals(mockEndedGoal.getTitle(), response.getEndedGoal().get(0).getTitle());
+        assertEquals(mockProgressGoal.getTitle(), response.getProgressGoal().getTitle());
+        assertEquals(mockFutureGoal.getTitle(), response.getFutureGoal().get(0).getTitle());
+
+        verify(goalRepository).findByMemberId(memberId);
+    }
+
+    @Test
+    void 목표_리스트_조회_성공() {
+        String memberId = "1";
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mock(Member.class)));
+
+        assertThatCode(() -> goalService.getGoalList(memberId)).doesNotThrowAnyException();
+
+        verify(memberRepository).findById(memberId);
+    }
+
+    @Test
+    void 목표_리스트_사용자_존재X() {
+        String memberId = "1";
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> goalService.getGoalList(memberId))
+                .isInstanceOf(MemberException.class)
+                .hasFieldOrPropertyWithValue("errorCode", MEMBER_NOT_FOUND);
+    }
 }

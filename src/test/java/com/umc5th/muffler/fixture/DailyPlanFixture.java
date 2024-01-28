@@ -34,7 +34,8 @@ public class DailyPlanFixture {
             .date(LocalDate.now())
             .budget(5000L)
             .totalCost(1000L)
-            .rate(RateFixture.RATE_ONE)
+            .rate(Level.HIGH)
+            .rateMemo("rateMemo")
             .build();
 
     public static final DailyPlan DAILY_PLAN_FOUR = DailyPlan.builder()
@@ -49,7 +50,8 @@ public class DailyPlanFixture {
             .date(LocalDate.of(2024, 1, 31))
             .budget(5000L)
             .totalCost(1000L)
-            .rate(RateFixture.RATE_ONE)
+            .rate(Level.HIGH)
+            .rateMemo("rateMemo")
             .build();
 
     public static final DailyPlan DAILY_PLAN_SIX = DailyPlan.builder()
