@@ -22,6 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -101,7 +102,6 @@ class ExpenseViewServiceTest {
 
     @Test
     public void 주간_소비내역_조회_성공(){
-
         int pageSize = 10;
         String memberId = "1";
         Pageable pageable = PageRequest.of(0, pageSize);
@@ -112,31 +112,26 @@ class ExpenseViewServiceTest {
         Goal mockGoal = GoalFixture.create();
 
         List<Expense> expenses = ExpenseFixture.createList(20, startDate);
-        Slice<Expense> expenseSlice = new SliceImpl<>(expenses, pageable, true);
-        Long weeklyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
+        Page<Expense> expenseSlice = new PageImpl<>(expenses, pageable, expenses.size());
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByDateBetween(date, memberId)).thenReturn(Optional.of(mockGoal));
-        when(expenseRepository.calculateTotalCostByMemberAndDateBetween(mockMember, startDate, endDate)).thenReturn(weeklyTotalCost);
-        when(expenseRepository.findAllByMemberAndDateBetween(mockMember, startDate, endDate, pageable)).thenReturn(expenseSlice);
+        when(goalRepository.findById(mockGoal.getId())).thenReturn(Optional.of(mockGoal));
+        when(expenseRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(expenseSlice);
 
-        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(memberId, date, pageable);
+        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(memberId, mockGoal.getId(), startDate, endDate, pageable);
 
         assertNotNull(response);
-        assertEquals(startDate, response.getStartDate());
-        assertEquals(endDate, response.getEndDate());
-        assertEquals(weeklyTotalCost, response.getWeeklyTotalCost());
         assertEquals(expenseSlice.hasNext(), response.isHasNext());
 
-        verify(expenseRepository).calculateTotalCostByMemberAndDateBetween(mockMember, startDate, endDate);
-        verify(expenseRepository).findAllByMemberAndDateBetween(mockMember, startDate, endDate, pageable);
+        verify(memberRepository).findById(memberId);
+        verify(goalRepository).findById(mockGoal.getId());
+        verify(expenseRepository).findAll(any(Specification.class), eq(pageable));
     }
 
     @Test
     public void 홈_소비_조회_성공() {
         String memberId = "1";
-        Integer year = 2024;
-        Integer month = 1;
+        YearMonth yearMonth = YearMonth.of(2024, 1);
         Long goalId = 1L;
         String order = "ASC";
         int pageSize = 10;
@@ -150,8 +145,8 @@ class ExpenseViewServiceTest {
         List<Expense> expenses = new ArrayList<>(expenses2);
         expenses.addAll(expenses1);
 
-        LocalDate startDate = LocalDate.of(year, month, 1);
-        LocalDate endDate = LocalDate.of(year, month, 2);
+        LocalDate startDate = yearMonth.atDay(1);
+        LocalDate endDate = yearMonth.atEndOfMonth();
         List<Expense> sortedExpenses = expenses.stream()
                 .sorted(Comparator.comparing(Expense::getDate))
                 .sorted(Comparator.comparing(Expense::getCreatedAt).reversed())
@@ -167,7 +162,7 @@ class ExpenseViewServiceTest {
 
         when(expenseRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(expenseSlice);
 
-        MonthlyExpenseResponse response = expenseViewService.getMonthlyExpenses(memberId, year, month, goalId, order, pageable);
+        MonthlyExpenseResponse response = expenseViewService.getMonthlyExpenses(memberId, yearMonth, goalId, order, pageable);
 
         // expenseId 내림차순 정렬 확인(date 오름차순, createdAt 내림차순 정렬 확인)
         List<Long> expenseIds = response.getDailyExpenseList().stream()
@@ -192,8 +187,7 @@ class ExpenseViewServiceTest {
     @Test
     public void 홈_소비_조회_카테고리별_성공() {
         String memberId = "1";
-        Integer year = 2024;
-        Integer month = 1;
+        YearMonth yearMonth = YearMonth.of(2024, 1);
         Long goalId = 1L;
         Long categoryId = 2L; // 테스트용 카테고리 ID
         String order = "ASC";
@@ -208,8 +202,8 @@ class ExpenseViewServiceTest {
         List<Expense> expenses = new ArrayList<>(expenses2);
         expenses.addAll(expenses1);
 
-        LocalDate startDate = LocalDate.of(year, month, 1);
-        LocalDate endDate = LocalDate.of(year, month, 2);
+        LocalDate startDate = yearMonth.atDay(1);
+        LocalDate endDate = yearMonth.atEndOfMonth();
         List<Expense> filteredExpenses = expenses.stream()
                 .filter(expense -> expense.getCategory().getId().equals(categoryId))
                 .sorted(Comparator.comparing(Expense::getDate))
@@ -225,7 +219,7 @@ class ExpenseViewServiceTest {
         Page<Expense> expenseSlice = new PageImpl<>(filteredExpenses, pageable, filteredExpenses.size());
         when(expenseRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(expenseSlice);
 
-        MonthlyExpenseResponse response = expenseViewService.getMonthlyExpensesWithCategory(memberId, year, month, goalId, categoryId, order, pageable);
+        MonthlyExpenseResponse response = expenseViewService.getMonthlyExpensesWithCategory(memberId, yearMonth, goalId, categoryId, order, pageable);
 
         // expenseId 내림차순 정렬 확인(date 오름차순, createdAt 내림차순 정렬 확인)
         List<Long> expenseIds = response.getDailyExpenseList().stream()

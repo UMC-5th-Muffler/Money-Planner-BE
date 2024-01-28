@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
@@ -103,24 +104,18 @@ class ExpenseControllerTest {
                 .collect(Collectors.toList());
 
         List<CategoryDetailDto> categoryList = List.of(CategoryDetailDto.builder().id(1L).name("icon").build());
-        long expWeeklyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
 
         WeeklyExpenseResponse mockResponse = WeeklyExpenseResponse.builder()
-                .startDate(startDate)
-                .endDate(endDate)
-                .weeklyTotalCost(expenses.stream().mapToLong(Expense::getCost).sum())
                 .categoryList(categoryList)
                 .dailyExpenseList(dailyExpensesDtos)
                 .build();
 
-        when(expenseViewService.getWeeklyExpenseDetails(any(), eq(todayDate), any(Pageable.class))).thenReturn(mockResponse);
+        when(expenseViewService.getWeeklyExpenseDetails(any(), any(), eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/expense/weekly")
-                        .param("date", todayDate.toString()))
+        mockMvc.perform(get("/expense/weekly/{goalId}", 1)
+                        .param("startDate", startDate.toString())
+                        .param("endDate", endDate.toString()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.startDate", is(startDate.toString())))
-                .andExpect(jsonPath("$.result.endDate", is(endDate.toString())))
-                .andExpect(jsonPath("$.result.weeklyTotalCost", is((int) expWeeklyTotalCost)))
                 .andExpect(jsonPath("$.result.dailyExpenseList", hasSize(2))) // 이틀에 대한 데이터가 있는지 확인
                 .andExpect(jsonPath("$.result.dailyExpenseList[0].expenseDetailList", hasSize(10))) // 첫 번째 날에 대한 지출이 10개 있는지 확인
                 .andExpect(jsonPath("$.result.categoryList", notNullValue()));
@@ -130,8 +125,7 @@ class ExpenseControllerTest {
     @Test
     @WithMockUser
     public void 홈_소비내역_조회() throws Exception {
-        int year = 2024;
-        int month = 1;
+        YearMonth yearMonth = YearMonth.of(2024, 1);
         Long goalId = 1L;
         String order = "DESC";
         int page = 0;
@@ -170,12 +164,11 @@ class ExpenseControllerTest {
                 .dailyExpenseList(dailyExpensesDtos)
                 .build();
 
-        when(expenseViewService.getMonthlyExpenses(any(), eq(year), eq(month), eq(goalId), eq(order), any(Pageable.class)))
+        when(expenseViewService.getMonthlyExpenses(any(), eq(yearMonth), eq(goalId), eq(order), any(Pageable.class)))
                 .thenReturn(mockResponse);
 
         mockMvc.perform(get("/expense/monthly")
-                        .param("year", String.valueOf(year))
-                        .param("month", String.valueOf(month))
+                        .param("yearMonth", String.valueOf(yearMonth))
                         .param("order", order)
                         .param("page", String.valueOf(page))
                         .param("size", String.valueOf(size))
