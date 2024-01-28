@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.expense.controller;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
@@ -20,6 +21,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,24 +46,25 @@ public class ExpenseController {
         return Response.success(response);
     }
 
-    @GetMapping("/weekly")
+    @GetMapping("/weekly/{goalId}")
     public Response<WeeklyExpenseResponse> getWeeklyExpenseDetails(
             Authentication authentication,
-            @RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
+            @PathVariable Long goalId,
+            @RequestParam(name = "startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @RequestParam(name = "endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
             @PageableDefault(size = 20) @SortDefault.SortDefaults({
                     @SortDefault(sort = "date", direction = Sort.Direction.DESC),
                     @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC)
             }) Pageable pageable){
 
-        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(authentication.getName(),date, pageable);
+        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(authentication.getName(), goalId, startDate, endDate, pageable);
         return Response.success(response);
     }
 
     @GetMapping("/monthly")
     public Response<MonthlyExpenseResponse> getHomeExpenses(
             Authentication authentication,
-            @RequestParam @Positive int year,
-            @RequestParam @Range(min = 1, max = 12) int month,
+            @RequestParam(name = "yearMonth") @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth,
             @RequestParam(name = "goalId", required = false) Long goalId,
             @RequestParam(name = "order", defaultValue = "DESC") @ValidOrder String order,
             @RequestParam(name = "page", defaultValue = "0") @Min(value = 0) int page,
@@ -74,9 +77,9 @@ public class ExpenseController {
 
         MonthlyExpenseResponse response;
         if (categoryId != null) {
-            response = expenseViewService.getMonthlyExpensesWithCategory(authentication.getName(), year, month, goalId, categoryId, order, pageable);
+            response = expenseViewService.getMonthlyExpensesWithCategory(authentication.getName(), yearMonth, goalId, categoryId, order, pageable);
         } else {
-            response = expenseViewService.getMonthlyExpenses(authentication.getName(), year, month, goalId, order, pageable);
+            response = expenseViewService.getMonthlyExpenses(authentication.getName(), yearMonth, goalId, order, pageable);
         }
         return Response.success(response);
     }

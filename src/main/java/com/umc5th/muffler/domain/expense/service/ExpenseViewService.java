@@ -16,10 +16,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,26 +44,28 @@ public class ExpenseViewService {
 
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(member, date, pageable);
 
-        DailyExpenseResponse response = ExpenseConverter.toDailyExpenseDetailsList(date, expenseList, dailyPlan, rate);
+        DailyExpenseResponse response = ExpenseConverter.toDailyExpensesList(date, expenseList, dailyPlan, rate);
 
         return response;
     }
 
-    public WeeklyExpenseResponse getWeeklyExpenseDetails(String memberId, LocalDate date, Pageable pageable){
+    public WeeklyExpenseResponse getWeeklyExpenseDetails(String memberId, Long goalId, LocalDate weeklyStartDate, LocalDate weeklyEndDate, Pageable pageable){
+
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-        Goal goal = goalRepository.findByDateBetween(date, memberId)
-                .orElseThrow(() -> new ExpenseException(ErrorCode.NO_GOAL_IN_GIVEN_DATE));
+        Goal goal = goalRepository.findById(goalId)
+                .orElseThrow(() -> new GoalException(ErrorCode.NO_GOAL_IN_GIVEN_DATE));
         List<DailyPlan> dailyPlans = Optional.ofNullable(goal.getDailyPlans())
                 .orElseThrow(() -> new GoalException(ErrorCode.DAILYPLAN_NOT_FOUND));
 
-        LocalDate startDate = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)); // 해당 주 월요일 날짜
-        LocalDate endDate = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)); // 해당 주 일요일 날짜
+        // 주간에 포함되고 목표와 관련된 expense 기간
+        LocalDate expenseStartDate = goal.getStartDate().isBefore(weeklyStartDate) ? weeklyStartDate : goal.getStartDate();
+        LocalDate expenseEndDate = goal.getEndDate().isAfter(weeklyEndDate) ? weeklyEndDate : goal.getEndDate();
 
-        Long weeklyTotalCost = Optional.ofNullable(
-                        expenseRepository.calculateTotalCostByMemberAndDateBetween(member, startDate, endDate))
-                .orElse(0L);
-        Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDateBetween(member, startDate, endDate, pageable);
+        Specification<Expense> spec = Specification
+                .where(ExpenseSpecification.hasMember(member))
+                .and(ExpenseSpecification.isBetweenDates(expenseStartDate, expenseEndDate));
+        Slice<Expense> expenseList = expenseRepository.findAll(spec, pageable);
         List<Category> categoryList = member.getCategories();
 
         // 일별로 Expense 그룹화
@@ -76,22 +76,22 @@ public class ExpenseViewService {
                         entry -> findDailyPlan(dailyPlans, entry.getKey()).getTotalCost()
                 ));
 
-        List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpenseDetailsList(expensesByDate, dailyTotalCostMap);
-        WeeklyExpenseResponse response = ExpenseConverter.toWeeklyExpenseDetailsResponse(dailyExpensesDtos, expenseList, categoryList, startDate, endDate, weeklyTotalCost);
+        List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesList(expensesByDate, dailyTotalCostMap);
+        WeeklyExpenseResponse response = ExpenseConverter.toWeeklyExpensesResponse(dailyExpensesDtos, expenseList, categoryList);
 
         return response;
     }
 
 
-    public MonthlyExpenseResponse getMonthlyExpenses(String memberId, Integer year, Integer month, Long goalId, String order, Pageable pageable){
+    public MonthlyExpenseResponse getMonthlyExpenses(String memberId, YearMonth yearMonth, Long goalId, String order, Pageable pageable){
         if (goalId == null){
             return new MonthlyExpenseResponse();
         }
         Goal goal = goalRepository.findById(goalId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.GOAL_NOT_FOUND));
 
-        LocalDate startDate = getStartDate(goal, year, month);
-        LocalDate endDate = getEndDate(goal, year, month);
+        LocalDate startDate = getStartDate(goal, yearMonth);
+        LocalDate endDate = getEndDate(goal, yearMonth);
         if(startDate.isAfter(endDate)){
             return new MonthlyExpenseResponse();
         }
@@ -115,19 +115,19 @@ public class ExpenseViewService {
                         entry -> findDailyPlan(dailyPlans, entry.getKey()).getTotalCost()
                 ));
 
-        List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toMonthlyDailyExpenseDetailsList(expensesByDate, dailyTotalCostMap, order);
+        List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesListWithOrderAndTotalCost(expensesByDate, dailyTotalCostMap, order);
         return ExpenseConverter.toMonthlyExpensesResponse(dailyExpensesDtos, expenseList);
     }
 
-    public MonthlyExpenseResponse getMonthlyExpensesWithCategory(String memberId, Integer year, Integer month, Long goalId, Long categoryId, String order, Pageable pageable){
+    public MonthlyExpenseResponse getMonthlyExpensesWithCategory(String memberId, YearMonth yearMonth, Long goalId, Long categoryId, String order, Pageable pageable){
         if (goalId == null){
             return new MonthlyExpenseResponse();
         }
         Goal goal = goalRepository.findById(goalId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.GOAL_NOT_FOUND));
 
-        LocalDate startDate = getStartDate(goal, year, month);
-        LocalDate endDate = getEndDate(goal, year, month);
+        LocalDate startDate = getStartDate(goal, yearMonth);
+        LocalDate endDate = getEndDate(goal, yearMonth);
         if(startDate.isAfter(endDate)){
             return new MonthlyExpenseResponse();
         }
@@ -145,7 +145,7 @@ public class ExpenseViewService {
         Map<LocalDate, List<Expense>> expensesByDate = expenseList.getContent().stream()
                 .collect(Collectors.groupingBy(Expense::getDate));
 
-        List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toMonthlyDailyExpenseDetailsList(expensesByDate, order);
+        List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesListWithOrderAndTotalCost(expensesByDate, order);
         return ExpenseConverter.toMonthlyExpensesResponse(dailyExpensesDtos, expenseList);
     }
 
@@ -157,13 +157,13 @@ public class ExpenseViewService {
                 .orElseThrow(() -> new GoalException(ErrorCode.DAILYPLAN_NOT_FOUND));
     }
 
-    private LocalDate getStartDate(Goal goal, int year, int month) {
-        LocalDate startDate = YearMonth.of(year, month).atDay(1);
+    private LocalDate getStartDate(Goal goal, YearMonth yearMonth) {
+        LocalDate startDate = yearMonth.atDay(1);
         return goal.getStartDate().isBefore(startDate) ? startDate : goal.getStartDate();
     }
 
-    private LocalDate getEndDate(Goal goal, int year, int month) {
-        LocalDate endDate = YearMonth.of(year, month).atEndOfMonth();
+    private LocalDate getEndDate(Goal goal, YearMonth yearMonth) {
+        LocalDate endDate = yearMonth.atEndOfMonth();
         return goal.getEndDate().isAfter(endDate) ? endDate : goal.getEndDate();
     }
 }

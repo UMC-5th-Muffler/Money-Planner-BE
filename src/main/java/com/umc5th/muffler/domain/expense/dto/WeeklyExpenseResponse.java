@@ -14,9 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 public class WeeklyExpenseResponse {
 
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private Long weeklyTotalCost;
     private List<CategoryDetailDto> categoryList;
     private List<DailyExpensesDto> dailyExpenseList;
     private boolean hasNext;
