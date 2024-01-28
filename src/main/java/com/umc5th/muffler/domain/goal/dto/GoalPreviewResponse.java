@@ -9,9 +9,11 @@ import java.util.List;
 
 @Builder
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class GoalPreviewResponse {
 
     private GoalPreviewInfo progressGoal;
-    private List<GoalPreviewInfo> endedGoal;
     private List<GoalPreviewInfo> futureGoal;
+    private List<GoalPreviewInfo> endedGoal;
 }

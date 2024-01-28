@@ -15,5 +15,6 @@ public class GoalPreviewInfo {
     private Long totalBudget;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long totalCost;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private LocalDate endDate;
 }

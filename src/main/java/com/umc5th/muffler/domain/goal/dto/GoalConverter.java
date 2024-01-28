@@ -20,22 +20,26 @@ public class GoalConverter {
     public static GoalPreviewResponse getGoalPreviousResponse(Map<Goal, Long> pastInfos, Goal progressGoal, Long totalCost, List<Goal> futureGoals) {
 
         List<GoalPreviewInfo> past = pastInfos.entrySet().stream()
+                .sorted(Comparator.comparing((Map.Entry<Goal, Long> entry) -> entry.getKey().getStartDate()).reversed())
                 .map(entry -> GoalPreviewInfo.builder()
                         .title(entry.getKey().getTitle())
                         .icon(entry.getKey().getIcon())
                         .totalBudget(entry.getKey().getTotalBudget())
                         .totalCost(entry.getValue())
-                        .endDate(entry.getKey().getEndDate())
                         .build())
                 .collect(Collectors.toList());
 
-        GoalPreviewInfo progress = GoalPreviewInfo.builder()
-                .title(progressGoal.getTitle())
-                .icon(progressGoal.getIcon())
-                .totalBudget(progressGoal.getTotalBudget())
-                .totalCost(totalCost)
-                .endDate(progressGoal.getEndDate())
-                .build();
+        GoalPreviewInfo progress = null;
+
+        if (progressGoal != null) {
+            progress = GoalPreviewInfo.builder()
+                    .title(progressGoal.getTitle())
+                    .icon(progressGoal.getIcon())
+                    .totalBudget(progressGoal.getTotalBudget())
+                    .totalCost(totalCost)
+                    .endDate(progressGoal.getEndDate())
+                    .build();
+        }
 
         List<GoalPreviewInfo> future = futureGoals.stream()
                 .map(goal -> GoalPreviewInfo.builder()
@@ -47,8 +51,8 @@ public class GoalConverter {
 
         return GoalPreviewResponse.builder()
                 .progressGoal(progress)
-                .endedGoal(past)
                 .futureGoal(future)
+                .endedGoal(past)
                 .build();
     }
 

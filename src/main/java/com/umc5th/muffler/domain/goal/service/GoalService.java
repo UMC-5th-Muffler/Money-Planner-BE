@@ -54,42 +54,45 @@ public class GoalService {
     }
 
     public GoalPreviewResponse getGoalPreview(String memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
-        List<Goal> goalList = member.getGoals();
+
+        List<Goal> goalList = goalRepository.findByMemberId(memberId);
+        if (goalList.isEmpty()) {
+            return new GoalPreviewResponse();
+        }
         goalList.sort(Comparator.comparing(Goal::getStartDate).reversed());
 
         LocalDate today = LocalDate.now();
-
-        List<Goal> pastGoals = new ArrayList<>();
+        Map<Goal, Long> goalAndTotalCost = new HashMap<>();
         List<Goal> futureGoals = new ArrayList<>();
         Goal progressGoal = null;
+        Long totalCost = null;
 
         for (Goal goal : goalList) {
             if (goal.getEndDate().isBefore(today)) {
-                pastGoals.add(goal);
+                calculateGoalCost(goalAndTotalCost, goal);
             } else if (goal.getStartDate().isBefore(today) && goal.getEndDate().isAfter(today)) {
                 progressGoal = goal;
+                totalCost = goal.getDailyPlans().stream().mapToLong(DailyPlan::getTotalCost).sum();
             } else {
                 futureGoals.add(goal);
             }
         }
 
-        Map<Goal, Long> goalAndTotalCost = new HashMap<>();
-        for (Goal goal : pastGoals) {
-            List<DailyPlan> pastDaily = goal.getDailyPlans();
-            Long totalCost = pastDaily.stream().mapToLong(DailyPlan::getTotalCost).sum();
-            goalAndTotalCost.put(goal, totalCost);
-        }
-
-        List<DailyPlan> progressDaily = dailyPlanRepository.findByGoalIdAndDateBetween(progressGoal.getId(), progressGoal.getStartDate(), LocalDate.now());
-        Long totalCost = progressDaily.stream().mapToLong(DailyPlan::getTotalCost).sum();
-
         return GoalConverter.getGoalPreviousResponse(goalAndTotalCost, progressGoal, totalCost, futureGoals);
+    }
+
+    private void calculateGoalCost(Map<Goal, Long> goalAndTotalCost, Goal goal) {
+        Long totalCost = goal.getDailyPlans().stream().mapToLong(DailyPlan::getTotalCost).sum();
+        goalAndTotalCost.put(goal, totalCost);
     }
 
     public GoalListResponse getGoalList(String memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
         List<Goal> goalList = member.getGoals();
+
+        if (goalList.isEmpty()) {
+            return new GoalListResponse();
+        }
         goalList.sort(Comparator.comparing(Goal::getEndDate).reversed());
 
         return GoalConverter.getGoalListResponse(goalList);

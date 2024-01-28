@@ -11,6 +11,4 @@ import java.util.Optional;
 @Repository
 public interface DailyPlanRepository extends JpaRepository<DailyPlan, Long> {
     Optional<DailyPlan> findByDate(LocalDate date);
-
-    List<DailyPlan> findByGoalIdAndDateBetween(Long goalId, LocalDate startDate, LocalDate today);
 }
