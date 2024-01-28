@@ -179,4 +179,20 @@ class ExpenseControllerTest {
                 .andExpect(jsonPath("$.result.dailyExpenseList", hasSize(2))) // 이틀에 대한 데이터가 있는지 확인
                 .andExpect(jsonPath("$.result.dailyExpenseList[0].expenseDetailList", hasSize(10))); // 첫 번째 날에 대한 지출이 10개 있는지 확인
     }
+
+    @Test
+    @WithMockUser
+    public void 소비_하나_조회() throws Exception {
+        Expense mockExpense = ExpenseFixture.create(any());
+        Long expenseId = mockExpense.getId();
+        ExpenseDto mockExpenseDto = ExpenseConverter.toExpenseDto(mockExpense);
+
+        when(expenseViewService.getExpense(expenseId)).thenReturn(mockExpenseDto);
+
+        mockMvc.perform(get("/expense/{id}", expenseId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.expenseId").value(expenseId))
+                .andExpect(jsonPath("$.result.title").value(mockExpense.getTitle()))
+                .andExpect(jsonPath("$.result.categoryName").value(mockExpense.getCategory().getName()));
+    }
 }

@@ -12,6 +12,8 @@ import com.umc5th.muffler.fixture.DailyPlanFixture;
 import com.umc5th.muffler.fixture.ExpenseFixture;
 import com.umc5th.muffler.fixture.GoalFixture;
 import com.umc5th.muffler.fixture.MemberFixture;
+import com.umc5th.muffler.global.response.code.ErrorCode;
+import com.umc5th.muffler.global.response.exception.ExpenseException;
 import com.umc5th.muffler.global.response.exception.MemberException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -241,6 +244,34 @@ class ExpenseViewServiceTest {
         verify(expenseRepository).findAll(any(Specification.class), eq(pageable));
     }
 
+    @Test
+    public void 소비_하나_조회_성공(){
+        Expense mockExpense = ExpenseFixture.create(any());
+        Long expenseId = mockExpense.getId();
+
+        when(expenseRepository.findById(expenseId)).thenReturn(Optional.of(mockExpense));
+        ExpenseDto result = expenseViewService.getExpense(expenseId);
+
+        assertNotNull(result);
+        assertEquals(expenseId, result.getExpenseId());
+        assertEquals(mockExpense.getDate(), result.getDate());
+        assertEquals(mockExpense.getTitle(), result.getTitle());
+        assertEquals(mockExpense.getCost(), result.getCost());
+        assertEquals(mockExpense.getCategory().getName(), result.getCategoryName());
+
+        verify(expenseRepository).findById(expenseId);
+    }
+
+    @Test
+    public void 소비_하나_조회_id가_유효하지_않는_경우(){
+        when(expenseRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(ExpenseException.class, () -> {
+            expenseViewService.getExpense(any());
+        }, ErrorCode.EXPENSE_NOT_FOUND.getMessage());
+
+        verify(expenseRepository).findById(any());
+    }
 
 
     private boolean isSortedDescending(List<Long> list) {
