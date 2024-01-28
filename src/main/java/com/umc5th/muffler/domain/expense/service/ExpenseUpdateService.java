@@ -43,6 +43,8 @@ public class ExpenseUpdateService {
                 .orElseThrow(() -> new ExpenseException(ErrorCode.CATEGORY_NOT_FOUND));
         DailyPlan dailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(request.getExpenseDate(), memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
+        if (dailyPlan.getIsZeroDay())
+            throw new ExpenseException(ErrorCode.CANNOT_UPDATE_TO_ZERO_DAY);
         AlarmControlDTO dailyAlarm = null, categoryAlarm;
         Expense expense = ExpenseConverter.toExpenseEntity(request, member, category);
 
@@ -54,7 +56,7 @@ public class ExpenseUpdateService {
         expense = expenseRepository.save(expense);
         dailyPlan.addExpenseDifference(expense.getCost());
         dailyPlanRepository.save(dailyPlan);
-        return new NewExpenseResponse(expense.getId(), dailyAlarm, categoryAlarm);
+        return new NewExpenseResponse(expense.getId(),dailyAlarm, categoryAlarm);
     }
 
     public UpdateExpenseResponse updateExpense(String memberId, UpdateExpenseRequest request) {

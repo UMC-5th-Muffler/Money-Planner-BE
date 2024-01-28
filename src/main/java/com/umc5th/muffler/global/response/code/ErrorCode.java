@@ -43,7 +43,7 @@ public enum ErrorCode {
     // Expense 에러
     EXPENSE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 소비 내역입니다."),
     CANNOT_UPDATE_OTHER_MEMBER_EXPENSE(HttpStatus.UNAUTHORIZED, "다른 유저의 소비 내역을 수정할 수 없습니다"),
-    CANNOT_UPDATE_TO_ZERO_DAY(HttpStatus.BAD_REQUEST, "제로 데이로 지정한 날로는 소비 내역을 옮길 수 없습니다."),
+    CANNOT_UPDATE_TO_ZERO_DAY(HttpStatus.CONFLICT, "제로 데이로 지정한 날로는 소비 내역을 옮길 수 없습니다."),
 
 
     // Routine 에러
