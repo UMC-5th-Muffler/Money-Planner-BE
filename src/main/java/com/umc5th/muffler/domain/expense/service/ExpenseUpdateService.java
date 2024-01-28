@@ -41,7 +41,7 @@ public class ExpenseUpdateService {
                 .orElseThrow(() -> new ExpenseException(ErrorCode.MEMBER_NOT_FOUND));
         Category category = categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), member.getId())
                 .orElseThrow(() -> new ExpenseException(ErrorCode.CATEGORY_NOT_FOUND));
-        DailyPlan dailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(request.getExpenseDate(), memberId)
+        DailyPlan dailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberIdFetchGoal(request.getExpenseDate(), memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
         if (dailyPlan.getIsZeroDay())
             throw new ExpenseException(ErrorCode.CANNOT_UPDATE_TO_ZERO_DAY);
@@ -66,12 +66,12 @@ public class ExpenseUpdateService {
                 .orElseThrow(() -> new ExpenseException(ErrorCode.EXPENSE_NOT_FOUND));
         if (!oldExpense.isOwnMember(memberId))
             throw new ExpenseException(ErrorCode.CANNOT_UPDATE_OTHER_MEMBER_EXPENSE);
-        DailyPlan oldDailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(oldExpense.getDate(), memberId)
+        DailyPlan oldDailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberIdFetchGoal(oldExpense.getDate(), memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
 
         Category newCategory = categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), member.getId())
                 .orElseThrow(() -> new ExpenseException(ErrorCode.CATEGORY_NOT_FOUND));
-        DailyPlan newDailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(request.getExpenseDate(), memberId)
+        DailyPlan newDailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberIdFetchGoal(request.getExpenseDate(), memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
         if (newDailyPlan.getIsZeroDay())
             throw new ExpenseException(ErrorCode.CANNOT_UPDATE_TO_ZERO_DAY);
@@ -129,7 +129,7 @@ public class ExpenseUpdateService {
                 .orElseThrow(() -> new ExpenseException(ErrorCode.EXPENSE_NOT_FOUND));
         if (!expense.isOwnMember(memberId))
             throw new ExpenseException(ErrorCode.CANNOT_UPDATE_OTHER_MEMBER_EXPENSE);
-        DailyPlan dailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(expense.getDate(), memberId)
+        DailyPlan dailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberIdFetchGoal(expense.getDate(), memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
         dailyPlan.addExpenseDifference(-expense.getCost());
         dailyPlanRepository.save(dailyPlan);

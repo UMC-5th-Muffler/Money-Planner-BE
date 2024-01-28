@@ -67,7 +67,7 @@ public class ExpenseUpdateTest {
         given(expenseRepository.findExpenseByIdFetchMember(any(Long.class))).willReturn(Optional.of(expense));
         given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.of(category));
-        given(dailyPlanRepository.findDailyPlanByDateAndMemberId(any(LocalDate.class), any(String.class)))
+        given(dailyPlanRepository.findDailyPlanByDateAndMemberIdFetchGoal(any(LocalDate.class), any(String.class)))
                 .willReturn(Optional.of(dailyPlan));
         given(expenseRepository.save(any(Expense.class))).willReturn(expense);
         given(dailyPlanRepository.save(any(DailyPlan.class))).willReturn(dailyPlan);
@@ -111,7 +111,7 @@ public class ExpenseUpdateTest {
         given(expenseRepository.findExpenseByIdFetchMember(any(Long.class))).willReturn(Optional.of(expense));
         given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.of(category));
-        given(dailyPlanRepository.findDailyPlanByDateAndMemberId(any(LocalDate.class), any(String.class)))
+        given(dailyPlanRepository.findDailyPlanByDateAndMemberIdFetchGoal(any(LocalDate.class), any(String.class)))
                 .willReturn(Optional.of(dailyPlan));
         given(expenseRepository.save(any(Expense.class))).willReturn(expense);
         given(dailyPlanRepository.save(any(DailyPlan.class))).willReturn(dailyPlan);
@@ -252,7 +252,7 @@ public class ExpenseUpdateTest {
         given(expenseRepository.findExpenseByIdFetchMember(any(Long.class))).willReturn(Optional.of(expense));
         given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.of(category));
-        given(dailyPlanRepository.findDailyPlanByDateAndMemberId(any(LocalDate.class), any(String.class)))
+        given(dailyPlanRepository.findDailyPlanByDateAndMemberIdFetchGoal(any(LocalDate.class), any(String.class)))
                 .willReturn(Optional.empty());
 
         // when

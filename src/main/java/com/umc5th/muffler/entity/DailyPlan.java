@@ -56,6 +56,9 @@ public class DailyPlan extends BaseTimeEntity {
     public void setRate(Rate rate){
         this.rate = rate;
     }
+    public void toggleZeroDay() {
+        isZeroDay = !isZeroDay;
+    }
     public void addExpenseDifference(Long difference) {
         this.totalCost += difference;
     }

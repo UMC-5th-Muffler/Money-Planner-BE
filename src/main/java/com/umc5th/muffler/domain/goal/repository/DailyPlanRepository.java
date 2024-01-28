@@ -14,5 +14,14 @@ public interface DailyPlanRepository extends JpaRepository<DailyPlan, Long> {
             + "JOIN FETCH dailyPlan.goal "
             + "WHERE dailyPlan.date = :date "
             + "AND dailyPlan.goal.member.id = :memberId")
-    Optional<DailyPlan> findDailyPlanByDateAndMemberId(@Param("date") LocalDate date, @Param("memberId") String memberId);
+    Optional<DailyPlan> findDailyPlanByDateAndMemberIdFetchGoal(@Param("date") LocalDate date, @Param("memberId") String memberId);
+
+    @Query("SELECT dailyPlan FROM DailyPlan dailyPlan "
+            + "JOIN FETCH dailyPlan.goal goal "
+            + "JOIN FETCH goal.member "
+            + "WHERE dailyPlan.date = :date "
+            + "AND dailyPlan.goal.member.id = :memberId")
+    Optional<DailyPlan> findDailyPlanByDateAndMemberIdFetchGoalFetchGoalAndMember(@Param("date") LocalDate date, @Param("memberId") String memberId);
+
+
 }

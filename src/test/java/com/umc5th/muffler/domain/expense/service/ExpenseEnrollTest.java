@@ -59,7 +59,7 @@ public class ExpenseEnrollTest {
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.of(category));
-        given(dailyPlanRepository.findDailyPlanByDateAndMemberId(any(LocalDate.class), any(String.class)))
+        given(dailyPlanRepository.findDailyPlanByDateAndMemberIdFetchGoal(any(LocalDate.class), any(String.class)))
                 .willReturn(Optional.of(dailyPlan));
         given(expenseRepository.save(any(Expense.class))).willReturn(expense);
 
@@ -120,7 +120,7 @@ public class ExpenseEnrollTest {
         given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.of(category));
-        given(dailyPlanRepository.findDailyPlanByDateAndMemberId(any(LocalDate.class), any(String.class)))
+        given(dailyPlanRepository.findDailyPlanByDateAndMemberIdFetchGoal(any(LocalDate.class), any(String.class)))
                 .willReturn(Optional.empty());
 
         NewExpenseRequest req = new NewExpenseRequest(expense.getTitle(), expense.getCost(),
