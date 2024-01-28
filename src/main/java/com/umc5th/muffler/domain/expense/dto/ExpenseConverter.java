@@ -24,6 +24,19 @@ public class ExpenseConverter {
             .build();
     }
 
+    public static ExpenseDto toExpenseDto(Expense expense){
+        return ExpenseDto.builder()
+                .title(expense.getTitle())
+                .expenseId(expense.getId())
+                .date(expense.getDate())
+                .memo(expense.getMemo())
+                .cost(expense.getCost())
+                .categoryId(expense.getCategory().getId())
+                .categoryName(expense.getCategory().getName())
+                .categoryIcon(expense.getCategory().getIcon())
+                .build();
+    }
+
     public static DailyExpenseResponse toDailyExpensesList(LocalDate date, Slice<Expense> expenseList, DailyPlan dailyPlan, Rate rate) {
         List<ExpenseDetailDto> expenseDetails = toExpensesDetailsInDaily(expenseList.getContent());
 

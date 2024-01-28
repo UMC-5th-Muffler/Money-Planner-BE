@@ -32,6 +32,13 @@ public class ExpenseViewService {
     private final MemberRepository memberRepository;
     private final GoalRepository goalRepository;
 
+    public ExpenseDto getExpense(Long expenseId){
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new ExpenseException(ErrorCode.EXPENSE_NOT_FOUND));
+
+        return ExpenseConverter.toExpenseDto(expense);
+    }
+
     public DailyExpenseResponse getDailyExpenseDetails(String memberId, LocalDate date, Pageable pageable){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));

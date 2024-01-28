@@ -14,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpecificationExecutor<Expense> {
@@ -29,4 +30,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpec
 
     @EntityGraph(attributePaths = {"category"})
     Page<Expense> findAll(Specification<Expense> spec, Pageable pageable);
+
+    @Query("SELECT e FROM Expense e JOIN FETCH e.category WHERE e.id = :id")
+    Optional<Expense> findById(@Param("id") Long id);
 }

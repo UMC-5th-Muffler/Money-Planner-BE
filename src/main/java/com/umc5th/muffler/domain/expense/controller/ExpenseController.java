@@ -36,6 +36,12 @@ public class ExpenseController {
         return Response.success(result);
     }
 
+    @GetMapping("/{id}")
+    public Response<ExpenseDto> getExpense(@PathVariable Long id){
+        ExpenseDto response = expenseViewService.getExpense(id);
+        return Response.success(response);
+    }
+
     @GetMapping("/daily")
     public Response<DailyExpenseResponse> getDailyExpenseDetails(
             Authentication authentication,
@@ -83,6 +89,5 @@ public class ExpenseController {
         }
         return Response.success(response);
     }
-
 
 }
