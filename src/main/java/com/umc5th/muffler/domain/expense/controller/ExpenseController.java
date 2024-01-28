@@ -46,10 +46,10 @@ public class ExpenseController {
         return Response.success(response);
     }
 
-    @GetMapping("/weekly/{goalId}")
+    @GetMapping("/weekly")
     public Response<WeeklyExpenseResponse> getWeeklyExpenseDetails(
             Authentication authentication,
-            @PathVariable Long goalId,
+            @RequestParam(name = "goalId") Long goalId,
             @RequestParam(name = "startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
             @RequestParam(name = "endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
             @PageableDefault(size = 20) @SortDefault.SortDefaults({
@@ -83,5 +83,6 @@ public class ExpenseController {
         }
         return Response.success(response);
     }
+
 
 }
