@@ -48,9 +48,6 @@ public class DefaultCategoryLoader {
                 .build()
         ).collect(Collectors.toList());
     }
-
-    public int getTotalDefaultCategorySize() { return this.defaultCategories.size();}
-
     private Category toCategory(JSONObject jsonCategoryObject, long priority) {
         String categoryName = (String)jsonCategoryObject.get("name");
         String categoryIcon = (String)jsonCategoryObject.get("icon");

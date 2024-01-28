@@ -44,7 +44,7 @@ public class CategoryUpdateTest {
     void 커스텀카테고리_수정_성공() {
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
-        UpdateCategoryRequest request = new UpdateCategoryRequest(member.getId(), category.getId(),
+        UpdateCategoryRequest request = new UpdateCategoryRequest(category.getId(),
                 "수정이름", "수정 아이콘", Boolean.FALSE, 0L);
         member.addCategory(category);
 
@@ -71,7 +71,7 @@ public class CategoryUpdateTest {
     void 디폴트카테고리_아이콘_외_수정_성공() {
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.DEFAULT_CATEGORY_FOUR;
-        UpdateCategoryRequest request = new UpdateCategoryRequest(member.getId(), category.getId(),
+        UpdateCategoryRequest request = new UpdateCategoryRequest(category.getId(),
                 "수정이름", category.getIcon(), Boolean.FALSE, 0L);
         member.addCategory(category);
 
@@ -98,7 +98,7 @@ public class CategoryUpdateTest {
     void 디폴트카테고리_아이콘_수정_실패() {
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.DEFAULT_CATEGORY_FOUR;
-        UpdateCategoryRequest request = new UpdateCategoryRequest(member.getId(), category.getId(),
+        UpdateCategoryRequest request = new UpdateCategoryRequest(category.getId(),
                 "수정이름", "수정아이콘", Boolean.FALSE, 0L);
         member.addCategory(category);
 
@@ -116,7 +116,7 @@ public class CategoryUpdateTest {
     void 사용자아이디가_존재하지_않는_경우_실패() {
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.DEFAULT_CATEGORY_FOUR;
-        UpdateCategoryRequest request = new UpdateCategoryRequest(member.getId(), category.getId(),
+        UpdateCategoryRequest request = new UpdateCategoryRequest(category.getId(),
                 "수정이름", "수정아이콘", Boolean.FALSE, 0L);
         member.addCategory(category);
 
@@ -132,7 +132,7 @@ public class CategoryUpdateTest {
     void 활성화된_카테고리가_존재하지_않는_경우_실패() {
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.DEFAULT_CATEGORY_FOUR;
-        UpdateCategoryRequest request = new UpdateCategoryRequest(member.getId(), category.getId(),
+        UpdateCategoryRequest request = new UpdateCategoryRequest(category.getId(),
                 "수정이름", "수정아이콘", Boolean.FALSE, 0L);
         member.addCategory(category);
 
@@ -150,7 +150,7 @@ public class CategoryUpdateTest {
         Member member = MemberFixture.MEMBER_ONE;
         Member other = MemberFixture.MEMBER_TWO;
         Category category = CategoryFixture.DEFAULT_CATEGORY_FOUR;
-        UpdateCategoryRequest request = new UpdateCategoryRequest(member.getId(), category.getId(),
+        UpdateCategoryRequest request = new UpdateCategoryRequest(category.getId(),
                 "수정이름", "수정아이콘", Boolean.FALSE, 0L);
         other.addCategory(category);
 
@@ -168,7 +168,7 @@ public class CategoryUpdateTest {
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.DEFAULT_CATEGORY_FOUR;
         Category sameNamed = CategoryFixture.createSameNamedDifferentCategory(category);
-        UpdateCategoryRequest request = new UpdateCategoryRequest(member.getId(), category.getId(),
+        UpdateCategoryRequest request = new UpdateCategoryRequest(category.getId(),
                 "수정이름", category.getIcon(), Boolean.FALSE, 0L);
         member.addCategory(category);
 
@@ -187,7 +187,7 @@ public class CategoryUpdateTest {
     void 기타_카테고리의_이름을_수정하려는_경우_실패() {
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.ETC_CATEGORY;
-        UpdateCategoryRequest request = new UpdateCategoryRequest(member.getId(), category.getId(),
+        UpdateCategoryRequest request = new UpdateCategoryRequest(category.getId(),
                 "수정이름", category.getIcon(), Boolean.FALSE, 0L);
         member.addCategory(category);
 
