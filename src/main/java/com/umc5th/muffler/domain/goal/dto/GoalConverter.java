@@ -1,10 +1,7 @@
 package com.umc5th.muffler.domain.goal.dto;
 
-import com.umc5th.muffler.entity.DailyPlan;
-import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Goal;
 
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +49,20 @@ public class GoalConverter {
                 .progressGoal(progress)
                 .endedGoal(past)
                 .futureGoal(future)
+                .build();
+    }
+
+    public static GoalListResponse getGoalListResponse(List<Goal> goalList) {
+
+        List<GoalListInfo> info = goalList.stream()
+                .map(goal -> GoalListInfo.builder()
+                        .title(goal.getTitle())
+                        .icon(goal.getIcon())
+                        .build())
+                .collect(Collectors.toList());
+
+        return GoalListResponse.builder()
+                .goalList(info)
                 .build();
     }
 }

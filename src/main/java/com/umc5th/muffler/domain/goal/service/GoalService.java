@@ -6,6 +6,7 @@ import static com.umc5th.muffler.global.response.code.ErrorCode.MEMBER_NOT_FOUND
 
 import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
 import com.umc5th.muffler.domain.goal.dto.GoalConverter;
+import com.umc5th.muffler.domain.goal.dto.GoalListResponse;
 import com.umc5th.muffler.domain.goal.dto.GoalPreviewResponse;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
@@ -84,5 +85,13 @@ public class GoalService {
         Long totalCost = progressDaily.stream().mapToLong(DailyPlan::getTotalCost).sum();
 
         return GoalConverter.getGoalPreviousResponse(goalAndTotalCost, progressGoal, totalCost, futureGoals);
+    }
+
+    public GoalListResponse getGoalList(String memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
+        List<Goal> goalList = member.getGoals();
+        goalList.sort(Comparator.comparing(Goal::getEndDate).reversed());
+
+        return GoalConverter.getGoalListResponse(goalList);
     }
 }
