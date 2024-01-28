@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.umc5th.muffler.config.TestSecurityConfig;
-import com.umc5th.muffler.domain.goal.dto.GoalCreateRequest;
+import com.umc5th.muffler.domain.goal.dto.*;
 import com.umc5th.muffler.domain.goal.service.GoalCreateService;
 import com.umc5th.muffler.domain.goal.service.GoalService;
 import com.umc5th.muffler.entity.Goal;
@@ -81,5 +81,56 @@ class GoalControllerTest {
     void 목표를_삭제한다() throws Exception {
         mockMvc.perform(delete("/goal/1"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser
+    void 목표_탭_조회() throws Exception {
+
+        GoalPreviewInfo past = GoalPreviewInfo.builder()
+                .title("endedGoal").icon("icon")
+                .totalBudget(10000L).totalCost(1000L)
+                .build();
+
+        GoalPreviewInfo progress = GoalPreviewInfo.builder()
+                .title("progressGoal").icon("icon")
+                .totalBudget(10000L).totalCost(1000L)
+                .build();
+
+        GoalPreviewInfo future = GoalPreviewInfo.builder()
+                .title("futureGoal").icon("icon")
+                .totalBudget(10000L).totalCost(1000L)
+                .build();
+
+        GoalPreviewResponse mockResponse = GoalPreviewResponse.builder()
+                .progressGoal(progress)
+                .futureGoal(List.of(future))
+                .endedGoal(List.of(past))
+                .build();
+
+        when(goalService.getGoalPreview("user")).thenReturn(mockResponse);
+
+        mockMvc.perform(get("/goal/preview"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.progressGoal.title", is(mockResponse.getProgressGoal().getTitle())))
+                .andExpect(jsonPath("$.result.futureGoal", hasSize(1)))
+                .andExpect(jsonPath("$.result.futureGoal[0].title", is(mockResponse.getFutureGoal().get(0).getTitle())))
+                .andExpect(jsonPath("$.result.endedGoal[0].title", is(mockResponse.getEndedGoal().get(0).getTitle())));
+    }
+
+    @Test
+    @WithMockUser
+    void 목표_리스트_조회() throws Exception {
+
+        GoalListInfo info1 = GoalListInfo.builder().title("title1").icon("icon").build();
+        GoalListInfo info2 = GoalListInfo.builder().title("title2").icon("icon").build();
+        GoalListResponse mockResponse = GoalListResponse.builder().goalList(List.of(info1, info2)).build();
+
+        when(goalService.getGoalList("user")).thenReturn(mockResponse);
+
+        mockMvc.perform(get("/goal/list"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.goalList", hasSize(2)))
+                .andExpect(jsonPath("$.result.goalList[0].title", is(mockResponse.getGoalList().get(0).getTitle())));
     }
 }
