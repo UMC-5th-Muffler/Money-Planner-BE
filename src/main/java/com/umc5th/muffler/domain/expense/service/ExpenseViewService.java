@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.expense.service;
 
+import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
 import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
@@ -31,6 +32,7 @@ public class ExpenseViewService {
     private final ExpenseRepository expenseRepository;
     private final MemberRepository memberRepository;
     private final GoalRepository goalRepository;
+    private final DailyPlanRepository dailyPlanRepository;
 
     public ExpenseDto getExpense(String memberId, Long expenseId){
         Member member = memberRepository.findById(memberId)
@@ -44,11 +46,8 @@ public class ExpenseViewService {
     public DailyExpenseResponse getDailyExpenseDetails(String memberId, LocalDate date, Pageable pageable){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-        Goal goal = goalRepository.findByDateBetween(date, memberId)
-                .orElseThrow(() -> new ExpenseException(ErrorCode.NO_GOAL_IN_GIVEN_DATE));
-        List<DailyPlan> dailyPlans = Optional.ofNullable(goal.getDailyPlans())
+        DailyPlan dailyPlan = dailyPlanRepository.findByMemberIdAndDate(memberId, date)
                 .orElseThrow(() -> new GoalException(ErrorCode.DAILYPLAN_NOT_FOUND));
-        DailyPlan dailyPlan = findDailyPlan(dailyPlans, date);
 
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(member, date, pageable);
 

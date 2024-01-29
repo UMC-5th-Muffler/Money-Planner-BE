@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.expense.service;
 
+import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
 import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
@@ -48,6 +49,9 @@ class ExpenseViewServiceTest {
     @MockBean
     private GoalRepository goalRepository;
 
+    @MockBean
+    private DailyPlanRepository dailyPlanRepository;
+
     @Test
     public void 일일_소비내역_조회_성공() {
 
@@ -57,7 +61,7 @@ class ExpenseViewServiceTest {
         Pageable pageable = PageRequest.of(0, pageSize, sort);
 
         Member mockMember = MemberFixture.create();
-        Goal mockGoal = GoalFixture.create();
+        DailyPlan dailyPlan = DailyPlanFixture.DAILY_PLAN_ONE;
         String memberId = mockMember.getId();
 
         List<Expense> expenses = ExpenseFixture.createList(10, testDate);
@@ -69,7 +73,7 @@ class ExpenseViewServiceTest {
         Long dailyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByDateBetween(testDate, memberId)).thenReturn(Optional.of(mockGoal));
+        when(dailyPlanRepository.findByMemberIdAndDate(memberId, testDate)).thenReturn(Optional.of(dailyPlan));
         when(expenseRepository.findAllByMemberAndDate(mockMember, testDate, pageable)).thenReturn(expenseSlice);
 
         DailyExpenseResponse response = expenseViewService.getDailyExpenseDetails(memberId, testDate, pageable);
@@ -86,7 +90,7 @@ class ExpenseViewServiceTest {
                 .collect(Collectors.toList());
         assertTrue(isSortedDescending(expenseIds));
 
-        verify(goalRepository).findByDateBetween(testDate, memberId);
+        verify(dailyPlanRepository).findByMemberIdAndDate(memberId, testDate);
         verify(expenseRepository).findAllByMemberAndDate(mockMember, testDate, pageable);
     }
 
