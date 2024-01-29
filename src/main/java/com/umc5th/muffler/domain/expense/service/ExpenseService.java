@@ -96,7 +96,7 @@ public class ExpenseService {
     }
 
     public SearchResponse searchExpense(String memberId, String searchKeyword, int page, int size, String sortDirection) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new ExpenseException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Sort sort = Sort.by(direction,"date").and(Sort.by(Sort.Direction.DESC, "createdAt"));
