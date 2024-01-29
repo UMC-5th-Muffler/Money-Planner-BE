@@ -1,7 +1,7 @@
 package com.umc5th.muffler.fixture;
 
 import com.umc5th.muffler.entity.DailyPlan;
-import com.umc5th.muffler.entity.constant.Level;
+import com.umc5th.muffler.entity.constant.Rate;
 
 import java.time.LocalDate;
 
@@ -11,7 +11,7 @@ public class DailyPlanFixture {
             .date(LocalDate.of(2024,1,1))
             .budget(5000L)
             .totalCost(1000L)
-            .rate(Level.HIGH)
+            .rate(Rate.HIGH)
             .rateMemo("rateMemo")
             .build();
 
@@ -34,7 +34,7 @@ public class DailyPlanFixture {
             .date(LocalDate.now())
             .budget(5000L)
             .totalCost(1000L)
-            .rate(Level.HIGH)
+            .rate(Rate.HIGH)
             .build();
 
     public static final DailyPlan DAILY_PLAN_FOUR = DailyPlan.builder()
@@ -49,7 +49,7 @@ public class DailyPlanFixture {
             .date(LocalDate.of(2024, 1, 31))
             .budget(5000L)
             .totalCost(1000L)
-            .rate(Level.HIGH)
+            .rate(Rate.HIGH)
             .build();
 
     public static final DailyPlan DAILY_PLAN_SIX = DailyPlan.builder()

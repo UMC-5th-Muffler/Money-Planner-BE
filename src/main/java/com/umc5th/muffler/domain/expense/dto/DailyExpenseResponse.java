@@ -1,7 +1,7 @@
 package com.umc5th.muffler.domain.expense.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.umc5th.muffler.entity.constant.Level;
+import com.umc5th.muffler.entity.constant.Rate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,7 +20,7 @@ public class DailyExpenseResponse {
     private Boolean isZeroDay;
     private Long dailyTotalCost;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Level rate;
+    private Rate rate;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String rateMemo;
     private List<ExpenseDetailDto> expenseDetailList;

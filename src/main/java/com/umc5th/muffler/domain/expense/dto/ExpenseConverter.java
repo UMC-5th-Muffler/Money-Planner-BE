@@ -15,13 +15,13 @@ public class ExpenseConverter {
 
     public static Expense toExpenseEntity(NewExpenseRequest request, Member member, Category category) {
         return Expense.builder()
-            .title(request.getExpenseTitle())
-            .memo(request.getExpenseMemo())
-            .date(request.getExpenseDate())
-            .cost(request.getExpenseCost())
-            .category(category)
-            .member(member)
-            .build();
+                .title(request.getExpenseTitle())
+                .memo(request.getExpenseMemo())
+                .date(request.getExpenseDate())
+                .cost(request.getExpenseCost())
+                .category(category)
+                .member(member)
+                .build();
     }
 
     public static ExpenseDto toExpenseDto(Expense expense){
@@ -176,4 +176,35 @@ public class ExpenseConverter {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    public static List<DailyExpensesDto> toSearch(Map<LocalDate, List<Expense>> expensesByDate) {
+
+        return expensesByDate.entrySet().stream().map(entry -> {
+            LocalDate date = entry.getKey();
+            List<Expense> expenseList = entry.getValue();
+
+            List<ExpenseDetailDto> expenseDetailDtos = expenseList.stream()
+                    .map(expense -> ExpenseDetailDto.builder()
+                            .expenseId(expense.getId())
+                            .title(expense.getTitle())
+                            .cost(expense.getCost())
+                            .categoryIcon(expense.getCategory().getIcon())
+                            .build())
+                    .collect(Collectors.toList());
+
+            return DailyExpensesDto.builder()
+                    .date(date)
+                    .expenseDetailList(expenseDetailDtos)
+                    .build();
+        }).collect(Collectors.toList());
+    }
+
+    public static SearchResponse toSearchResponse(List<DailyExpensesDto> expenses, boolean hasNext) {
+
+        return SearchResponse.builder()
+                .dailyExpenseList(expenses)
+                .hasNext(hasNext)
+                .build();
+    }
+
 }

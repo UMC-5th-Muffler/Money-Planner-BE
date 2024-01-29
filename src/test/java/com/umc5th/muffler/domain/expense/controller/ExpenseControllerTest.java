@@ -2,6 +2,7 @@ package com.umc5th.muffler.domain.expense.controller;
 
 import com.umc5th.muffler.config.TestSecurityConfig;
 import com.umc5th.muffler.domain.expense.dto.*;
+import com.umc5th.muffler.domain.expense.service.ExpenseService;
 import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.fixture.ExpenseFixture;
@@ -16,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.validation.ConstraintViolationException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -25,6 +27,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -42,6 +45,8 @@ class ExpenseControllerTest {
     @MockBean
     private ExpenseViewService expenseViewService;
 
+    @MockBean
+    private ExpenseService expenseService;
 
     @Test
     @WithMockUser
@@ -122,7 +127,6 @@ class ExpenseControllerTest {
                 .andExpect(jsonPath("$.result.categoryList", notNullValue()));
     }
 
-
     @Test
     @WithMockUser
     public void 홈_소비내역_조회() throws Exception {
@@ -194,5 +198,38 @@ class ExpenseControllerTest {
                 .andExpect(jsonPath("$.result.expenseId").value(expenseId))
                 .andExpect(jsonPath("$.result.title").value(mockExpense.getTitle()))
                 .andExpect(jsonPath("$.result.categoryName").value(mockExpense.getCategory().getName()));
+    }
+
+    @Test
+    @WithMockUser
+    public void 소비_검색_성공() throws Exception {
+
+        ExpenseDetailDto dto = ExpenseDetailDto.builder()
+                .expenseId(1L)
+                .title("title")
+                .cost(1000L)
+                .categoryIcon("icon")
+                .build();
+
+        DailyExpensesDto expenseDetailsDto = DailyExpensesDto.builder()
+                .date(LocalDate.now())
+                .expenseDetailList(List.of(dto))
+                .build();
+
+        SearchResponse mockResponse = SearchResponse.builder()
+                .dailyExpenseList(List.of(expenseDetailsDto))
+                .hasNext(false)
+                .build();
+
+        when(expenseService.searchExpense("user", "title", 0, 2, "ASC")).thenReturn(mockResponse);
+
+        mockMvc.perform(get("/expense/search")
+                        .param("title", "title")
+                        .param("page", "0")
+                        .param("size", "2")
+                        .param("sort", "ASC"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.dailyExpenseList", hasSize(1)))
+                .andExpect(jsonPath("$.result.hasNext", is(mockResponse.isHasNext())));
     }
 }

@@ -1,13 +1,11 @@
 package com.umc5th.muffler.domain.expense.controller;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.umc5th.muffler.domain.expense.dto.*;
-import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
+import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.global.response.Response;
 import com.umc5th.muffler.global.validation.ValidOrder;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.constraints.Range;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -15,6 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,6 +24,7 @@ import java.time.YearMonth;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 @RequestMapping("/expense")
 public class ExpenseController {
     private final ExpenseService expenseService;
@@ -89,4 +89,15 @@ public class ExpenseController {
         return Response.success(response);
     }
 
+    @GetMapping("/search")
+    public Response<SearchResponse> getSearchExpense(
+            @RequestParam(name = "title") String title,
+            @RequestParam(name = "page", defaultValue = "0") @Min(value = 0) int page,
+            @RequestParam(name = "size", defaultValue = "10") @Positive int size,
+            @RequestParam(name = "sort", defaultValue = "DESC") String sortDirection,
+            Authentication authentication) {
+
+        SearchResponse response = expenseService.searchExpense(authentication.getName(), title, page, size, sortDirection);
+        return Response.success(response);
+    }
 }

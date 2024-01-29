@@ -1,9 +1,8 @@
 package com.umc5th.muffler.entity;
 
 import com.umc5th.muffler.entity.base.BaseTimeEntity;
-import com.umc5th.muffler.entity.constant.Level;
+import com.umc5th.muffler.entity.constant.Rate;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -39,7 +38,7 @@ public class DailyPlan extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(10)")
-    private Level rate;
+    private Rate rate;
 
     @Column(length = 1024)
     private String rateMemo;
@@ -55,7 +54,7 @@ public class DailyPlan extends BaseTimeEntity {
         this.goal = goal;
     }
 
-    public void updateRate(String rateMemo, Level rate){
+    public void updateRate(String rateMemo, Rate rate){
         this.rateMemo = rateMemo;
         this.rate = rate;
     }

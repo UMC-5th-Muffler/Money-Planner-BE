@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DailyExpensesDto {
-
     private LocalDate date;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long dailyTotalCost;

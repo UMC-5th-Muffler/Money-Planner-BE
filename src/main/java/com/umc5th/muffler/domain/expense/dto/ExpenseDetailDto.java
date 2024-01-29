@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExpenseDetailDto { // 소비내역 상세
+public class ExpenseDetailDto {
 
     private Long expenseId;
     private String title;

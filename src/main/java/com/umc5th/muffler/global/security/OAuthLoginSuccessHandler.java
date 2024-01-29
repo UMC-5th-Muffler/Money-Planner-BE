@@ -26,7 +26,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         TokenInfo tokenInfo = jwtTokenUtils.generateToken(authentication);
         int statusCode = HttpServletResponse.SC_OK;
 
-        boolean isNewUser = oAuthService.determineUserStatusAndSetRefreshToken(authentication, tokenInfo);
+        boolean isNewUser = oAuthService.determineUserStatusAndSetRefreshToken(authentication, tokenInfo.getRefreshToken());
         if (isNewUser) {
             statusCode = HttpServletResponse.SC_CREATED;
         }

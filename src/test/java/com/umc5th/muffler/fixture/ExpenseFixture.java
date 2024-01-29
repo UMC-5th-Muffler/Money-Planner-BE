@@ -20,6 +20,7 @@ public class ExpenseFixture {
             .cost(1L)
             .memo("ONE MEMO")
             .date(LocalDate.of(2024, 1, 1))
+            .category(CategoryFixture.CATEGORY_ONE)
             .build();
     public static Expense EXPENSE_TWO = Expense.builder()
             .id(2L)
@@ -27,13 +28,15 @@ public class ExpenseFixture {
             .cost(2L)
             .memo("TWO MEMO")
             .date(LocalDate.of(2024, 1, 12))
+            .category(CategoryFixture.CATEGORY_ONE)
             .build();
     public static Expense EXPENSE_THREE = Expense.builder()
             .id(3L)
-            .title("THREE")
+            .title("THREE-O")
             .cost(3L)
             .memo("THREE MEMO")
             .date(LocalDate.of(2024, 1, 31))
+            .category(CategoryFixture.CATEGORY_ONE)
             .build();
   
     public static Expense create(LocalDate date) {
