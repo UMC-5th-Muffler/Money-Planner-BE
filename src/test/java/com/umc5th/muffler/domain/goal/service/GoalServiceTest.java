@@ -11,11 +11,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.umc5th.muffler.domain.goal.dto.GoalGetResponse;
+import com.umc5th.muffler.domain.goal.dto.GoalReportResponse;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
+import com.umc5th.muffler.entity.CategoryGoal;
 import com.umc5th.muffler.entity.DailyPlan;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.Member;
+import com.umc5th.muffler.fixture.CategoryGoalFixture;
 import com.umc5th.muffler.fixture.DailyPlanFixture;
 import com.umc5th.muffler.fixture.GoalFixture;
 import com.umc5th.muffler.fixture.MemberFixture;
@@ -126,6 +129,9 @@ class GoalServiceTest {
     void 목표_리포트_조회_성공() {
         Member mockMember = MemberFixture.create();
         Goal mockGoal = GoalFixture.create();
+        DailyPlan plan1 = DailyPlanFixture.DAILY_PLAN_ONE;
+        DailyPlan plan2 = DailyPlanFixture.DAILY_PLAN_TWO;
+        CategoryGoal categoryGoal = CategoryGoalFixture.CATEGORY_GOAL_ONE;
 
         Long goalId = mockGoal.getId();
         String memberId = mockMember.getId();
@@ -133,7 +139,10 @@ class GoalServiceTest {
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findByIdWithJoin(goalId)).thenReturn(Optional.of(mockGoal));
 
-        assertThatCode(() -> goalService.getReport(goalId, memberId)).doesNotThrowAnyException();
+        GoalReportResponse response = goalService.getReport(goalId, memberId);
+
+        assertEquals(response.getTotalCost(), plan1.getTotalCost() + plan2.getTotalCost());
+        assertEquals(response.getCategoryReports().get(0).getCategoryBudget(), categoryGoal.getBudget());
 
         verify(memberRepository).findById(memberId);
         verify(goalRepository).findByIdWithJoin(goalId);
