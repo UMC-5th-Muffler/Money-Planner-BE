@@ -25,7 +25,7 @@ import java.time.YearMonth;
 @RestController
 @RequiredArgsConstructor
 @Validated
-@RequestMapping("/expense")
+@RequestMapping("/api/expense")
 public class ExpenseController {
     private final ExpenseService expenseService;
     private final ExpenseViewService expenseViewService;

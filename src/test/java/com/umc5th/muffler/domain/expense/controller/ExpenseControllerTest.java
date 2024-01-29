@@ -1,11 +1,37 @@
 package com.umc5th.muffler.domain.expense.controller;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.umc5th.muffler.config.TestSecurityConfig;
-import com.umc5th.muffler.domain.expense.dto.*;
+import com.umc5th.muffler.domain.expense.dto.CategoryDetailDto;
+import com.umc5th.muffler.domain.expense.dto.DailyExpenseResponse;
+import com.umc5th.muffler.domain.expense.dto.DailyExpensesDto;
+import com.umc5th.muffler.domain.expense.dto.ExpenseConverter;
+import com.umc5th.muffler.domain.expense.dto.ExpenseDetailDto;
+import com.umc5th.muffler.domain.expense.dto.ExpenseDto;
+import com.umc5th.muffler.domain.expense.dto.MonthlyExpenseResponse;
+import com.umc5th.muffler.domain.expense.dto.SearchResponse;
+import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseResponse;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
 import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.fixture.ExpenseFixture;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.temporal.TemporalAdjusters;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,23 +42,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-
-import javax.validation.ConstraintViolationException;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.temporal.TemporalAdjusters;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -172,7 +181,7 @@ class ExpenseControllerTest {
         when(expenseViewService.getMonthlyExpenses(any(), eq(yearMonth), eq(goalId), eq(order), any(Pageable.class)))
                 .thenReturn(mockResponse);
 
-        mockMvc.perform(get("/expense/monthly")
+        mockMvc.perform(get("/api/expense/monthly")
                         .param("yearMonth", String.valueOf(yearMonth))
                         .param("order", order)
                         .param("page", String.valueOf(page))
@@ -193,7 +202,7 @@ class ExpenseControllerTest {
 
         when(expenseViewService.getExpense(any(), expenseId)).thenReturn(mockExpenseDto);
 
-        mockMvc.perform(get("/expense/{id}", expenseId))
+        mockMvc.perform(get("/api/expense/{id}", expenseId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.expenseId").value(expenseId))
                 .andExpect(jsonPath("$.result.title").value(mockExpense.getTitle()))
@@ -223,7 +232,7 @@ class ExpenseControllerTest {
 
         when(expenseService.searchExpense("user", "title", 0, 2, "ASC")).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/expense/search")
+        mockMvc.perform(get("/api/expense/search")
                         .param("title", "title")
                         .param("page", "0")
                         .param("size", "2")
