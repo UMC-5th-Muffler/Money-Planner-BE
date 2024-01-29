@@ -6,6 +6,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/challenge")
+@RequestMapping("/api/challenge")
 public class ChallengeController {
 }

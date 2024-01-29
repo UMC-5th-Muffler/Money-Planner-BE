@@ -52,9 +52,9 @@ class RateControllerTest {
                 .memo("memo")
                 .build();
 
-        when(rateService.getRateInfo(date)).thenReturn(mockResponse);
+        when(rateService.getRateInfo(any(), eq(date))).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/rate")
+        mockMvc.perform(get("/api/rate")
                         .param("date", date.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.rate", is(mockResponse.getRate().toString())));
@@ -66,10 +66,10 @@ class RateControllerTest {
         LocalDate date = LocalDate.of(2024, 1, 1);
         RateUpdateRequest mockRequest = RateUpdateRequestFixture.create();
 
-        mockMvc.perform(patch("/rate/{date}", date.toString())
+        mockMvc.perform(patch("/api/rate/{date}", date.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(mockRequest)))
                 .andExpect(status().isOk());
-        verify(rateService).updateRate(eq(date), any(RateUpdateRequest.class));
+        verify(rateService).updateRate(any(), eq(date), any(RateUpdateRequest.class));
     }
 }

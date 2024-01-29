@@ -28,7 +28,10 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-                .antMatchers("/member/refresh-token");
+                .antMatchers(
+                        "/", "/css/**", "/images/**", "/js/**", "/favicon.ico",
+                        "/swagger-ui.html", "/swagger-ui/**", "/*/api-docs/**", "/swagger-resources/**", "/webjars/**",
+                        "/api/member/refresh-token");
     }
 
     @Bean
@@ -38,9 +41,7 @@ public class SecurityConfig {
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests(auth -> auth
-                        .antMatchers("/member/login/**").authenticated()
-                        .antMatchers("/category/**", "/challenge/**", "/expense/**",
-                                "/goal/**", "/rate/**", "/routine/**").authenticated()
+                        .antMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()
                 ).oauth2Login(oAuth -> oAuth
                         .successHandler(oAuthLoginSuccessHandler)

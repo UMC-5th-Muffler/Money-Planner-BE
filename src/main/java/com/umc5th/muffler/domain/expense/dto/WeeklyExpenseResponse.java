@@ -12,12 +12,9 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class WeeklyExpenseDetailsResponse {
+public class WeeklyExpenseResponse {
 
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private Long weeklyTotalCost;
     private List<CategoryDetailDto> categoryList;
-    private List<DailyExpenseDetailsDto> dailyExpenseList;
+    private List<DailyExpensesDto> dailyExpenseList;
     private boolean hasNext;
 }

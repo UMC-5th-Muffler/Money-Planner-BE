@@ -39,7 +39,7 @@ class HomeControllerTest {
         when(homeService.getNowCalendar(any()))
                 .thenReturn(HomeFixture.createWholeCalendar());
 
-        mockMvc.perform(get("/home/now"))
+        mockMvc.perform(get("/api/home/now"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.result").exists());
@@ -54,7 +54,7 @@ class HomeControllerTest {
         when(homeService.getBasicCalendar(memberId, yearMonth))
                 .thenReturn(HomeFixture.createWholeCalendar());
 
-        mockMvc.perform(get("/home/basic?yearMonth={yearMonth}", yearMonth))
+        mockMvc.perform(get("/api/home/basic?yearMonth={yearMonth}", yearMonth))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").exists());
 
@@ -69,7 +69,7 @@ class HomeControllerTest {
         when(homeService.getDefaultGoalCalendar(anyString(), eq(goalId)))
                 .thenReturn(HomeFixture.createWholeCalendar());
 
-        mockMvc.perform(get("/home/goal/{goalId}", goalId))
+        mockMvc.perform(get("/api/home/goal/{goalId}", goalId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.result").exists());
@@ -84,7 +84,7 @@ class HomeControllerTest {
         when(homeService.getDateGoalCalendar(anyString(), eq(goalId), eq(yearMonth)))
                 .thenReturn(HomeFixture.createWholeCalendar());
 
-        mockMvc.perform(get("/home/goal/{goalId}/{yearMonth}", goalId, yearMonth))
+        mockMvc.perform(get("/api/home/goal/{goalId}/{yearMonth}", goalId, yearMonth))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.result").exists());
@@ -100,7 +100,7 @@ class HomeControllerTest {
         when(homeService.getCategoryCalendar(anyString(), eq(goalId), eq(yearMonth), eq(categoryId)))
                 .thenReturn(HomeFixture.createCategoryCalendar());
 
-        mockMvc.perform(get("/home/goal/{goalId}/category/{categoryId}?yearMonth={yearMonth}",
+        mockMvc.perform(get("/api/home/goal/{goalId}/category/{categoryId}?yearMonth={yearMonth}",
                         goalId, categoryId, yearMonth))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
