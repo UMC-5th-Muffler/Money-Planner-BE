@@ -17,4 +17,16 @@ public class CategoryGoalReportDto {
     private Long avgCost;
     private Long maxCost;
     private int expenseCount;
+
+    public void addExpense(long cost) {
+        this.totalCost += cost;
+        this.expenseCount++;
+        this.maxCost = Math.max(this.maxCost, cost);
+    }
+
+    public void calculateAvgCost() {
+        if (this.expenseCount > 0) {
+            this.avgCost = this.totalCost / this.expenseCount;
+        }
+    }
 }
