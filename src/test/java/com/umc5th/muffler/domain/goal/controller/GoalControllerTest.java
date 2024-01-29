@@ -3,6 +3,7 @@ package com.umc5th.muffler.domain.goal.controller;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -15,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.umc5th.muffler.config.TestSecurityConfig;
 import com.umc5th.muffler.domain.goal.dto.GoalCreateRequest;
+import com.umc5th.muffler.domain.goal.dto.GoalReportResponse;
 import com.umc5th.muffler.domain.goal.service.GoalCreateService;
 import com.umc5th.muffler.domain.goal.service.GoalService;
 import com.umc5th.muffler.entity.Goal;
@@ -79,5 +81,26 @@ class GoalControllerTest {
     void 목표를_삭제한다() throws Exception {
         mockMvc.perform(delete("/goal/1"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser
+    void 목표_리포트_조회() throws Exception {
+        Long goalId = 1L;
+        GoalReportResponse mockResponse = GoalReportResponse.builder()
+                .goalBudget(100000L)
+                .totalCost(75000L)
+                .dailyAvgCost(5000L)
+                .mostUsedCategory("Food")
+                .zeroDayCount(2L)
+                .build();
+
+        when(goalService.getReport(eq(goalId), any())).thenReturn(mockResponse);
+
+        mockMvc.perform(get("/goal/report/" + goalId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.goalBudget").value(mockResponse.getGoalBudget()));
+
+        verify(goalService).getReport(eq(goalId), any());
     }
 }

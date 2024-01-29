@@ -13,6 +13,8 @@ import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.Member;
+import com.umc5th.muffler.fixture.GoalFixture;
+import com.umc5th.muffler.fixture.MemberFixture;
 import com.umc5th.muffler.global.response.exception.CommonException;
 import com.umc5th.muffler.global.response.exception.GoalException;
 import com.umc5th.muffler.global.response.exception.MemberException;
@@ -114,6 +116,55 @@ class GoalServiceTest {
         assertThatThrownBy(() -> goalService.delete(goalId, memberId))
                 .isInstanceOf(CommonException.class)
                 .hasFieldOrPropertyWithValue("errorCode", INVALID_PERMISSION);
+    }
+
+    @Test
+    void 목표_리포트_조회_성공() {
+        Member mockMember = MemberFixture.create();
+        Goal mockGoal = GoalFixture.create();
+
+        Long goalId = mockGoal.getId();
+        String memberId = mockMember.getId();
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
+        when(goalRepository.findByIdWithJoin(goalId)).thenReturn(Optional.of(mockGoal));
+
+        assertThatCode(() -> goalService.getReport(goalId, memberId)).doesNotThrowAnyException();
+
+        verify(memberRepository).findById(memberId);
+        verify(goalRepository).findByIdWithJoin(goalId);
+    }
+
+    @Test
+    void 목표_리포트_멤버_존재하지_않는_경우() {
+        Long goalId = 1L;
+        String memberId = "1";
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> goalService.getReport(goalId, memberId))
+                .isInstanceOf(MemberException.class)
+                .hasFieldOrPropertyWithValue("errorCode", MEMBER_NOT_FOUND);
+
+        verify(memberRepository).findById(memberId);
+    }
+
+    @Test
+    void 목표_리포트_목표_존재하지_않는_경우() {
+        Long goalId = 1L;
+        String memberId = "1";
+
+        Member mockMember = mock(Member.class);
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
+        when(goalRepository.findByIdWithJoin(goalId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> goalService.getReport(goalId, memberId))
+                .isInstanceOf(GoalException.class)
+                .hasFieldOrPropertyWithValue("errorCode", GOAL_NOT_FOUND);
+
+        verify(memberRepository).findById(memberId);
+        verify(goalRepository).findByIdWithJoin(goalId);
     }
 
 }
