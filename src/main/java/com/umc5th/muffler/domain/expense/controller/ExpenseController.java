@@ -36,9 +36,9 @@ public class ExpenseController {
         return Response.success(result);
     }
 
-    @GetMapping("/{id}")
-    public Response<ExpenseDto> getExpense(Authentication authentication, @PathVariable Long id){
-        ExpenseDto response = expenseViewService.getExpense(authentication.getName(), id);
+    @GetMapping("/{expenseId}")
+    public Response<ExpenseDto> getExpense(Authentication authentication, @PathVariable Long expenseId){
+        ExpenseDto response = expenseViewService.getExpense(authentication.getName(), expenseId);
         return Response.success(response);
     }
 
