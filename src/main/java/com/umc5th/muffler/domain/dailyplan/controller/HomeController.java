@@ -27,3 +27,8 @@ public class HomeController {
         return Response.success(homeService.getBasicCalendar(authentication.getName(), yearMonth));
     }
 
+    @GetMapping("/goal/{goalId}")
+    public Response<WholeCalendar> getDefaultGoalCalendar(@PathVariable Long goalId, Authentication authentication) {
+        return Response.success(homeService.getDefaultGoalCalendar(authentication.getName(), goalId));
+    }
+

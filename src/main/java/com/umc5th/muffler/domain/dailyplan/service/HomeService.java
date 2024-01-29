@@ -62,6 +62,49 @@ public class HomeService {
         return HomeConverter.toBasicCalendarResponse(inactiveGoalsResponse, categoryFilters);
     }
 
+    @Transactional(readOnly = true)
+    public WholeCalendar getDefaultGoalCalendar(String memberId, Long goalId) {
+        Goal goal = goalRepository.findById(goalId)
+                .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
+
+        // 오늘 날짜인 goalCalendar 반환 but 기간이 끝났을 시 목표 시작 지점인 goalCalendar 반환
+        LocalDate now = dateTimeProvider.nowDate();
+        YearMonth date = YearMonth.from(now);
+        if (now.isBefore(goal.getStartDate()) || now.isAfter(goal.getEndDate())) {
+            date = YearMonth.from(goal.getStartDate());
+        }
+
+        return getGoalCalendar(memberId, goal, date);
+    }
+
+    private WholeCalendar getGoalCalendar(String memberId, Goal activeGoal, YearMonth yearMonth) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+
+        ActiveGoalResponse activeGoalResponse = getActiveGoalResponse(member, activeGoal, yearMonth);
+
+        List<Goal> inactiveGoals = goalRepository.findGoalsByYearMonth(member.getId(), yearMonth);
+        inactiveGoals.remove(activeGoal);
+        List<InactiveGoalInfo> inactiveGoalsResponse = getInactiveGoalsResponse(inactiveGoals, yearMonth);
+
+        List<CategoryDto> categoryFilters = CategoryConverter.toCategoryDtos(getCategoryFilters(member));
+
+        return new WholeCalendar(activeGoalResponse, inactiveGoalsResponse, categoryFilters);
+    }
+
+    private ActiveGoalResponse getActiveGoalResponse(Member member, Goal activeGoal, YearMonth yearMonth) {
+        LocalDate startDate = findStartDateWithinYearMonth(activeGoal, yearMonth);
+        LocalDate endDate = findEndDateWithinYearMonth(activeGoal, yearMonth);
+
+        Long totalCost = expenseRepository.calculateTotalCostByMemberAndDateBetween(member, activeGoal.getStartDate(), activeGoal.getEndDate());
+
+        Map<LocalDate, List<Expense>> expenses = expenseRepository.findByMemberAndDateRangeGroupedByDate(member.getId(), startDate, endDate);
+        List<DailyPlan> dailyPlans = dailyPlanRepository.findByGoalIdAndDateBetween(activeGoal.getId(), startDate, endDate);
+        List<GoalDailyInfo> dailyList = HomeConverter.toDailyList(dailyPlans, expenses);
+
+        return HomeConverter.toActiveGoalResponse(activeGoal, startDate, endDate, totalCost, dailyList);
+    }
+
     private List<InactiveGoalInfo> getInactiveGoalsResponse(List<Goal> inactiveGoals, YearMonth yearMonth) {
         Map<Long, List<Rate>> goalRates = new LinkedHashMap<>();
         Map<Long, Pair<LocalDate, LocalDate>> goalDates = new LinkedHashMap<>();

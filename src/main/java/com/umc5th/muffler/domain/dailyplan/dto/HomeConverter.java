@@ -23,6 +23,27 @@ public class HomeConverter {
                 .build();
     }
 
+    public static List<GoalDailyInfo> toDailyList(List<DailyPlan> dailyPlans, Map<LocalDate, List<Expense>> expenses) {
+        return dailyPlans.stream()
+                .map(dailyPlan -> {
+                    return createGoalDailyInfo(dailyPlan,
+                            expenses.getOrDefault(dailyPlan.getDate(), new ArrayList<>()));
+                })
+                .collect(Collectors.toList());
+    }
+
+    public static ActiveGoalResponse toActiveGoalResponse(Goal goal, LocalDate startDate, LocalDate endDate, Long totalCost, List<GoalDailyInfo> dailyList) {
+        return ActiveGoalResponse.builder()
+                .goalId(goal.getId())
+                .goalTitle(goal.getTitle())
+                .goalBudget(goal.getTotalBudget())
+                .startDate(startDate)
+                .endDate(endDate)
+                .totalCost(totalCost)
+                .dailyList(dailyList)
+                .build();
+    }
+
     public static List<InactiveGoalInfo> toInactiveGoalsResponse(List<Goal> goals, Map<Long, List<Rate>> goalRates,
                                                                  Map<Long, Pair<LocalDate, LocalDate>> goalDates) {
         return goals.stream()
@@ -33,6 +54,15 @@ public class HomeConverter {
                     return createInactiveGoalInfo(rates, dates.getFirst(), dates.getSecond());
                 })
                 .collect(Collectors.toList());
+    }
+
+    private static GoalDailyInfo createGoalDailyInfo(DailyPlan dailyPlan, List<Expense> expenses) {
+        return GoalDailyInfo.builder()
+                .dailyBudget(dailyPlan.getBudget())
+                .dailyTotalCost(ExpenseUtils.sumExpenseCosts(expenses))
+                .dailyRate(dailyPlan.getRate())
+                .isZeroDay(dailyPlan.getIsZeroDay())
+                .build();
     }
 
     private static InactiveGoalInfo createInactiveGoalInfo(List<Rate> rates, LocalDate startDate, LocalDate endDate) {
