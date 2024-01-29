@@ -5,14 +5,18 @@ import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_PERMISSI
 import static com.umc5th.muffler.global.response.code.ErrorCode.MEMBER_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.umc5th.muffler.domain.goal.dto.GoalGetResponse;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
+import com.umc5th.muffler.entity.DailyPlan;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.Member;
+import com.umc5th.muffler.fixture.DailyPlanFixture;
 import com.umc5th.muffler.fixture.GoalFixture;
 import com.umc5th.muffler.fixture.MemberFixture;
 import com.umc5th.muffler.global.response.exception.CommonException;
@@ -164,6 +168,23 @@ class GoalServiceTest {
                 .hasFieldOrPropertyWithValue("errorCode", GOAL_NOT_FOUND);
 
         verify(memberRepository).findById(memberId);
+        verify(goalRepository).findByIdWithJoin(goalId);
+    }
+
+    @Test
+    void 목표_상세_조회_성공(){
+        Goal mockGoal = GoalFixture.create();
+        Long goalId = mockGoal.getId();
+        DailyPlan plan1 = DailyPlanFixture.DAILY_PLAN_ONE;
+        DailyPlan plan2 = DailyPlanFixture.DAILY_PLAN_TWO;
+
+        when(goalRepository.findByIdWithJoin(goalId)).thenReturn(Optional.of(mockGoal));
+
+        GoalGetResponse response = goalService.getGoalWithTotalCost(goalId);
+
+        assertEquals(response.getTotalCost(), plan1.getTotalCost() + plan2.getTotalCost());
+        assertEquals(response.getTitle(), mockGoal.getTitle());
+
         verify(goalRepository).findByIdWithJoin(goalId);
     }
 

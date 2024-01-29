@@ -16,12 +16,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.umc5th.muffler.config.TestSecurityConfig;
 import com.umc5th.muffler.domain.goal.dto.GoalCreateRequest;
+import com.umc5th.muffler.domain.goal.dto.GoalGetResponse;
 import com.umc5th.muffler.domain.goal.dto.GoalReportResponse;
 import com.umc5th.muffler.domain.goal.service.GoalCreateService;
 import com.umc5th.muffler.domain.goal.service.GoalService;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.fixture.GoalCreateRequestFixture;
 import com.umc5th.muffler.fixture.GoalFixture;
+
+import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,5 +105,27 @@ class GoalControllerTest {
                 .andExpect(jsonPath("$.result.goalBudget").value(mockResponse.getGoalBudget()));
 
         verify(goalService).getReport(eq(goalId), any());
+    }
+
+    @Test
+    @WithMockUser
+    void 목표_상세_조회() throws Exception{
+        Long goalId = 1L;
+        GoalGetResponse mockResponse = GoalGetResponse.builder()
+                .title("Vacation")
+                .icon("icon.png")
+                .startDate(LocalDate.of(2024, 1, 1))
+                .endDate(LocalDate.of(2024, 6, 30))
+                .totalBudget(500000)
+                .totalCost(300000)
+                .build();
+
+        when(goalService.getGoalWithTotalCost(eq(goalId))).thenReturn(mockResponse);
+
+        mockMvc.perform(get("/goal/{goalId}", goalId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.title").value(mockResponse.getTitle()));
+
+        verify(goalService).getGoalWithTotalCost(eq(goalId));
     }
 }
