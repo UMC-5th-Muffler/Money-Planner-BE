@@ -29,7 +29,7 @@ public class SecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
                 .antMatchers(
-                        "/","/css/**","/images/**","/js/**","/favicon.ico",
+                        "/", "/css/**", "/images/**", "/js/**", "/favicon.ico",
                         "/api/member/refresh-token");
     }
 
