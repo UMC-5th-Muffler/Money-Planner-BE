@@ -52,7 +52,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             return;
         }
-        log.error("Invalid token for request. {}", request.getRequestURI());
+        log.error("Invalid token for requestURI: {}", request.getRequestURI());
         throw new CommonException(INVALID_TOKEN);
     }
 

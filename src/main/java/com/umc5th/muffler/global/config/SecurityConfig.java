@@ -30,6 +30,7 @@ public class SecurityConfig {
         return (web) -> web.ignoring()
                 .antMatchers(
                         "/", "/css/**", "/images/**", "/js/**", "/favicon.ico",
+                        "/swagger-ui.html", "/swagger-ui/**", "/*/api-docs/**", "/swagger-resources/**", "/webjars/**",
                         "/api/member/refresh-token");
     }
 
