@@ -76,7 +76,7 @@ class ExpenseControllerTest {
         when(expenseViewService.getDailyExpenseDetails(any(), eq(testDate), any(Pageable.class)))
                 .thenReturn(mockResponse);
 
-        mockMvc.perform(get("/expense/daily")
+        mockMvc.perform(get("/api/expense/daily")
                         .param("date", testDate.toString())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -126,7 +126,7 @@ class ExpenseControllerTest {
 
         when(expenseViewService.getWeeklyExpenseDetails(any(), any(), eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/expense/weekly")
+        mockMvc.perform(get("/api/expense/weekly")
                         .param("goalId", "1")
                         .param("startDate", startDate.toString())
                         .param("endDate", endDate.toString()))
