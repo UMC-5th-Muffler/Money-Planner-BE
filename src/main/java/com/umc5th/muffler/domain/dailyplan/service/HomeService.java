@@ -77,6 +77,21 @@ public class HomeService {
         return getGoalCalendar(memberId, goal, date);
     }
 
+    @Transactional(readOnly = true)
+    public WholeCalendar getDateGoalCalendar(String memberId, Long goalId, YearMonth date) {
+        Goal goal = goalRepository.findById(goalId)
+                .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
+
+        // 선택한 날짜가 선택한 goal 기간 밖일 때 BasicCalendar 반환
+        LocalDate startOfMonth = date.atDay(1);
+        LocalDate endOfMonth = date.atEndOfMonth();
+        if (startOfMonth.isAfter(goal.getEndDate()) || endOfMonth.isBefore(goal.getStartDate())) {
+            return getBasicCalendar(memberId, date);
+        }
+
+        return getGoalCalendar(memberId, goal, date);
+    }
+
     private WholeCalendar getGoalCalendar(String memberId, Goal activeGoal, YearMonth yearMonth) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
