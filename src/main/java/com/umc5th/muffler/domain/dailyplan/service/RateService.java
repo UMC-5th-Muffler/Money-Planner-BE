@@ -29,7 +29,7 @@ public class RateService {
     public RateInfoResponse getRateInfo(String memberId, LocalDate date){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-        DailyPlan dailyPlan = dailyPlanRepository.findByDate(date)
+        DailyPlan dailyPlan = dailyPlanRepository.findByMemberIdAndDate(member.getId(), date)
                 .orElseThrow(() -> new DailyPlanException(ErrorCode.DAILYPLAN_NOT_FOUND));
 
         return RateConverter.toRateInfoResponse(dailyPlan);
@@ -39,7 +39,7 @@ public class RateService {
     public void updateRate(String memberId, LocalDate date, RateUpdateRequest request){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-        DailyPlan dailyPlan = dailyPlanRepository.findByDate(date)
+        DailyPlan dailyPlan = dailyPlanRepository.findByMemberIdAndDate(member.getId(), date)
                 .orElseThrow(() -> new DailyPlanException(ErrorCode.DAILYPLAN_NOT_FOUND));
 
         dailyPlan.updateRate(request.getMemo(), Rate.valueOf(request.getRate()));

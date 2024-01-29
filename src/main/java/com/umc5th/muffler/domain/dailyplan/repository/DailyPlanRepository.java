@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DailyPlanRepository extends JpaRepository<DailyPlan, Long>, DailyPlanRepositoryCustom {
-    Optional<DailyPlan> findByDate(LocalDate date);
     List<DailyPlan> findByGoalIdAndDateBetween(Long goalId, LocalDate startDate, LocalDate endDate);
 
     @Query("SELECT dp FROM DailyPlan dp WHERE dp.goal.member.id = :memberId AND dp.date = :date")

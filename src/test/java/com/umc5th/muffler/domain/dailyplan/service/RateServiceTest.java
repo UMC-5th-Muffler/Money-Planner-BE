@@ -48,7 +48,7 @@ class RateServiceTest {
         DailyPlan dailyPlan = DailyPlanFixture.DAILY_PLAN_NO_RATE;
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(dailyPlanRepository.findByDate(date)).thenReturn(Optional.of(dailyPlan));
+        when(dailyPlanRepository.findByMemberIdAndDate(memberId, date)).thenReturn(Optional.of(dailyPlan));
 
         RateInfoResponse response = rateService.getRateInfo(memberId, date);
 
@@ -56,7 +56,7 @@ class RateServiceTest {
         assertEquals(dailyPlan.getBudget(), response.getDailyPlanBudget());
         assertEquals(dailyPlan.getTotalCost(), response.getDailyTotalCost());
 
-        verify(dailyPlanRepository).findByDate(date);
+        verify(dailyPlanRepository).findByMemberIdAndDate(memberId, date);
     }
 
     @Test
@@ -67,7 +67,7 @@ class RateServiceTest {
         DailyPlan dailyPlan = DailyPlanFixture.DAILY_PLAN_ONE;
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(dailyPlanRepository.findByDate(date)).thenReturn(Optional.of(dailyPlan));
+        when(dailyPlanRepository.findByMemberIdAndDate(memberId, date)).thenReturn(Optional.of(dailyPlan));
 
         RateInfoResponse response = rateService.getRateInfo(memberId, date);
 
@@ -77,7 +77,7 @@ class RateServiceTest {
         assertEquals(dailyPlan.getRate(), response.getRate());
         assertEquals(dailyPlan.getRateMemo(), response.getMemo());
 
-        verify(dailyPlanRepository).findByDate(date);
+        verify(dailyPlanRepository).findByMemberIdAndDate(memberId, date);
     }
 
     @Test
@@ -98,7 +98,7 @@ class RateServiceTest {
         RateUpdateRequest request = RateUpdateRequestFixture.create();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(dailyPlanRepository.findByDate(date)).thenReturn(Optional.of(originalDailyPlan));
+        when(dailyPlanRepository.findByMemberIdAndDate(memberId, date)).thenReturn(Optional.of(originalDailyPlan));
 
         // 변경 전 상태 확인
         Rate originalRate = originalDailyPlan.getRate();
@@ -107,7 +107,7 @@ class RateServiceTest {
         rateService.updateRate(memberId, date, request);
 
         // 변경 후 상태 확인
-        DailyPlan updatedDailyPlan = dailyPlanRepository.findByDate(date).get();
+        DailyPlan updatedDailyPlan = dailyPlanRepository.findByMemberIdAndDate(memberId, date).get();
 
         assertNotEquals(originalRate, updatedDailyPlan.getRate());
         assertNotEquals(originalMemo, updatedDailyPlan.getRateMemo());
