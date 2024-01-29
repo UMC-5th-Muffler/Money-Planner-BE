@@ -1,9 +1,6 @@
 package com.umc5th.muffler.domain.goal.controller;
 
-import com.umc5th.muffler.domain.goal.dto.GoalConverter;
-import com.umc5th.muffler.domain.goal.dto.GoalCreateRequest;
-import com.umc5th.muffler.domain.goal.dto.GoalPreviousResponse;
-import com.umc5th.muffler.domain.goal.dto.GoalReportResponse;
+import com.umc5th.muffler.domain.goal.dto.*;
 import com.umc5th.muffler.domain.goal.service.GoalCreateService;
 import com.umc5th.muffler.domain.goal.service.GoalService;
 import com.umc5th.muffler.entity.Goal;
@@ -46,6 +43,12 @@ public class GoalController {
     @GetMapping("/report/{goalId}")
     public Response<GoalReportResponse> getReport(@PathVariable Long goalId, Authentication authentication){
         GoalReportResponse response = goalService.getReport(goalId, authentication.getName());
+        return Response.success(response);
+    }
+
+    @GetMapping("/{goalId}")
+    public Response<GoalGetResponse> getGoal(@PathVariable Long goalId){
+        GoalGetResponse response = goalService.getGoalWithTotalCost(goalId);
         return Response.success(response);
     }
 }

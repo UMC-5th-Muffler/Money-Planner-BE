@@ -18,6 +18,19 @@ public class GoalConverter {
         );
     }
 
+    public static GoalGetResponse getGoalWithTotalCostResponse(Goal goal, List<DailyPlan> dailyPlans){
+        long totalCost = dailyPlans.stream().mapToLong(DailyPlan::getTotalCost).sum();
+
+        return GoalGetResponse.builder()
+                .totalBudget(goal.getTotalBudget())
+                .title(goal.getTitle())
+                .startDate(goal.getStartDate())
+                .endDate(goal.getEndDate())
+                .icon(goal.getIcon())
+                .totalCost(totalCost)
+                .build();
+    }
+
     public static GoalReportResponse getGoalReportResponse(Goal goal, List<CategoryGoal> categoryGoals, List<DailyPlan> dailyPlans, List<Expense> expenses) {
         // zeroDayCount와 totalCost 계산
         long zeroDayCount = 0;

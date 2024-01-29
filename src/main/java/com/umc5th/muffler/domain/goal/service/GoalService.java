@@ -7,6 +7,7 @@ import static com.umc5th.muffler.global.response.code.ErrorCode.MEMBER_NOT_FOUND
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.goal.dto.GoalConverter;
 import com.umc5th.muffler.domain.goal.dto.GoalReportResponse;
+import com.umc5th.muffler.domain.goal.dto.GoalGetResponse;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.*;
@@ -59,6 +60,14 @@ public class GoalService {
         List<Expense> expenses = expenseRepository.findAllByMemberAndDateBetween(member, goal.getStartDate(), goal.getEndDate());
 
         return GoalConverter.getGoalReportResponse(goal, categoryGoals, dailyPlans, expenses);
+    }
+
+    public GoalGetResponse getGoalWithTotalCost(Long goalId){
+        Goal goal = goalRepository.findByIdWithJoin(goalId)
+                .orElseThrow(() -> new GoalException(GOAL_NOT_FOUND));
+        List<DailyPlan> dailyPlans = goal.getDailyPlans();
+
+        return GoalConverter.getGoalWithTotalCostResponse(goal, dailyPlans);
     }
 
 }
