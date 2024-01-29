@@ -37,16 +37,15 @@ public class ExpenseConverter {
                 .build();
     }
 
-    public static DailyExpenseResponse toDailyExpensesList(LocalDate date, Slice<Expense> expenseList, DailyPlan dailyPlan, Rate rate) {
+    public static DailyExpenseResponse toDailyExpensesList(LocalDate date, Slice<Expense> expenseList, DailyPlan dailyPlan) {
         List<ExpenseDetailDto> expenseDetails = toExpensesDetailsInDaily(expenseList.getContent());
 
         return DailyExpenseResponse.builder()
                 .dailyTotalCost(dailyPlan.getTotalCost())
                 .date(date)
                 .isZeroDay(dailyPlan.getIsZeroDay())
-                .rateId((rate != null) ? rate.getId() : null)
-                .rateLevel((rate != null) ? rate.getTotalLevel() : null)
-                .rateMemo((rate != null) ? rate.getMemo() : null)
+                .rate(dailyPlan.getRate())
+                .rateMemo(dailyPlan.getRateMemo())
                 .expenseDetailList(expenseDetails)
                 .hasNext(expenseList.hasNext())
                 .build();

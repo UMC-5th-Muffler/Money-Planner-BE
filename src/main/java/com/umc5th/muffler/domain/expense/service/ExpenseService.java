@@ -26,6 +26,7 @@ public class ExpenseService {
     private final CategoryRepository categoryRepository;
     private final GoalRepository goalRepository;
 
+
     @Transactional
     public NewExpenseResponse enrollExpense(NewExpenseRequest request) {
         Member member = memberRepository.findById(request.getUserId())

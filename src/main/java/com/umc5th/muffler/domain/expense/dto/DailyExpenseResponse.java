@@ -20,9 +20,7 @@ public class DailyExpenseResponse {
     private Boolean isZeroDay;
     private Long dailyTotalCost;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long rateId;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Level rateLevel;
+    private Level rate;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String rateMemo;
     private List<ExpenseDetailDto> expenseDetailList;

@@ -36,6 +36,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Getter
+@Table(name = "members")
 public class Member extends BaseTimeEntity implements Persistable<String>, UserDetails {
 
     @Id

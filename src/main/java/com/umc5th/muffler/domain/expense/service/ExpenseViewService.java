@@ -47,11 +47,10 @@ public class ExpenseViewService {
         List<DailyPlan> dailyPlans = Optional.ofNullable(goal.getDailyPlans())
                 .orElseThrow(() -> new GoalException(ErrorCode.DAILYPLAN_NOT_FOUND));
         DailyPlan dailyPlan = findDailyPlan(dailyPlans, date);
-        Rate rate = dailyPlan.getRate();
 
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(member, date, pageable);
 
-        DailyExpenseResponse response = ExpenseConverter.toDailyExpensesList(date, expenseList, dailyPlan, rate);
+        DailyExpenseResponse response = ExpenseConverter.toDailyExpensesList(date, expenseList, dailyPlan);
 
         return response;
     }
