@@ -104,6 +104,24 @@ public class HomeService {
         return getGoalCalendar(memberId, goal, date);
     }
 
+    @Transactional(readOnly = true)
+    public CategoryCalendar getCategoryCalendar(String memberId, Long goalId, YearMonth yearMonth, Long categoryId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+        Goal goal = goalRepository.findById(goalId)
+                .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        LocalDate startDate = findStartDateWithinYearMonth(goal, yearMonth);
+        LocalDate endDate = findEndDateWithinYearMonth(goal, yearMonth);
+        Long categoryTotalCost = expenseRepository.sumTotalCategoryCostByMemberAndDateBetween(memberId, categoryId, goal.getStartDate(), goal.getEndDate()).orElse(0L);
+        List<Long> categoryDailyCost = getCategoryDailyCost(memberId, categoryId, startDate, endDate);
+        Long categoryBudget = getCategoryBudget(goal, category);
+
+        return HomeConverter.toCategoryCalendar(category, startDate, endDate, categoryTotalCost, categoryDailyCost, categoryBudget);
+    }
+
     private WholeCalendar getGoalCalendar(String memberId, Goal activeGoal, YearMonth yearMonth) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
@@ -152,6 +170,21 @@ public class HomeService {
                 .filter(category -> category.getStatus().isActive() && category.getIsVisible())
                 .sorted(Comparator.comparingLong(Category::getPriority))
                 .collect(Collectors.toList());
+    }
+
+    private List<Long> getCategoryDailyCost(String memberId, Long categoryId, LocalDate startDate, LocalDate endDate) {
+        Map<LocalDate, List<Expense>> expenses = expenseRepository.findByMemberAndCategoryAndDateRangeGroupedByDate(memberId, categoryId, startDate, endDate);
+        return HomeConverter.toCategoryDailyCost(expenses, startDate, endDate);
+    }
+
+    private Long getCategoryBudget(Goal goal, Category category) {
+        List<CategoryGoal> categoryGoals = goal.getCategoryGoals();
+        for (CategoryGoal categoryGoal : categoryGoals) {
+            if (Objects.equals(categoryGoal.getCategory().getId(), category.getId())) {
+                return categoryGoal.getBudget();
+            }
+        }
+        return null;
     }
 
     private LocalDate findStartDateWithinYearMonth(Goal goal, YearMonth yearMonth) {

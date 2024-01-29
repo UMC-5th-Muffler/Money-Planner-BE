@@ -23,6 +23,18 @@ public class HomeConverter {
                 .build();
     }
 
+    public static CategoryCalendar toCategoryCalendar(Category category, LocalDate startDate, LocalDate endDate, Long categoryTotalCost, List<Long> categoryDailyCost, Long categoryBudget) {
+        return CategoryCalendar.builder()
+                .categoryId(category.getId())
+                .categoryName(category.getName())
+                .categoryTotalCost(categoryTotalCost)
+                .startDate(startDate)
+                .endDate(endDate)
+                .categoryDailyCost(categoryDailyCost)
+                .categoryBudget(categoryBudget)
+                .build();
+    }
+
     public static List<GoalDailyInfo> toDailyList(List<DailyPlan> dailyPlans, Map<LocalDate, List<Expense>> expenses) {
         return dailyPlans.stream()
                 .map(dailyPlan -> {
@@ -54,6 +66,13 @@ public class HomeConverter {
                     return createInactiveGoalInfo(rates, dates.getFirst(), dates.getSecond());
                 })
                 .collect(Collectors.toList());
+    }
+
+    public static List<Long> toCategoryDailyCost(Map<LocalDate, List<Expense>> expenses, LocalDate startDate, LocalDate endDate) {
+        return startDate.datesUntil(endDate.plusDays(1))
+                .map(date -> {
+                    return ExpenseUtils.sumExpenseCosts(expenses.getOrDefault(date, Collections.emptyList()));
+                }).collect(Collectors.toList());
     }
 
     private static GoalDailyInfo createGoalDailyInfo(DailyPlan dailyPlan, List<Expense> expenses) {

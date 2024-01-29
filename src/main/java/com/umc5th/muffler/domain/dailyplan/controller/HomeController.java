@@ -43,3 +43,10 @@ public class HomeController {
         return Response.success(homeService.getDateGoalCalendar(authentication.getName(), goalId, yearMonth));
     }
 
+    @GetMapping("/goal/{goalId}/category/{categoryId}")
+    public Response<CategoryCalendar> getCategoryGoalCalendar(
+            @PathVariable Long goalId, @RequestParam @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth, @PathVariable Long categoryId, Authentication authentication
+    ) {
+        return Response.success(homeService.getCategoryCalendar(authentication.getName(), goalId, yearMonth, categoryId));
+    }
+}
