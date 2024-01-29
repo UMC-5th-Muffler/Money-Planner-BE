@@ -1,12 +1,7 @@
 package com.umc5th.muffler.domain.expense.service;
 
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
-import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsDto;
-import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
-import com.umc5th.muffler.domain.expense.dto.NewExpenseResponse;
-import com.umc5th.muffler.domain.expense.dto.DailyExpenseDetailsResponse;
-import com.umc5th.muffler.domain.expense.dto.ExpenseConverter;
-import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseDetailsResponse;
+import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
@@ -18,16 +13,20 @@ import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.ExpenseException;
 import com.umc5th.muffler.global.response.exception.MemberException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -94,5 +93,25 @@ public class ExpenseService {
         Expense expense = ExpenseConverter.toExpenseEntity(request, member, category);
         expense = expenseRepository.save(expense);
         return new NewExpenseResponse(expense.getId(), expense.getCost());
+    }
+
+    public SearchResponse searchExpense(String memberId, String searchKeyword, int page, int size, String sortDirection) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new ExpenseException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sort = Sort.by(direction,"date").and(Sort.by(Sort.Direction.DESC, "createdAt"));
+        PageRequest pageable = PageRequest.of(page, size, sort);
+        Slice<Expense> expenses = expenseRepository.findByMemberAndTitleContaining(member, searchKeyword, pageable);
+
+        Comparator<LocalDate> comparator = sortDirection.equalsIgnoreCase("DESC") ? Comparator.reverseOrder() : Comparator.naturalOrder();
+        Map<LocalDate, List<Expense>> expensesByDate = expenses.getContent().stream()
+                .collect(Collectors.groupingBy(
+                        Expense::getDate,
+                        () -> new TreeMap<>(comparator),
+                        Collectors.toList()
+                ));
+
+        List<DailyExpenseDetailsDto> dailyExpensesDtos = ExpenseConverter.toSearch(expensesByDate);
+        return ExpenseConverter.toSearchResponse(dailyExpensesDtos, expenses.hasNext());
     }
 }

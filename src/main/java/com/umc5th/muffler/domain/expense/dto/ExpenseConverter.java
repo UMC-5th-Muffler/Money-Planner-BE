@@ -98,4 +98,34 @@ public class ExpenseConverter {
                     .build();
         }).collect(Collectors.toList());
     }
+
+    public static List<DailyExpenseDetailsDto> toSearch(Map<LocalDate, List<Expense>> expensesByDate) {
+
+        return expensesByDate.entrySet().stream().map(entry -> {
+            LocalDate date = entry.getKey();
+            List<Expense> expenseList = entry.getValue();
+
+            List<ExpenseDetailDto> expenseDetailDtos = expenseList.stream()
+                    .map(expense -> ExpenseDetailDto.builder()
+                            .expenseId(expense.getId())
+                            .title(expense.getTitle())
+                            .cost(expense.getCost())
+                            .categoryIcon(expense.getCategory().getIcon())
+                            .build())
+                    .collect(Collectors.toList());
+
+            return DailyExpenseDetailsDto.builder()
+                    .date(date)
+                    .expenseDetailDtoList(expenseDetailDtos)
+                    .build();
+        }).collect(Collectors.toList());
+    }
+
+    public static SearchResponse toSearchResponse(List<DailyExpenseDetailsDto> expenses, boolean hasNext) {
+
+        return SearchResponse.builder()
+                .dailyExpenseList(expenses)
+                .hasNext(hasNext)
+                .build();
+    }
 }

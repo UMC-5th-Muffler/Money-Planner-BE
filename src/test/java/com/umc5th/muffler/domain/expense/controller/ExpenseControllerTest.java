@@ -13,8 +13,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.validation.ConstraintViolationException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
@@ -23,6 +25,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -126,4 +129,36 @@ class ExpenseControllerTest {
                 .andExpect(jsonPath("$.result.categoryList", notNullValue()));
     }
 
+    @Test
+    @WithMockUser
+    public void 소비_검색_성공() throws Exception {
+
+        ExpenseDetailDto dto = ExpenseDetailDto.builder()
+                .expenseId(1L)
+                .title("title")
+                .cost(1000L)
+                .categoryIcon("icon")
+                .build();
+
+        DailyExpenseDetailsDto expenseDetailsDto = DailyExpenseDetailsDto.builder()
+                .date(LocalDate.now())
+                .expenseDetailDtoList(List.of(dto))
+                .build();
+
+        SearchResponse mockResponse = SearchResponse.builder()
+                .dailyExpenseList(List.of(expenseDetailsDto))
+                .hasNext(false)
+                .build();
+
+        when(expenseService.searchExpense("user", "title", 0, 2, "ASC")).thenReturn(mockResponse);
+
+        mockMvc.perform(get("/expense/search")
+                        .param("title", "title")
+                        .param("page", "0")
+                        .param("size", "2")
+                        .param("sort", "ASC"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.dailyExpenseList", hasSize(1)))
+                .andExpect(jsonPath("$.result.hasNext", is(mockResponse.isHasNext())));
+    }
 }
