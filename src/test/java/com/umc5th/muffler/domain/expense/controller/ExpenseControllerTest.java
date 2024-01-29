@@ -3,6 +3,7 @@ package com.umc5th.muffler.domain.expense.controller;
 import com.umc5th.muffler.config.TestSecurityConfig;
 import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
+import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.fixture.ExpenseFixture;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import javax.validation.ConstraintViolationException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
@@ -41,43 +43,44 @@ class ExpenseControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
+    private ExpenseViewService expenseViewService;
+
+    @MockBean
     private ExpenseService expenseService;
 
-
     @Test
-    void 일일_소비내역_조회() throws Exception{
-
+    @WithMockUser
+    void 일일_소비내역_조회() throws Exception {
         LocalDate testDate = LocalDate.of(2024, 1, 1);
         List<Expense> expenses = ExpenseFixture.createList(10, testDate);
         List<ExpenseDetailDto> expenseDetailDtos = expenses.stream()
-                .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getCategory().getId(), expense.getCategory().getIcon()))
+                .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getMemo(), expense.getCategory().getId(), expense.getCategory().getIcon()))
                 .collect(Collectors.toList());
-        List<CategoryDetailDto> categoryList = List.of(CategoryDetailDto.builder().id(1L).name("icon").build());
         long expDailyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
 
-        DailyExpenseDetailsResponse mockResponse = DailyExpenseDetailsResponse.builder()
+        DailyExpenseResponse mockResponse = DailyExpenseResponse.builder()
                 .date(testDate)
                 .dailyTotalCost(expDailyTotalCost)
-                .expenseDetailDtoList(expenseDetailDtos)
-                .categoryList(categoryList)
+                .expenseDetailList(expenseDetailDtos)
                 .build();
 
-        when(expenseService.getDailyExpenseDetails(eq(testDate), any(Pageable.class))).thenReturn(mockResponse);
+        when(expenseViewService.getDailyExpenseDetails(any(), eq(testDate), any(Pageable.class)))
+                .thenReturn(mockResponse);
 
-        // then
         mockMvc.perform(get("/expense/daily")
                         .param("date", testDate.toString())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.result.expenseDetailDtoList", hasSize(10)))
+                .andExpect(jsonPath("$.result.expenseDetailList", hasSize(10)))
                 .andExpect(jsonPath("$.result.dailyTotalCost", is((int) expDailyTotalCost)))
                 .andExpect(jsonPath("$.result.date", is(testDate.toString())));
     }
 
-    @Test
-    public void 주간_소비내역_조회() throws Exception{
 
+    @Test
+    @WithMockUser
+    public void 주간_소비내역_조회() throws Exception{
         LocalDate todayDate = LocalDate.of(2024, 1, 1);
         LocalDate startDate = todayDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate endDate = todayDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
@@ -88,45 +91,113 @@ class ExpenseControllerTest {
         // 일별로 Expense 그룹화
         Map<LocalDate, List<Expense>> expensesByDate = expenses.stream().collect(Collectors.groupingBy(Expense::getDate));
 
-        List<DailyExpenseDetailsDto> dailyExpenseDetailsDtos = expensesByDate.entrySet().stream()
+        List<DailyExpensesDto> dailyExpensesDtos = expensesByDate.entrySet().stream()
                 .map(entry -> {
                     LocalDate dailyDate = entry.getKey();
                     List<Expense> dailyExpenses = entry.getValue();
                     List<ExpenseDetailDto> expenseDetailDtos = dailyExpenses.stream()
-                            .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getCategory().getId(), expense.getCategory().getIcon()))
+                            .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getMemo(), expense.getCategory().getId(), expense.getCategory().getIcon()))
                             .collect(Collectors.toList());
 
                     Long dailyTotalCost = dailyExpenses.stream().mapToLong(Expense::getCost).sum();
-                    return DailyExpenseDetailsDto.builder()
+                    return DailyExpensesDto.builder()
                             .date(dailyDate)
                             .dailyTotalCost(dailyTotalCost)
-                            .expenseDetailDtoList(expenseDetailDtos)
+                            .expenseDetailList(expenseDetailDtos)
                             .build();
                 })
                 .collect(Collectors.toList());
 
         List<CategoryDetailDto> categoryList = List.of(CategoryDetailDto.builder().id(1L).name("icon").build());
-        long expWeeklyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
 
-        WeeklyExpenseDetailsResponse mockResponse = WeeklyExpenseDetailsResponse.builder()
-                .startDate(startDate)
-                .endDate(endDate)
-                .weeklyTotalCost(expenses.stream().mapToLong(Expense::getCost).sum())
+        WeeklyExpenseResponse mockResponse = WeeklyExpenseResponse.builder()
                 .categoryList(categoryList)
-                .dailyExpenseList(dailyExpenseDetailsDtos)
+                .dailyExpenseList(dailyExpensesDtos)
                 .build();
 
-        when(expenseService.getWeeklyExpenseDetails(eq(todayDate), any(Pageable.class))).thenReturn(mockResponse);
+        when(expenseViewService.getWeeklyExpenseDetails(any(), any(), eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(mockResponse);
 
         mockMvc.perform(get("/expense/weekly")
-                        .param("date", todayDate.toString()))
+                        .param("goalId", "1")
+                        .param("startDate", startDate.toString())
+                        .param("endDate", endDate.toString()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.startDate", is(startDate.toString())))
-                .andExpect(jsonPath("$.result.endDate", is(endDate.toString())))
-                .andExpect(jsonPath("$.result.weeklyTotalCost", is((int) expWeeklyTotalCost)))
                 .andExpect(jsonPath("$.result.dailyExpenseList", hasSize(2))) // 이틀에 대한 데이터가 있는지 확인
-                .andExpect(jsonPath("$.result.dailyExpenseList[0].expenseDetailDtoList", hasSize(10))) // 첫 번째 날에 대한 지출이 10개 있는지 확인
+                .andExpect(jsonPath("$.result.dailyExpenseList[0].expenseDetailList", hasSize(10))) // 첫 번째 날에 대한 지출이 10개 있는지 확인
                 .andExpect(jsonPath("$.result.categoryList", notNullValue()));
+    }
+
+    @Test
+    @WithMockUser
+    public void 홈_소비내역_조회() throws Exception {
+        YearMonth yearMonth = YearMonth.of(2024, 1);
+        Long goalId = 1L;
+        String order = "DESC";
+        int page = 0;
+        int size = 20;
+
+        List<Expense> expenses = ExpenseFixture.createList(10, LocalDate.of(2024,1,1));
+        List<Expense> expenses_e = ExpenseFixture.createList(10, LocalDate.of(2024,1,2));
+        expenses.addAll(expenses_e); // 이틀 간의 지출 내역 데이터
+
+        // 일별로 Expense 그룹화
+        Map<LocalDate, List<Expense>> expensesByDate = expenses.stream().collect(Collectors.groupingBy(Expense::getDate));
+
+        List<DailyExpensesDto> dailyExpensesDtos = expensesByDate.entrySet().stream()
+                .map(entry -> {
+                    LocalDate dailyDate = entry.getKey();
+                    List<Expense> dailyExpenses = entry.getValue();
+                    List<ExpenseDetailDto> expenseDetailDtos = dailyExpenses.stream()
+                            .map(expense -> ExpenseDetailDto.builder()
+                                    .expenseId(expense.getId())
+                                    .cost(expense.getCost())
+                                    .categoryIcon(expense.getCategory().getIcon())
+                                    .title(expense.getTitle())
+                                    .build())
+                            .collect(Collectors.toList());
+
+                    Long dailyTotalCost = dailyExpenses.stream().mapToLong(Expense::getCost).sum();
+                    return DailyExpensesDto.builder()
+                            .date(dailyDate)
+                            .dailyTotalCost(dailyTotalCost)
+                            .expenseDetailList(expenseDetailDtos)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        MonthlyExpenseResponse mockResponse = MonthlyExpenseResponse.builder()
+                .dailyExpenseList(dailyExpensesDtos)
+                .build();
+
+        when(expenseViewService.getMonthlyExpenses(any(), eq(yearMonth), eq(goalId), eq(order), any(Pageable.class)))
+                .thenReturn(mockResponse);
+
+        mockMvc.perform(get("/expense/monthly")
+                        .param("yearMonth", String.valueOf(yearMonth))
+                        .param("order", order)
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                        .param("goalId", String.valueOf(goalId)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result", notNullValue()))
+                .andExpect(jsonPath("$.result.dailyExpenseList", hasSize(2))) // 이틀에 대한 데이터가 있는지 확인
+                .andExpect(jsonPath("$.result.dailyExpenseList[0].expenseDetailList", hasSize(10))); // 첫 번째 날에 대한 지출이 10개 있는지 확인
+    }
+
+    @Test
+    @WithMockUser
+    public void 소비_하나_조회() throws Exception {
+        Expense mockExpense = ExpenseFixture.create(any());
+        Long expenseId = mockExpense.getId();
+        ExpenseDto mockExpenseDto = ExpenseConverter.toExpenseDto(mockExpense);
+
+        when(expenseViewService.getExpense(any(), expenseId)).thenReturn(mockExpenseDto);
+
+        mockMvc.perform(get("/expense/{id}", expenseId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.expenseId").value(expenseId))
+                .andExpect(jsonPath("$.result.title").value(mockExpense.getTitle()))
+                .andExpect(jsonPath("$.result.categoryName").value(mockExpense.getCategory().getName()));
     }
 
     @Test
@@ -140,9 +211,9 @@ class ExpenseControllerTest {
                 .categoryIcon("icon")
                 .build();
 
-        DailyExpenseDetailsDto expenseDetailsDto = DailyExpenseDetailsDto.builder()
+        DailyExpensesDto expenseDetailsDto = DailyExpensesDto.builder()
                 .date(LocalDate.now())
-                .expenseDetailDtoList(List.of(dto))
+                .expenseDetailList(List.of(dto))
                 .build();
 
         SearchResponse mockResponse = SearchResponse.builder()

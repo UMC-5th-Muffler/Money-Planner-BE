@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SearchResponse {
+public class MonthlyExpenseResponse {
 
     private List<DailyExpensesDto> dailyExpenseList;
     private boolean hasNext;

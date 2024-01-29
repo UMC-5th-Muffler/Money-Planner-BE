@@ -10,12 +10,14 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExpenseDetailDto {
 
     private Long expenseId;
     private String title;
     private Long cost;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String memo;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long categoryId;
     private String categoryIcon;
 }

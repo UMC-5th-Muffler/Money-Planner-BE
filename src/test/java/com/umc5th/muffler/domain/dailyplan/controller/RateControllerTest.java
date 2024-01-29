@@ -52,7 +52,7 @@ class RateControllerTest {
                 .memo("memo")
                 .build();
 
-        when(rateService.getRateInfo(date)).thenReturn(mockResponse);
+        when(rateService.getRateInfo(any(), eq(date))).thenReturn(mockResponse);
 
         mockMvc.perform(get("/rate")
                         .param("date", date.toString()))
@@ -70,6 +70,6 @@ class RateControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(mockRequest)))
                 .andExpect(status().isOk());
-        verify(rateService).updateRate(eq(date), any(RateUpdateRequest.class));
+        verify(rateService).updateRate(any(), eq(date), any(RateUpdateRequest.class));
     }
 }
