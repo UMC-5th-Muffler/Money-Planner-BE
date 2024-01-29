@@ -1,6 +1,7 @@
 package com.umc5th.muffler.domain.goal.repository;
 
 import com.umc5th.muffler.entity.Goal;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +22,6 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             "AND goal.member.id = :memberId")
     Optional<Goal> findByDateBetweenJoin(@Param("date")LocalDate date, @Param("memberId")String memberId);
 
+    @Query("SELECT g FROM Goal g LEFT JOIN FETCH g.categoryGoals cg LEFT JOIN FETCH cg.category WHERE g.id = :id")
+    Optional<Goal> findByIdWithJoin(@Param("id") Long id);
 }

@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
@@ -23,4 +24,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     Long calculateTotalCostByMemberAndDateBetween(@Param("member")Member member, @Param("startDate")LocalDate startDate, @Param("endDate")LocalDate endDate);
 
     Slice<Expense> findAllByMemberAndDateBetween(Member member, LocalDate startDate, LocalDate endDate, Pageable pageable);
+
+    @Query("SELECT e FROM Expense e JOIN FETCH e.category WHERE e.member = :member AND e.date BETWEEN :startDate AND :endDate")
+    List<Expense> findAllByMemberAndDateBetween(Member member, LocalDate startDate, LocalDate endDate);
 }
