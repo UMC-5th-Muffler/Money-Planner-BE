@@ -191,7 +191,7 @@ class ExpenseControllerTest {
         Long expenseId = mockExpense.getId();
         ExpenseDto mockExpenseDto = ExpenseConverter.toExpenseDto(mockExpense);
 
-        when(expenseViewService.getExpense(expenseId)).thenReturn(mockExpenseDto);
+        when(expenseViewService.getExpense(any(), expenseId)).thenReturn(mockExpenseDto);
 
         mockMvc.perform(get("/expense/{id}", expenseId))
                 .andExpect(status().isOk())

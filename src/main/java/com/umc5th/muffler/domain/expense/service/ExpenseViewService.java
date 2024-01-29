@@ -32,7 +32,9 @@ public class ExpenseViewService {
     private final MemberRepository memberRepository;
     private final GoalRepository goalRepository;
 
-    public ExpenseDto getExpense(Long expenseId){
+    public ExpenseDto getExpense(String memberId, Long expenseId){
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
         Expense expense = expenseRepository.findById(expenseId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.EXPENSE_NOT_FOUND));
 

@@ -246,11 +246,14 @@ class ExpenseViewServiceTest {
 
     @Test
     public void 소비_하나_조회_성공(){
+        String memberId = "1";
         Expense mockExpense = ExpenseFixture.create(any());
+        Member mockMember = MemberFixture.create();
         Long expenseId = mockExpense.getId();
 
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(expenseRepository.findById(expenseId)).thenReturn(Optional.of(mockExpense));
-        ExpenseDto result = expenseViewService.getExpense(expenseId);
+        ExpenseDto result = expenseViewService.getExpense(any(), expenseId);
 
         assertNotNull(result);
         assertEquals(expenseId, result.getExpenseId());
@@ -263,11 +266,15 @@ class ExpenseViewServiceTest {
     }
 
     @Test
-    public void 소비_하나_조회_id가_유효하지_않는_경우(){
+    public void 소비_하나_조회_expenseId가_유효하지_않는_경우(){
+        String memberId = "1";
+        Member mockMember = MemberFixture.create();
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(expenseRepository.findById(any())).thenReturn(Optional.empty());
 
         assertThrows(ExpenseException.class, () -> {
-            expenseViewService.getExpense(any());
+            expenseViewService.getExpense(memberId, any());
         }, ErrorCode.EXPENSE_NOT_FOUND.getMessage());
 
         verify(expenseRepository).findById(any());
