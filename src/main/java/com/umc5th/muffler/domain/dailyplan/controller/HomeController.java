@@ -22,6 +22,11 @@ public class HomeController {
 
     private final HomeService homeService;
 
+    @GetMapping("/now")
+    public Response<WholeCalendar> getNowCalendar(Authentication authentication) {
+        return Response.success(homeService.getNowCalendar(authentication.getName()));
+    }
+
     @GetMapping("/basic")
     public Response<WholeCalendar> getBasicCalendar(@RequestParam @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth, Authentication authentication) {
         return Response.success(homeService.getBasicCalendar(authentication.getName(), yearMonth));

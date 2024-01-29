@@ -50,6 +50,18 @@ public class HomeService {
     private final CategoryRepository categoryRepository;
 
     @Transactional(readOnly = true)
+    public WholeCalendar getNowCalendar(String memberId) {
+        LocalDate date = dateTimeProvider.nowDate();
+        Goal activeGoal = goalRepository.findByDateBetween(date, memberId).orElse(null);
+
+        if (activeGoal == null) {
+            return getBasicCalendar(memberId, YearMonth.from(date));
+        }
+
+        return getGoalCalendar(memberId, activeGoal, YearMonth.from(date));
+    }
+
+    @Transactional(readOnly = true)
     public WholeCalendar getBasicCalendar(String memberId, YearMonth yearMonth) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
