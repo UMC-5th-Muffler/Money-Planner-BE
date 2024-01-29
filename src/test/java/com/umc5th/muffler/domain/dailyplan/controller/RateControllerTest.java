@@ -1,24 +1,5 @@
 package com.umc5th.muffler.domain.dailyplan.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.umc5th.muffler.config.TestSecurityConfig;
-import com.umc5th.muffler.domain.dailyplan.dto.RateInfoResponse;
-import com.umc5th.muffler.domain.dailyplan.dto.RateUpdateRequest;
-import com.umc5th.muffler.domain.dailyplan.service.RateService;
-import com.umc5th.muffler.entity.constant.Rate;
-import com.umc5th.muffler.fixture.RateUpdateRequestFixture;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.LocalDate;
-
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -28,6 +9,24 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.umc5th.muffler.config.TestSecurityConfig;
+import com.umc5th.muffler.domain.dailyplan.dto.RateInfoResponse;
+import com.umc5th.muffler.domain.dailyplan.dto.RateUpdateRequest;
+import com.umc5th.muffler.domain.dailyplan.service.RateService;
+import com.umc5th.muffler.entity.constant.Rate;
+import com.umc5th.muffler.fixture.RateUpdateRequestFixture;
+import java.time.LocalDate;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -55,7 +54,7 @@ class RateControllerTest {
 
         when(rateService.getRateInfo(date)).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/dailyplan/rate")
+        mockMvc.perform(get("/rate")
                         .param("date", date.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.rate", is(mockResponse.getRate().toString())));
@@ -67,7 +66,7 @@ class RateControllerTest {
         LocalDate date = LocalDate.of(2024, 1, 1);
         RateUpdateRequest mockRequest = RateUpdateRequestFixture.create();
 
-        mockMvc.perform(patch("/dailyplan/rate/{date}", date.toString())
+        mockMvc.perform(patch("/rate/{date}", date.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(mockRequest)))
                 .andExpect(status().isOk());

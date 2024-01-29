@@ -13,18 +13,18 @@ import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/dailyplan")
+@RequestMapping("/rate")
 public class RateController {
 
     private final RateService rateService;
 
-    @GetMapping("/rate")
+    @GetMapping
     public Response<RateInfoResponse> getRateInfo(@RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
         RateInfoResponse response = rateService.getRateInfo(date);
         return Response.success(response);
     }
 
-    @PatchMapping("/rate/{date}")
+    @PatchMapping("/{date}")
     public Response<Void> updateRate(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, @RequestBody @Valid RateUpdateRequest request){
         rateService.updateRate(date, request);
         return Response.success();
