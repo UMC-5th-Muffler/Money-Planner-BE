@@ -18,4 +18,9 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findAllByMember(Member member);
     @Query("SELECT c FROM Category c WHERE c.status = 'ACTIVE' AND c.member.id = :memberId ORDER BY c.priority ASC")
     List<Category> findActiveCategoriesAsc(@Param(("memberId")) String memberId);
+
+    @Query("SELECT c FROM Category c WHERE c.member IS NULL")
+    List<Category> findAllWithNoMember(); //공통 카테고리 찾기
+
+    Long countByMember(Member member);
 }

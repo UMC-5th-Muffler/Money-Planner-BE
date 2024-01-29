@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.expense.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,13 +11,11 @@ import java.util.List;
 
 @Builder
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
-public class DailyExpenseDetailsResponse {
-
+@NoArgsConstructor
+public class DailyExpensesDto {
     private LocalDate date;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long dailyTotalCost;
-    private List<CategoryDetailDto> categoryList;
-    private List<ExpenseDetailDto> expenseDetailDtoList;
-    private boolean hasNext;
+    private List<ExpenseDetailDto> expenseDetailList;
 }

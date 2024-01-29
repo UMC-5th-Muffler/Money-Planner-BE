@@ -28,7 +28,8 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-                .antMatchers("/member/refresh-token");
+                .antMatchers("/member/refresh-token")
+                .antMatchers("/swagger-ui/**", "/v3/api-docs/**");
     }
 
     @Bean

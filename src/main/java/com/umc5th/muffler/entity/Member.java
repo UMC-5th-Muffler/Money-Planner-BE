@@ -6,6 +6,13 @@ import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import com.umc5th.muffler.entity.constant.Role;
 import com.umc5th.muffler.entity.constant.SocialType;
 import com.umc5th.muffler.entity.constant.Status;
+import lombok.*;
+import org.springframework.data.domain.Persistable;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -22,10 +29,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Persistable;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -33,6 +36,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Builder
 @Entity
 @Getter
+@Table(name = "members")
 public class Member extends BaseTimeEntity implements Persistable<String>, UserDetails {
 
     @Id

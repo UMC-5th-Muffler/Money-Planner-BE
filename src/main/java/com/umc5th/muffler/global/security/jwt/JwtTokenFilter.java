@@ -1,21 +1,22 @@
 package com.umc5th.muffler.global.security.jwt;
 
-import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_TOKEN;
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
-
 import com.umc5th.muffler.global.response.exception.CommonException;
 import com.umc5th.muffler.global.util.ResponseUtils;
-import java.io.IOException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_TOKEN;
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
 @Slf4j
 @RequiredArgsConstructor
