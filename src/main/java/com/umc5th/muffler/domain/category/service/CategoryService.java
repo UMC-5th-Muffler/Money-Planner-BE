@@ -38,13 +38,11 @@ public class CategoryService {
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
         Optional<Category> duplicatedCategory = categoryRepository.findCategoryWithNameAndMemberId(
                 request.getCategoryName(), memberId);
-        Category newCategory;
-
         if (duplicatedCategory.isPresent()) {
             throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
         }
-        newCategory = CategoryConverter.toEntity(request);
-        member.addCategory(newCategory);
+        Category newCategory = CategoryConverter.toEntity(request);
+        newCategory.setMember(member);
         newCategory = categoryRepository.save(newCategory);
         return new NewCategoryResponse(newCategory.getId());
     }
@@ -99,7 +97,7 @@ public class CategoryService {
     public GetCategoryListResponse getActiveCategories(String memberId) throws CategoryException {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
-        List<CategoryDTO> categories = categoryRepository.findAllByMember(member)
+        List<CategoryDTO> categories = categoryRepository.findActiveCategoriesAsc(member.getId())
                 .stream().map(category -> CategoryConverter.toCategoryDTO(category))
                 .collect(Collectors.toList());
         return new GetCategoryListResponse(categories);
