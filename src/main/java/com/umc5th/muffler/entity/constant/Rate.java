@@ -1,5 +1,5 @@
 package com.umc5th.muffler.entity.constant;
 
-public enum Level {
+public enum Rate {
     HIGH, MEDIUM, LOW
 }

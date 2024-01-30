@@ -5,16 +5,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DailyExpenseDetailsDto {
+public class MonthlyExpenseResponse {
 
-    private LocalDate date;
-    private Long dailyTotalCost;
-    private List<ExpenseDetailDto> expenseDetailDtoList;
+    private List<DailyExpensesDto> dailyExpenseList;
+    private boolean hasNext;
 }
