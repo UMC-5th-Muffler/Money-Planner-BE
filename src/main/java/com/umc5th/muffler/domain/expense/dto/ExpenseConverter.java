@@ -66,7 +66,7 @@ public class ExpenseConverter {
 
 
     public static List<DailyExpensesDto> toDailyExpensesList(Map<LocalDate, List<Expense>> expensesByDate, Map<LocalDate, Long> dailyTotalCostMap) {
-        return expensesByDate.entrySet().stream().map(entry -> {
+        List<DailyExpensesDto> dailyExpensesList = expensesByDate.entrySet().stream().map(entry -> {
             LocalDate dailyDate = entry.getKey();
             List<Expense> dailyExpenseList = entry.getValue();
             Long dailyTotalCost = dailyTotalCostMap.getOrDefault(dailyDate, 0L);
@@ -79,6 +79,9 @@ public class ExpenseConverter {
                     .expenseDetailList(expenseDetails)
                     .build();
         }).collect(Collectors.toList());
+
+        dailyExpensesList.sort(Comparator.comparing(DailyExpensesDto::getDate).reversed());
+        return dailyExpensesList;
     }
 
     public static List<DailyExpensesDto> toDailyExpensesListWithOrderAndTotalCost(Map<LocalDate, List<Expense>> expensesByDate, Map<LocalDate, Long> dailyTotalCostMap, String order) {
