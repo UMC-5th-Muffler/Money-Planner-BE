@@ -40,6 +40,12 @@ public class GoalController {
         return Response.success();
     }
 
+    @GetMapping("/now")
+    public Response<GoalInfo> getNowGoal(Authentication authentication) {
+        GoalInfo response = goalService.getGoalNow(authentication.getName());
+        return Response.success(response);
+    }
+
     @GetMapping("/preview")
     public Response<GoalPreviewResponse> getGoalPreview(Authentication authentication) {
         GoalPreviewResponse response = goalService.getGoalPreview(authentication.getName());

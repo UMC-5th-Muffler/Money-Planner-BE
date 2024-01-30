@@ -17,11 +17,21 @@ public class GoalConverter {
         );
     }
 
-    public static GoalPreviewResponse getGoalPreviousResponse(Map<Goal, Long> pastInfos, Goal progressGoal, Long totalCost, List<Goal> futureGoals) {
+    public static GoalInfo getNowGoalResponse(Goal goal, Long totalCost) {
+        return GoalInfo.builder()
+                .title(goal.getTitle())
+                .icon(goal.getIcon())
+                .totalBudget(goal.getTotalBudget())
+                .totalCost(totalCost)
+                .endDate(goal.getEndDate())
+                .build();
+    }
 
-        List<GoalPreviewInfo> past = pastInfos.entrySet().stream()
+    public static GoalPreviewResponse getGoalPreviewResponse(Map<Goal, Long> pastInfos, List<Goal> futureGoals) {
+
+        List<GoalInfo> past = pastInfos.entrySet().stream()
                 .sorted(Comparator.comparing((Map.Entry<Goal, Long> entry) -> entry.getKey().getStartDate()).reversed())
-                .map(entry -> GoalPreviewInfo.builder()
+                .map(entry -> GoalInfo.builder()
                         .title(entry.getKey().getTitle())
                         .icon(entry.getKey().getIcon())
                         .totalBudget(entry.getKey().getTotalBudget())
@@ -29,20 +39,8 @@ public class GoalConverter {
                         .build())
                 .collect(Collectors.toList());
 
-        GoalPreviewInfo progress = null;
-
-        if (progressGoal != null) {
-            progress = GoalPreviewInfo.builder()
-                    .title(progressGoal.getTitle())
-                    .icon(progressGoal.getIcon())
-                    .totalBudget(progressGoal.getTotalBudget())
-                    .totalCost(totalCost)
-                    .endDate(progressGoal.getEndDate())
-                    .build();
-        }
-
-        List<GoalPreviewInfo> future = futureGoals.stream()
-                .map(goal -> GoalPreviewInfo.builder()
+        List<GoalInfo> future = futureGoals.stream()
+                .map(goal -> GoalInfo.builder()
                         .title(goal.getTitle())
                         .icon(goal.getIcon())
                         .totalBudget(goal.getTotalBudget())
@@ -50,7 +48,6 @@ public class GoalConverter {
                 .collect(Collectors.toList());
 
         return GoalPreviewResponse.builder()
-                .progressGoal(progress)
                 .futureGoal(future)
                 .endedGoal(past)
                 .build();

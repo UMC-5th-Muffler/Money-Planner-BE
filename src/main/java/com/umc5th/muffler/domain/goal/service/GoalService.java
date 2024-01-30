@@ -6,6 +6,7 @@ import static com.umc5th.muffler.global.response.code.ErrorCode.MEMBER_NOT_FOUND
 
 import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
 import com.umc5th.muffler.domain.goal.dto.GoalConverter;
+import com.umc5th.muffler.domain.goal.dto.GoalInfo;
 import com.umc5th.muffler.domain.goal.dto.GoalListResponse;
 import com.umc5th.muffler.domain.goal.dto.GoalPreviewResponse;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
@@ -30,7 +31,6 @@ public class GoalService {
 
     private final MemberRepository memberRepository;
     private final GoalRepository goalRepository;
-    private final DailyPlanRepository dailyPlanRepository;
 
     public List<Goal> getGoals(String memberId) {
         Member member = memberRepository.findById(memberId)
@@ -53,6 +53,21 @@ public class GoalService {
         member.removeGoal(goal);
     }
 
+    @Transactional(readOnly = true)
+    public GoalInfo getGoalNow(String memberId) {
+
+        Optional<Goal> goal = goalRepository.findByDateBetweenAndDailyPlans(LocalDate.now(), memberId);
+        if (!goal.isPresent()) {
+            return new GoalInfo();
+        }
+
+        Goal progress = goal.get();
+        Long totalCost = progress.getDailyPlans().stream().mapToLong(DailyPlan::getTotalCost).sum();
+
+        return GoalConverter.getNowGoalResponse(progress, totalCost);
+    }
+
+    @Transactional(readOnly = true)
     public GoalPreviewResponse getGoalPreview(String memberId) {
 
         Optional<List<Goal>> goals = goalRepository.findByMemberId(memberId);
@@ -66,21 +81,16 @@ public class GoalService {
         LocalDate today = LocalDate.now();
         Map<Goal, Long> goalAndTotalCost = new HashMap<>();
         List<Goal> futureGoals = new ArrayList<>();
-        Goal progressGoal = null;
-        Long totalCost = null;
 
         for (Goal goal : goalList) {
             if (goal.getEndDate().isBefore(today)) {
                 calculateGoalCost(goalAndTotalCost, goal);
-            } else if (!today.isBefore(goal.getStartDate()) && !today.isAfter(goal.getEndDate())) {
-                progressGoal = goal;
-                totalCost = goal.getDailyPlans().stream().mapToLong(DailyPlan::getTotalCost).sum();
-            } else {
+            }  else if (goal.getStartDate().isAfter(today)){
                 futureGoals.add(goal);
             }
         }
 
-        return GoalConverter.getGoalPreviousResponse(goalAndTotalCost, progressGoal, totalCost, futureGoals);
+        return GoalConverter.getGoalPreviewResponse(goalAndTotalCost, futureGoals);
     }
 
     private void calculateGoalCost(Map<Goal, Long> goalAndTotalCost, Goal goal) {

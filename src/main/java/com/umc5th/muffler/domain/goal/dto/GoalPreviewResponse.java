@@ -13,7 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 public class GoalPreviewResponse {
 
-    private GoalPreviewInfo progressGoal;
-    private List<GoalPreviewInfo> futureGoal;
-    private List<GoalPreviewInfo> endedGoal;
+    private List<GoalInfo> futureGoal;
+    private List<GoalInfo> endedGoal;
 }
