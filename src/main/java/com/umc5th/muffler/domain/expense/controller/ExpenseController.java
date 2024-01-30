@@ -77,7 +77,7 @@ public class ExpenseController {
             @RequestParam(name = "categoryId", required = false) Long categoryId)
     {
         Sort.Direction direction = order.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = Sort.by(direction, "date").and(Sort.by(Sort.Direction.DESC, "createdAt"));
+        Sort sort = Sort.by(direction, "date");
         Pageable pageable = PageRequest.of(page, size, sort);
 
         MonthlyExpenseResponse response;

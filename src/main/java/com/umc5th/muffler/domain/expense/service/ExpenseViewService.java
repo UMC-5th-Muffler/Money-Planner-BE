@@ -69,10 +69,7 @@ public class ExpenseViewService {
         LocalDate expenseStartDate = goal.getStartDate().isBefore(weeklyStartDate) ? weeklyStartDate : goal.getStartDate();
         LocalDate expenseEndDate = goal.getEndDate().isAfter(weeklyEndDate) ? weeklyEndDate : goal.getEndDate();
 
-        Specification<Expense> spec = Specification
-                .where(ExpenseSpecification.hasMember(member))
-                .and(ExpenseSpecification.isBetweenDates(expenseStartDate, expenseEndDate));
-        Slice<Expense> expenseList = expenseRepository.findAll(spec, pageable);
+        Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDateAndCategoryId(member.getId(), expenseStartDate, expenseEndDate, null, pageable);
         List<Category> categoryList = member.getCategories();
 
         // 일별로 Expense 그룹화
@@ -108,10 +105,7 @@ public class ExpenseViewService {
         List<DailyPlan> dailyPlans = Optional.ofNullable(goal.getDailyPlans())
                 .orElseThrow(() -> new GoalException(ErrorCode.DAILYPLAN_NOT_FOUND));
 
-        Specification<Expense> spec = Specification
-                .where(ExpenseSpecification.hasMember(member))
-                .and(ExpenseSpecification.isBetweenDates(startDate, endDate));
-        Slice<Expense> expenseList = expenseRepository.findAll(spec, pageable);
+        Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDateAndCategoryId(member.getId(), startDate, endDate, null, pageable);
 
         // 일별로 Expense 그룹화
         Map<LocalDate, List<Expense>> expensesByDate = expenseList.getContent().stream()
@@ -142,11 +136,7 @@ public class ExpenseViewService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Specification<Expense> spec = Specification
-                .where(ExpenseSpecification.hasMember(member))
-                .and(ExpenseSpecification.isBetweenDates(startDate, endDate))
-                .and(ExpenseSpecification.hasCategory(categoryId));
-        Slice<Expense> expenseList = expenseRepository.findAll(spec, pageable);
+        Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDateAndCategoryId(member.getId(), startDate, endDate, categoryId, pageable);
 
         // 일별로 Expense 그룹화
         Map<LocalDate, List<Expense>> expensesByDate = expenseList.getContent().stream()

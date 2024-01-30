@@ -2,6 +2,7 @@ package com.umc5th.muffler.domain.expense.dto;
 
 import com.umc5th.muffler.entity.*;
 import com.umc5th.muffler.entity.constant.Status;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Slice;
 
 import java.time.LocalDate;
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 public class ExpenseConverter {
 
     public static Expense toExpenseEntity(NewExpenseRequest request, Member member, Category category) {
@@ -80,13 +82,7 @@ public class ExpenseConverter {
     }
 
     public static List<DailyExpensesDto> toDailyExpensesListWithOrderAndTotalCost(Map<LocalDate, List<Expense>> expensesByDate, Map<LocalDate, Long> dailyTotalCostMap, String order) {
-        Stream<Map.Entry<LocalDate, List<Expense>>> stream = expensesByDate.entrySet().stream();
-
-        if ("ASC".equalsIgnoreCase(order)) {
-            stream = stream.sorted(Map.Entry.comparingByKey());
-        }
-
-        return stream.map(entry -> {
+        List<DailyExpensesDto> dailyExpensesList = expensesByDate.entrySet().stream().map(entry -> {
             LocalDate dailyDate = entry.getKey();
             List<Expense> dailyExpenseList = entry.getValue();
             Long dailyTotalCost = dailyTotalCostMap.getOrDefault(dailyDate, 0L);
@@ -99,6 +95,15 @@ public class ExpenseConverter {
                     .expenseDetailList(expenseDetails)
                     .build();
         }).collect(Collectors.toList());
+
+        if ("ASC".equalsIgnoreCase(order)) {
+            dailyExpensesList.sort(Comparator.comparing(DailyExpensesDto::getDate));
+        } else if ("DESC".equalsIgnoreCase(order)) {
+            dailyExpensesList.sort(Comparator.comparing(DailyExpensesDto::getDate).reversed());
+        }
+
+
+        return dailyExpensesList;
     }
 
     public static List<DailyExpensesDto> toDailyExpensesListWithOrderAndTotalCost(Map<LocalDate, List<Expense>> expensesByDate, String order) {
@@ -106,6 +111,9 @@ public class ExpenseConverter {
 
         if ("ASC".equalsIgnoreCase(order)) {
             stream = stream.sorted(Map.Entry.comparingByKey());
+        }
+        else if ("DESC".equalsIgnoreCase(order)) {
+            stream = stream.sorted(Map.Entry.<LocalDate, List<Expense>>comparingByKey().reversed());
         }
 
         return stream.map(entry -> {
