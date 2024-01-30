@@ -19,6 +19,11 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    @GetMapping("/connect")
+    public Response<Void> connectTest() {
+        return Response.success();
+    }
+
     @GetMapping("/login/kakao")
     public RedirectView kakaoLogin() {
         return new RedirectView("/oauth2/authorization/kakao");
