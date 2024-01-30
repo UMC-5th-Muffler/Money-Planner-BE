@@ -11,7 +11,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.umc5th.muffler.domain.goal.dto.GoalListResponse;
+import com.umc5th.muffler.domain.goal.dto.GoalInfo;
 import com.umc5th.muffler.domain.goal.dto.GoalPreviewResponse;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
@@ -126,12 +126,27 @@ class GoalServiceTest {
     }
 
     @Test
-    void 목표_탭_조회_성공() {
+    void 목표_탭_진행중_조회_성공() {
+        String memberId = "1";
+        LocalDate today = LocalDate.now();
+        Goal mockGoal = GoalFixture.create(LocalDate.now(), LocalDate.now().plusDays(1));
+
+        when(goalRepository.findByDateBetweenAndDailyPlans(today, memberId)).thenReturn(Optional.of(mockGoal));
+
+        GoalInfo response = goalService.getGoalNow(memberId);
+
+        assertNotNull(response);
+        assertEquals(mockGoal.getTitle(), response.getTitle());
+
+        verify(goalRepository).findByDateBetweenAndDailyPlans(today, memberId);
+    }
+
+    @Test
+    void 목표_탭_전체조회_성공() {
         String memberId = "1";
         Goal mockEndedGoal = GoalFixture.create();
-        Goal mockProgressGoal = GoalFixture.create(LocalDate.now(), LocalDate.now().plusDays(1));
         Goal mockFutureGoal = GoalFixture.create(LocalDate.of(2025, 2, 1), LocalDate.of(2025, 2, 2));
-        List<Goal> goalList = Arrays.asList(mockEndedGoal, mockProgressGoal, mockFutureGoal);
+        List<Goal> goalList = Arrays.asList(mockEndedGoal, mockFutureGoal);
 
         when(goalRepository.findByMemberId(memberId)).thenReturn(Optional.of(goalList));
 
@@ -139,7 +154,6 @@ class GoalServiceTest {
 
         assertNotNull(response);
         assertEquals(mockEndedGoal.getTitle(), response.getEndedGoal().get(0).getTitle());
-        assertEquals(mockProgressGoal.getTitle(), response.getProgressGoal().getTitle());
         assertEquals(mockFutureGoal.getTitle(), response.getFutureGoal().get(0).getTitle());
 
         verify(goalRepository).findByMemberId(memberId);
