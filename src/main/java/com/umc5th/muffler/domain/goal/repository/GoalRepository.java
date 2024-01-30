@@ -8,10 +8,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface GoalRepository extends JpaRepository<Goal, Long> {
+public interface GoalRepository extends JpaRepository<Goal, Long>, GoalRepositoryCustom {
 
     @Query("SELECT DISTINCT g FROM Goal g JOIN FETCH g.dailyPlans WHERE g.member.id = :memberId")
-    Optional<List<Goal>> findByMemberId(String memberId);
+    Optional<List<Goal>> findByMemberIdAndDailyPlans(String memberId);
 
     @Query("SELECT goal from Goal goal where :date BETWEEN goal.startDate and goal.endDate AND goal.member.id = :memberId")
     Optional<Goal> findByDateBetween(@Param("date")LocalDate date, @Param("memberId")String memberId);

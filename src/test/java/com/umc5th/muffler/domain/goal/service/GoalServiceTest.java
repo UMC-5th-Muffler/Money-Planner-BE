@@ -148,7 +148,7 @@ class GoalServiceTest {
         Goal mockFutureGoal = GoalFixture.create(LocalDate.of(2025, 2, 1), LocalDate.of(2025, 2, 2));
         List<Goal> goalList = Arrays.asList(mockEndedGoal, mockFutureGoal);
 
-        when(goalRepository.findByMemberId(memberId)).thenReturn(Optional.of(goalList));
+        when(goalRepository.findByMemberIdAndDailyPlans(memberId)).thenReturn(Optional.of(goalList));
 
         GoalPreviewResponse response = goalService.getGoalPreview(memberId);
 
@@ -156,7 +156,7 @@ class GoalServiceTest {
         assertEquals(mockEndedGoal.getTitle(), response.getEndedGoal().get(0).getTitle());
         assertEquals(mockFutureGoal.getTitle(), response.getFutureGoal().get(0).getTitle());
 
-        verify(goalRepository).findByMemberId(memberId);
+        verify(goalRepository).findByMemberIdAndDailyPlans(memberId);
     }
 
     @Test

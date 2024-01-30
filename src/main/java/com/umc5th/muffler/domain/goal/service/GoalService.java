@@ -70,7 +70,7 @@ public class GoalService {
     @Transactional(readOnly = true)
     public GoalPreviewResponse getGoalPreview(String memberId) {
 
-        Optional<List<Goal>> goals = goalRepository.findByMemberId(memberId);
+        Optional<List<Goal>> goals = goalRepository.findByMemberIdAndDailyPlans(memberId);
         if (!goals.isPresent()) {
             return new GoalPreviewResponse();
         }
