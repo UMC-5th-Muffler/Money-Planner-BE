@@ -21,6 +21,7 @@ import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.fixture.GoalCreateRequestFixture;
 import com.umc5th.muffler.fixture.GoalFixture;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -85,25 +86,39 @@ class GoalControllerTest {
 
     @Test
     @WithMockUser
-    void 목표_탭_조회() throws Exception {
+    void 목표_탭_진행중목표_조회() throws Exception {
+        GoalInfo mockResponse = GoalInfo.builder()
+                .title("progress").icon("icon")
+                .totalBudget(10000L).totalCost(1000L)
+                .endDate(LocalDate.of(2024, 3, 1))
+                .build();
 
-        GoalPreviewInfo past = GoalPreviewInfo.builder()
+        when(goalService.getGoalNow("user")).thenReturn(mockResponse);
+
+        mockMvc.perform(get("/goal/now"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.title", is(mockResponse.getTitle())))
+                .andExpect(jsonPath("$.result.icon", is(mockResponse.getIcon())))
+                .andExpect(jsonPath("$.result.totalBudget", is(mockResponse.getTotalBudget().intValue())))
+                .andExpect(jsonPath("$.result.totalCost", is(mockResponse.getTotalCost().intValue())))
+                .andExpect(jsonPath("$.result.endDate", is(mockResponse.getEndDate().toString())));
+    }
+
+    @Test
+    @WithMockUser
+    void 목표_탭_목표전체조회() throws Exception {
+
+        GoalInfo past = GoalInfo.builder()
                 .title("endedGoal").icon("icon")
                 .totalBudget(10000L).totalCost(1000L)
                 .build();
 
-        GoalPreviewInfo progress = GoalPreviewInfo.builder()
-                .title("progressGoal").icon("icon")
-                .totalBudget(10000L).totalCost(1000L)
-                .build();
-
-        GoalPreviewInfo future = GoalPreviewInfo.builder()
+        GoalInfo future = GoalInfo.builder()
                 .title("futureGoal").icon("icon")
                 .totalBudget(10000L).totalCost(1000L)
                 .build();
 
         GoalPreviewResponse mockResponse = GoalPreviewResponse.builder()
-                .progressGoal(progress)
                 .futureGoal(List.of(future))
                 .endedGoal(List.of(past))
                 .build();
@@ -112,9 +127,9 @@ class GoalControllerTest {
 
         mockMvc.perform(get("/goal/preview"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.progressGoal.title", is(mockResponse.getProgressGoal().getTitle())))
                 .andExpect(jsonPath("$.result.futureGoal", hasSize(1)))
                 .andExpect(jsonPath("$.result.futureGoal[0].title", is(mockResponse.getFutureGoal().get(0).getTitle())))
+                .andExpect(jsonPath("$.result.endedGoal", hasSize(1)))
                 .andExpect(jsonPath("$.result.endedGoal[0].title", is(mockResponse.getEndedGoal().get(0).getTitle())));
     }
 
