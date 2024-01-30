@@ -36,7 +36,7 @@ public class ExpenseController {
     private final ExpenseService expenseService;
     private final ExpenseUpdateService expenseUpdateService;
 
-    @PostMapping("")
+    @PostMapping
     public Response<NewExpenseResponse> enrollNewExpense(Principal principal, @RequestBody @Valid NewExpenseRequest request) {
         NewExpenseResponse result = expenseUpdateService.enrollExpense(principal.getName(), request);
         return Response.success(result);
