@@ -47,15 +47,23 @@ public class GoalConverter {
         Map<Long, CategoryGoalReportDto> categoryReportsMap = initCtegoryReportsMap(categoryGoals);
         // expenses 순회하면서 categoryReportsMap 업데이트
         updateCategoryReports(categoryReportsMap, expenses);
-        // 카테고리별 avgCost 계산, 가장 많이 사용된 카테고리 찾기
-        String mostUsedCategory = calAvgCostAndFindMostUsedCategory(categoryReportsMap);
+        // 카테고리별 avgCost 계산
+        for (CategoryGoalReportDto report : categoryReportsMap.values()) {
+            report.calculateAvgCost();
+        }
+
+        // totalCost가 높은 순서로 카테고리 리포트 정렬
+        List<CategoryGoalReportDto> sortedCategoryReports = new ArrayList<>(categoryReportsMap.values());
+        sortedCategoryReports.sort(Comparator.comparingLong(CategoryGoalReportDto::getTotalCost).reversed());
+
+        String mostUsedCategory = sortedCategoryReports.isEmpty() ? null : sortedCategoryReports.get(0).getCategoryName();
 
         return GoalReportResponse.builder()
                 .goalBudget(goal.getTotalBudget())
                 .totalCost(totalCost)
                 .dailyAvgCost(dailyAvgCost)
                 .mostUsedCategory(mostUsedCategory)
-                .categoryReports(new ArrayList<>(categoryReportsMap.values()))
+                .categoryReports(sortedCategoryReports)
                 .zeroDayCount(zeroDayCount)
                 .build();
     }
@@ -81,18 +89,5 @@ public class GoalConverter {
                 }
             }
         }
-    }
-
-    private static String calAvgCostAndFindMostUsedCategory(Map<Long, CategoryGoalReportDto> categoryReportsMap) {
-        String mostUsedCategory = null;
-        long maxTotalCost = -1;
-        for (CategoryGoalReportDto report : categoryReportsMap.values()) {
-            report.calculateAvgCost();
-            if (report.getTotalCost() > maxTotalCost) {
-                maxTotalCost = report.getTotalCost();
-                mostUsedCategory = report.getCategoryName();
-            }
-        }
-        return mostUsedCategory;
     }
 }

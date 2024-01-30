@@ -47,7 +47,7 @@ public class GoalController {
     }
 
     @GetMapping("/{goalId}")
-    public Response<GoalGetResponse> getGoal(@PathVariable Long goalId){
+    public Response<GoalGetResponse> getGoal(@PathVariable Long goalId, Authentication authentication){
         GoalGetResponse response = goalService.getGoalWithTotalCost(goalId);
         return Response.success(response);
     }
