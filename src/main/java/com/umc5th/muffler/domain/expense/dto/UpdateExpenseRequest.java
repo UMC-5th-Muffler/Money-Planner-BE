@@ -20,6 +20,6 @@ public class UpdateExpenseRequest {
     @NotNull
     private LocalDate expenseDate;
     private String expenseMemo;
-    @NotBlank
-    private String categoryName;
+    @Positive
+    private Long categoryId;
 }

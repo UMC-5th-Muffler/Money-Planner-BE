@@ -19,12 +19,8 @@ public class DailyPlanService {
     public void updateZeroDay(String memberId, LocalDate date) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new DailyPlanException(ErrorCode.MEMBER_NOT_FOUND));
-        DailyPlan dailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberIdFetchGoalFetchGoalAndMember(date, memberId)
+        DailyPlan dailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(date, memberId)
                 .orElseThrow(() -> new DailyPlanException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
-        System.out.println(date.toString());
-        if (!member.getId().equals(dailyPlan.getGoal().getMember().getId())) {
-            throw new DailyPlanException(ErrorCode.CANNOT_UPDATE_OTHER_MEMBER_DAILY_PLAN);
-        }
         dailyPlan.toggleZeroDay();
         dailyPlanRepository.save(dailyPlan);
     }

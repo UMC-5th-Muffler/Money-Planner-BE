@@ -41,17 +41,14 @@ public class ExpenseUpdateService {
                 .orElseThrow(() -> new ExpenseException(ErrorCode.MEMBER_NOT_FOUND));
         Category category = categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), member.getId())
                 .orElseThrow(() -> new ExpenseException(ErrorCode.CATEGORY_NOT_FOUND));
-        DailyPlan dailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberIdFetchGoal(request.getExpenseDate(), memberId)
+        DailyPlan dailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(request.getExpenseDate(), memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
         if (dailyPlan.getIsZeroDay())
             throw new ExpenseException(ErrorCode.CANNOT_UPDATE_TO_ZERO_DAY);
-        AlarmControlDTO dailyAlarm = null, categoryAlarm;
         Expense expense = ExpenseConverter.toExpenseEntity(request, member, category);
 
-        if (dailyPlan.isPossibleToAlarm(expense.getCost())) {
-            dailyAlarm = new AlarmControlDTO(dailyPlan.getBudget(), dailyPlan.getTotalCost() + expense.getCost());
-        }
-        categoryAlarm = handleCategoryGoal(memberId, category, dailyPlan.getGoal(), 0L, expense);
+        AlarmControlDTO dailyAlarm = handleDailyAlarm(dailyPlan, request.getExpenseCost());
+        AlarmControlDTO categoryAlarm = handleCategoryAlarm(category, dailyPlan.getGoal().getId(), request.getExpenseCost(), memberId);
 
         expense = expenseRepository.save(expense);
         dailyPlan.addExpenseDifference(expense.getCost());
@@ -62,74 +59,75 @@ public class ExpenseUpdateService {
     public UpdateExpenseResponse updateExpense(String memberId, UpdateExpenseRequest request) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.MEMBER_NOT_FOUND));
-        Expense oldExpense = expenseRepository.findExpenseByIdFetchMemberAndCategory(request.getExpenseId())
+        Expense oldExpense = expenseRepository.findById(request.getExpenseId())
                 .orElseThrow(() -> new ExpenseException(ErrorCode.EXPENSE_NOT_FOUND));
         if (!oldExpense.isOwnMember(memberId))
             throw new ExpenseException(ErrorCode.CANNOT_UPDATE_OTHER_MEMBER_EXPENSE);
-        DailyPlan oldDailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberIdFetchGoal(oldExpense.getDate(), memberId)
+        DailyPlan oldDailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(oldExpense.getDate(), memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
+        Long difference = request.getExpenseCost() - oldExpense.getCost();
 
-        Category newCategory = categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), member.getId())
-                .orElseThrow(() -> new ExpenseException(ErrorCode.CATEGORY_NOT_FOUND));
-        DailyPlan newDailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberIdFetchGoal(request.getExpenseDate(), memberId)
-                .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
-        if (newDailyPlan.getIsZeroDay())
-            throw new ExpenseException(ErrorCode.CANNOT_UPDATE_TO_ZERO_DAY);
+        oldDailyPlan.addExpenseDifference(-oldExpense.getCost()); // 반드시 앞에서 빼야 함.
+        DailyPlan newDailyPlan = syncDailyPlanWithRequest(oldExpense, oldDailyPlan, memberId, request);
+        Category newCategory = syncCategoryWithRequest(oldExpense, memberId, request);
 
-        AlarmControlDTO dailyAlarm, categoryAlarm;
+        AlarmControlDTO dailyAlarm = handleDailyAlarm(newDailyPlan, request.getExpenseCost());
+        AlarmControlDTO categoryAlarm = handleCategoryAlarm(newCategory, newDailyPlan.getGoal().getId(), difference, memberId);
+
+        newDailyPlan.addExpenseDifference(request.getExpenseCost());
         Expense newExpense = ExpenseConverter.toExpenseEntity(request, member, newCategory);
-
-        dailyAlarm = handleDailyPlan(oldExpense, oldDailyPlan, newDailyPlan, newExpense);
-        categoryAlarm = handleCategoryGoal(memberId, newCategory, newDailyPlan.getGoal(), oldExpense.getCost(), newExpense);
-
         expenseRepository.save(newExpense);
         return new UpdateExpenseResponse(dailyAlarm, categoryAlarm);
     }
 
-    private AlarmControlDTO handleDailyPlan(Expense oldExpense, DailyPlan oldDailyPlan,
-                           DailyPlan newDailyPlan, Expense newExpense) {
-        AlarmControlDTO dailyAlarm = null;
-        if (oldDailyPlan.getId().equals(newDailyPlan.getId())) {
-            long difference = newExpense.getCost() - oldExpense.getCost();
-            if (oldDailyPlan.isPossibleToAlarm(difference))
-                dailyAlarm = new AlarmControlDTO(oldDailyPlan.getBudget(), oldDailyPlan.getTotalCost() + difference);
-            newDailyPlan.addExpenseDifference(difference);
-            dailyPlanRepository.save(newDailyPlan);
-        }else {
-            if (newDailyPlan.isPossibleToAlarm(newExpense.getCost()))
-                dailyAlarm = new AlarmControlDTO(newDailyPlan.getBudget(), newDailyPlan.getTotalCost() + newExpense.getCost());
-            oldDailyPlan.addExpenseDifference(-oldExpense.getCost());
-            newDailyPlan.addExpenseDifference(newExpense.getCost());
-            dailyPlanRepository.save(newDailyPlan);
-            dailyPlanRepository.save(oldDailyPlan);
+    private DailyPlan syncDailyPlanWithRequest(Expense expense, DailyPlan dailyPlan, String memberId ,UpdateExpenseRequest request) {
+        if (expense.isDateChanged(request.getExpenseDate())) {
+            DailyPlan newDailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(request.getExpenseDate(), memberId)
+                    .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
+            if (newDailyPlan.getIsZeroDay())
+                throw new ExpenseException(ErrorCode.CANNOT_UPDATE_TO_ZERO_DAY);
+            return newDailyPlan;
         }
-        return dailyAlarm;
+        return dailyPlan;
     }
 
-    private AlarmControlDTO handleCategoryGoal(String memberId, Category category, Goal goal, Long originalCost, Expense newExpense) {
-        Optional<CategoryGoal> optionalCategoryGoal = categoryGoalRepository.findCategoryGoalWithGoalIdAndCategoryId(goal.getId(), category.getId());
+    private Category syncCategoryWithRequest(Expense expense, String memberId, UpdateExpenseRequest request) {
+        if (expense.isCategoryChanged(request.getCategoryId())) {
+            return categoryRepository.findCategoryWithCategoryIdAndMemberId(request.getCategoryId(), memberId)
+                    .orElseThrow(() -> new ExpenseException(ErrorCode.CATEGORY_NOT_FOUND));
+        }
+        return expense.getCategory();
+    }
 
-        AlarmControlDTO categoryAlarm = null;
+    private AlarmControlDTO handleDailyAlarm(DailyPlan newDailyPlan, Long newExpenseCost ) {
+        if (newDailyPlan.isPossibleToAlarm(newExpenseCost)) {
+            return new AlarmControlDTO(newDailyPlan.getBudget(),
+                    newDailyPlan.getTotalCost() + newExpenseCost - newDailyPlan.getBudget());
+        }
+        return null;
+    }
+    private AlarmControlDTO handleCategoryAlarm(Category category, Long goalId, Long difference, String memberId) {
+        Optional<CategoryGoal> optionalCategoryGoal = categoryGoalRepository.findCategoryGoalWithGoalIdAndCategoryId(goalId, category.getId());
         if (optionalCategoryGoal.isPresent()) {
             CategoryGoal categoryGoal = optionalCategoryGoal.get();
+            Goal goal = categoryGoal.getGoal();
             Long sumOfCategoryCost = expenseRepository.getSumOfCategoryCost(memberId, goal.getStartDate(), goal.getEndDate(), category.getId())
                     .orElse(0L);
-            long diff = newExpense.getCost() - originalCost;
-            if (categoryGoal.isPossibleToAlarm(sumOfCategoryCost, diff)) {
-                categoryAlarm = new AlarmControlDTO(categoryGoal.getBudget(), sumOfCategoryCost + diff);
+            if (categoryGoal.isPossibleToAlarm(sumOfCategoryCost, difference)) {
+                return new AlarmControlDTO(categoryGoal.getBudget(), sumOfCategoryCost + difference - categoryGoal.getBudget());
             }
         }
-        return categoryAlarm;
+        return null;
     }
 
     public void deleteExpense(String memberId, Long expenseId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.MEMBER_NOT_FOUND));
-        Expense expense = expenseRepository.findExpenseByIdFetchMember(expenseId)
+        Expense expense = expenseRepository.findById(expenseId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.EXPENSE_NOT_FOUND));
         if (!expense.isOwnMember(memberId))
             throw new ExpenseException(ErrorCode.CANNOT_UPDATE_OTHER_MEMBER_EXPENSE);
-        DailyPlan dailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberIdFetchGoal(expense.getDate(), memberId)
+        DailyPlan dailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(expense.getDate(), memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
         dailyPlan.addExpenseDifference(-expense.getCost());
         dailyPlanRepository.save(dailyPlan);

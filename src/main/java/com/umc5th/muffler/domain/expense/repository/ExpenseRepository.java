@@ -32,11 +32,4 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
                               @Param("startDate")LocalDate startDate,
                               @Param("endDate")LocalDate endDate,
                               @Param("categoryId") Long categoryId);
-    @Query("SELECT e FROM Expense e join fetch e.member WHERE e.id = :expenseId")
-    Optional<Expense> findExpenseByIdFetchMember(@Param("expenseId") Long expenseId);
-    @Query("SELECT e FROM Expense e "
-            + "JOIN FETCH e.member "
-            + "JOIN FETCH e.category "
-            + "WHERE e.id = :expenseId")
-    Optional<Expense> findExpenseByIdFetchMemberAndCategory(@Param("expenseId") Long expenseId);
 }

@@ -60,4 +60,10 @@ public class Expense extends BaseTimeEntity {
         this.category = category;
     }
     public Boolean isOwnMember(String memberId) { return member.getId().equals(memberId);}
+    public Boolean isCategoryChanged(Long inputId) {
+        return !category.getId().equals(inputId);
+    }
+    public Boolean isDateChanged(LocalDate inputDate) {
+        return !date.isEqual(inputDate);
+    }
 }
