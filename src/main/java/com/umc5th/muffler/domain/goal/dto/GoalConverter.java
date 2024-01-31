@@ -36,6 +36,7 @@ public class GoalConverter {
                         .icon(entry.getKey().getIcon())
                         .totalBudget(entry.getKey().getTotalBudget())
                         .totalCost(entry.getValue())
+                        .endDate(entry.getKey().getEndDate())
                         .build())
                 .collect(Collectors.toList());
 
@@ -44,6 +45,7 @@ public class GoalConverter {
                         .title(goal.getTitle())
                         .icon(goal.getIcon())
                         .totalBudget(goal.getTotalBudget())
+                        .endDate(goal.getEndDate())
                         .build())
                 .collect(Collectors.toList());
 

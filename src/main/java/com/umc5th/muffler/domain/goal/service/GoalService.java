@@ -70,9 +70,9 @@ public class GoalService {
     }
 
     @Transactional(readOnly = true)
-    public GoalPreviewResponse getGoalPreview(String memberId, Pageable pageable, LocalDate startDate) {
+    public GoalPreviewResponse getGoalPreview(String memberId, Pageable pageable, LocalDate endDate) {
 
-        Slice<Goal> goalList = goalRepository.findByMemberIdAndDailyPlans(memberId, pageable, LocalDate.now(), startDate);
+        Slice<Goal> goalList = goalRepository.findByMemberIdAndDailyPlans(memberId, pageable, LocalDate.now(), endDate);
         if (goalList.isEmpty()) {
             return new GoalPreviewResponse();
         }

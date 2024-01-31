@@ -36,12 +36,12 @@ public class GoalRepositoryImpl implements GoalRepositoryCustom {
     }
 
     @Override
-    public Slice<Goal> findByMemberIdAndDailyPlans(String memberId, Pageable pageable, LocalDate today, LocalDate startDate) {
+    public Slice<Goal> findByMemberIdAndDailyPlans(String memberId, Pageable pageable, LocalDate today, LocalDate endDate) {
         QGoal goal = QGoal.goal;
 
         List<Goal> goals = queryFactory
                 .selectFrom(goal)
-                .where(ltStartDate(startDate),
+                .where(bfEndDate(endDate),
                         goal.member.id.eq(memberId)
                         .and(dateNotBetween(today, goal.startDate, goal.endDate))
                 ).orderBy(goal.startDate.desc())
@@ -61,7 +61,7 @@ public class GoalRepositoryImpl implements GoalRepositoryCustom {
         return startDate.after(date).or(endDate.before(date));
     }
 
-    private BooleanExpression ltStartDate(LocalDate startDate) {
-        return startDate == null ? null : goal.startDate.before(startDate);
+    private BooleanExpression bfEndDate(LocalDate startDate) {
+        return startDate == null ? null : goal.endDate.before(startDate);
     }
 }
