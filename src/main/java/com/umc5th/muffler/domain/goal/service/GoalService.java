@@ -70,9 +70,9 @@ public class GoalService {
     }
 
     @Transactional(readOnly = true)
-    public GoalPreviewResponse getGoalPreview(String memberId, Pageable pageable) {
+    public GoalPreviewResponse getGoalPreview(String memberId, Pageable pageable, LocalDate startDate) {
 
-        Slice<Goal> goalList = goalRepository.findByMemberIdAndDailyPlans(memberId, pageable, LocalDate.now());
+        Slice<Goal> goalList = goalRepository.findByMemberIdAndDailyPlans(memberId, pageable, LocalDate.now(), startDate);
         if (goalList.isEmpty()) {
             return new GoalPreviewResponse();
         }
@@ -84,12 +84,12 @@ public class GoalService {
         for (Goal goal : goalList) {
             if (goal.getEndDate().isBefore(today)) {
                 calculateGoalCost(goalAndTotalCost, goal);
-            }  else if (goal.getStartDate().isAfter(today)){
+            }  else {
                 futureGoals.add(goal);
             }
         }
 
-        return GoalConverter.getGoalPreviewResponse(goalAndTotalCost, futureGoals);
+        return GoalConverter.getGoalPreviewResponse(goalAndTotalCost, futureGoals, goalList.hasNext());
     }
 
     private void calculateGoalCost(Map<Goal, Long> goalAndTotalCost, Goal goal) {
@@ -97,6 +97,7 @@ public class GoalService {
         goalAndTotalCost.put(goal, totalCost);
     }
 
+    @Transactional(readOnly = true)
     public GoalListResponse getGoalList(String memberId) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
         List<Goal> goalList = member.getGoals();

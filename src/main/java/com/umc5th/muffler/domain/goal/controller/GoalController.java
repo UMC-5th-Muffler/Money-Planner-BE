@@ -12,10 +12,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -53,11 +55,12 @@ public class GoalController {
 
     @GetMapping("/preview")
     public Response<GoalPreviewResponse> getGoalPreview(Authentication authentication,
-            @PageableDefault(size = 2) @SortDefault.SortDefaults({
+            @RequestParam (name = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @PageableDefault(size = 10) @SortDefault.SortDefaults({
                     @SortDefault(sort = "startDate", direction = Sort.Direction.DESC),
                     @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC)
             }) Pageable pageable) {
-        GoalPreviewResponse response = goalService.getGoalPreview(authentication.getName(), pageable);
+        GoalPreviewResponse response = goalService.getGoalPreview(authentication.getName(), pageable, startDate);
         return Response.success(response);
     }
 

@@ -15,4 +15,5 @@ public class GoalPreviewResponse {
 
     private List<GoalInfo> futureGoal;
     private List<GoalInfo> endedGoal;
+    private Boolean hasNext;
 }
