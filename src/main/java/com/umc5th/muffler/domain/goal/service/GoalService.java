@@ -22,6 +22,8 @@ import java.time.LocalDate;
 import java.util.*;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,15 +70,12 @@ public class GoalService {
     }
 
     @Transactional(readOnly = true)
-    public GoalPreviewResponse getGoalPreview(String memberId) {
+    public GoalPreviewResponse getGoalPreview(String memberId, Pageable pageable) {
 
-        Optional<List<Goal>> goals = goalRepository.findByMemberIdAndDailyPlans(memberId);
-        if (!goals.isPresent()) {
+        Slice<Goal> goalList = goalRepository.findByMemberIdAndDailyPlans(memberId, pageable, LocalDate.now());
+        if (goalList.isEmpty()) {
             return new GoalPreviewResponse();
         }
-
-        List<Goal> goalList = goals.get();
-        goalList.sort(Comparator.comparing(Goal::getStartDate).reversed());
 
         LocalDate today = LocalDate.now();
         Map<Goal, Long> goalAndTotalCost = new HashMap<>();

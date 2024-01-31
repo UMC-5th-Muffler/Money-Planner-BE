@@ -30,6 +30,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -123,7 +124,7 @@ class GoalControllerTest {
                 .endedGoal(List.of(past))
                 .build();
 
-        when(goalService.getGoalPreview("user")).thenReturn(mockResponse);
+        when(goalService.getGoalPreview("user", any(Pageable.class))).thenReturn(mockResponse);
 
         mockMvc.perform(get("/goal/preview"))
                 .andExpect(status().isOk())

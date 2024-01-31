@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.goal.controller;
 
+import com.umc5th.muffler.domain.expense.dto.WeekRequestParam;
 import com.umc5th.muffler.domain.goal.dto.*;
 import com.umc5th.muffler.domain.goal.service.GoalCreateService;
 import com.umc5th.muffler.domain.goal.service.GoalService;
@@ -7,6 +8,10 @@ import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.global.response.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,8 +52,12 @@ public class GoalController {
     }
 
     @GetMapping("/preview")
-    public Response<GoalPreviewResponse> getGoalPreview(Authentication authentication) {
-        GoalPreviewResponse response = goalService.getGoalPreview(authentication.getName());
+    public Response<GoalPreviewResponse> getGoalPreview(Authentication authentication,
+            @PageableDefault(size = 2) @SortDefault.SortDefaults({
+                    @SortDefault(sort = "startDate", direction = Sort.Direction.DESC),
+                    @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+            }) Pageable pageable) {
+        GoalPreviewResponse response = goalService.getGoalPreview(authentication.getName(), pageable);
         return Response.success(response);
     }
 

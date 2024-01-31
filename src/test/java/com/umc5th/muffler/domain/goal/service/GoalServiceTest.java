@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.*;
 
 @SpringBootTest
 class GoalServiceTest {
@@ -144,19 +145,23 @@ class GoalServiceTest {
     @Test
     void 목표_탭_전체조회_성공() {
         String memberId = "1";
+        int pageSize = 20;
+        Sort sort = Sort.by(Sort.Direction.DESC,"startDate").and(Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(0, pageSize, sort);
         Goal mockEndedGoal = GoalFixture.create();
         Goal mockFutureGoal = GoalFixture.create(LocalDate.of(2025, 2, 1), LocalDate.of(2025, 2, 2));
-        List<Goal> goalList = Arrays.asList(mockEndedGoal, mockFutureGoal);
+        List<Goal> goalList = List.of(mockFutureGoal, mockEndedGoal);
+        Slice<Goal> goalSlice = new SliceImpl<>(goalList);
 
-        when(goalRepository.findByMemberIdAndDailyPlans(memberId)).thenReturn(Optional.of(goalList));
+        when(goalRepository.findByMemberIdAndDailyPlans(memberId, pageable, LocalDate.now())).thenReturn(goalSlice);
 
-        GoalPreviewResponse response = goalService.getGoalPreview(memberId);
+        GoalPreviewResponse response = goalService.getGoalPreview(memberId, pageable);
 
         assertNotNull(response);
         assertEquals(mockEndedGoal.getTitle(), response.getEndedGoal().get(0).getTitle());
         assertEquals(mockFutureGoal.getTitle(), response.getFutureGoal().get(0).getTitle());
 
-        verify(goalRepository).findByMemberIdAndDailyPlans(memberId);
+        verify(goalRepository).findByMemberIdAndDailyPlans(memberId, pageable, LocalDate.now());
     }
 
     @Test
