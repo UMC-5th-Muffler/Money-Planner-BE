@@ -1,6 +1,45 @@
 spring:
+  profiles:
+    group:
+      "local": "local, common"
+      "test": "test, common"
+      "prod" : "prod, common"
+    active: local # Select profile
+---
+spring:
+  config:
+    activate:
+      on-profile: "local"
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    properties:
+      dialect: org.hibernate.dialect.MySQL8Dialect
+---
+spring:
+  config:
+    activate:
+      on-profile: "test"
+  datasource:
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+---
+spring:
+  config:
+    activate:
+      on-profile: "prod"
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    properties:
+      dialect: org.hibernate.dialect.MySQL8Dialect
+---
+spring:
+  config:
+    activate:
+      on-profile: "common"
+  datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
@@ -12,7 +51,6 @@ spring:
         show_sql: false
         format_sql: true
         use_sql_comments: true
-        dialect: org.hibernate.dialect.MySQL8Dialect
   security:
     oauth2:
       client:
@@ -22,7 +60,7 @@ spring:
             client-secret: ${KAKAO_CLIENT_SECRET}
             client-authentication-method: POST
             authorization-grant-type: authorization_code
-            redirect-uri: http://13.209.182.17:8080/login/oauth2/code/kakao
+            redirect-uri: ${KAKAO_REDIRECT_URI}
             scope: account_email
             client-name: Kakao
         provider:
@@ -31,17 +69,12 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
-  profiles:
-    active: dev
-
 jwt:
   secret: ${JWT_SECRET}
-
 server:
   servlet:
     encoding:
       charset: UTF-8
       force: true
-
 logging.level:
   org.hibernate.SQL: debug

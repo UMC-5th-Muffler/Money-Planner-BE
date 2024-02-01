@@ -10,8 +10,7 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
-public class NewExpenseResponse {
-    private Long expenseId;
+public class UpdateExpenseResponse {
     private AlarmControlDTO dailyBudgetAlarm;
     private AlarmControlDTO categoryBudgetAlarm;
 }
