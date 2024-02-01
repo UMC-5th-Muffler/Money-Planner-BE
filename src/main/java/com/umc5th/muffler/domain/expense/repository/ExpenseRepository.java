@@ -25,11 +25,8 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpec
     @Query("SELECT SUM(e.cost) FROM Expense e WHERE e.member = :member AND e.date BETWEEN :startDate AND :endDate")
     Long calculateTotalCostByMemberAndDateBetween(@Param("member")Member member, @Param("startDate")LocalDate startDate, @Param("endDate")LocalDate endDate);
 
-    @EntityGraph(attributePaths = {"category"})
-    Page<Expense> findAll(Specification<Expense> spec, Pageable pageable);
-
     @Query("SELECT e FROM Expense e JOIN FETCH e.category WHERE e.id = :id")
-    Optional<Expense> findById(@Param("id") Long id);
+    Optional<Expense> findByIdJoin(@Param("id") Long id);
 
     @Query("SELECT SUM(e.cost) FROM Expense e WHERE e.member.id = :memberId AND e.category.id = :categoryId AND e.date BETWEEN :startDate AND :endDate")
     Optional<Long> sumTotalCategoryCostByMemberAndDateBetween(String memberId, Long categoryId, LocalDate startDate, LocalDate endDate);

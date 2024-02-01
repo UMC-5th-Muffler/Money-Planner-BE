@@ -37,7 +37,7 @@ public class ExpenseViewService {
     public ExpenseDto getExpense(String memberId, Long expenseId){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-        Expense expense = expenseRepository.findById(expenseId)
+        Expense expense = expenseRepository.findByIdJoin(expenseId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.EXPENSE_NOT_FOUND));
 
         return ExpenseConverter.toExpenseDto(expense);
@@ -57,7 +57,6 @@ public class ExpenseViewService {
     }
 
     public WeeklyExpenseResponse getWeeklyExpenseDetails(String memberId, Long goalId, LocalDate weeklyStartDate, LocalDate weeklyEndDate, Pageable pageable){
-
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
         Goal goal = goalRepository.findById(goalId)
@@ -73,7 +72,8 @@ public class ExpenseViewService {
         List<Category> categoryList = member.getCategories();
 
         // 일별로 Expense 그룹화
-        Map<LocalDate, List<Expense>> expensesByDate = expenseList.stream().collect(Collectors.groupingBy(Expense::getDate));
+        Map<LocalDate, List<Expense>> expensesByDate = expenseList.getContent().stream()
+                .collect(Collectors.groupingBy(Expense::getDate));
         Map<LocalDate, Long> dailyTotalCostMap = expensesByDate.entrySet().stream()
                 .collect(Collectors.toMap(
                         entry -> entry.getKey(),
