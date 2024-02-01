@@ -10,7 +10,8 @@ import static org.mockito.Mockito.*;
 
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
-import com.umc5th.muffler.domain.routine.dto.RoutineDetailDto;
+import com.umc5th.muffler.domain.routine.dto.RoutineAll;
+import com.umc5th.muffler.domain.routine.dto.RoutineDetail;
 import com.umc5th.muffler.domain.routine.dto.RoutineRequest;
 import com.umc5th.muffler.domain.routine.dto.RoutineResponse;
 import com.umc5th.muffler.domain.routine.repository.RoutineRepository;
@@ -144,7 +145,7 @@ class RoutineServiceTest {
     }
 
     @Test
-    void 루틴조회_루틴존재() {
+    void 루틴_전체조회_루틴존재() {
 
         String memberId = "1";
         int pageSize = 10;
@@ -156,26 +157,25 @@ class RoutineServiceTest {
         Slice<Routine> routineSlice = new SliceImpl<>(routineList, pageable, false);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(routineRepository.findAllByMember(mockMember, pageable)).thenReturn(routineSlice);
+        when(routineRepository.findRoutinesWithWeeklyDetails(memberId, null, pageable)).thenReturn(routineSlice);
 
-        RoutineResponse response = routineService.getRoutine(pageable, memberId);
+        RoutineResponse response = routineService.getAllRoutines(pageable, null, memberId);
 
         assertNotNull(response);
-        RoutineDetailDto responseRoutine = response.getRoutineList().get(0);
+        RoutineAll responseRoutine = response.getRoutineList().get(0);
         assertEquals(mockRoutine.getId(), responseRoutine.getRoutineId());
         assertEquals(mockRoutine.getTitle(), responseRoutine.getRoutineTitle());
-        assertEquals(mockRoutine.getMemo(), responseRoutine.getRoutineMemo());
         assertEquals(mockRoutine.getCost(), responseRoutine.getRoutineCost());
         assertEquals(mockRoutine.getCategory().getIcon(), responseRoutine.getCategoryIcon());
-        assertEquals(mockRoutine.getCategory().getName(), responseRoutine.getCategoryName());
         assertEquals(mockRoutine.getMonthlyRepeatDay(), responseRoutine.getMonthlyRepeatDay());
         assertEquals(routineSlice.hasNext(), response.isHasNext());
 
-        verify(routineRepository).findAllByMember(mockMember, pageable);
+        verify(memberRepository).findById(memberId);
+        verify(routineRepository).findRoutinesWithWeeklyDetails(memberId, null, pageable);
     }
 
     @Test
-    void 루틴조회_루틴존재X() {
+    void 루틴_전체조회_루틴존재X() {
         String memberId = "1";
         int pageSize = 10;
         Pageable pageable = PageRequest.of(0, pageSize);
@@ -185,19 +185,20 @@ class RoutineServiceTest {
         Slice<Routine> routineSlice = new SliceImpl<>(routineList, pageable, false);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(routineRepository.findAllByMember(mockMember, pageable)).thenReturn(routineSlice);
+        when(routineRepository.findRoutinesWithWeeklyDetails(memberId, null, pageable)).thenReturn(routineSlice);
 
-        RoutineResponse response = routineService.getRoutine(pageable, memberId);
+        RoutineResponse response = routineService.getAllRoutines(pageable, null, memberId);
 
         assertNotNull(response);
         assertTrue(response.getRoutineList().isEmpty());
         assertEquals(routineSlice.hasNext(), response.isHasNext());
 
-        verify(routineRepository).findAllByMember(mockMember, pageable);
+        verify(memberRepository).findById(memberId);
+        verify(routineRepository).findRoutinesWithWeeklyDetails(memberId, null, pageable);
     }
 
     @Test
-    void 루틴조회_다음페이지_존재() {
+    void 루틴_전체조회_다음페이지_존재() {
         String memberId = "1";
         int pageSize = 5;
         Pageable pageable = PageRequest.of(0, pageSize);
@@ -207,28 +208,67 @@ class RoutineServiceTest {
         Slice<Routine> routineSlice = new SliceImpl<>(routineList, pageable, true);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(routineRepository.findAllByMember(mockMember, pageable)).thenReturn(routineSlice);
+        when(routineRepository.findRoutinesWithWeeklyDetails(memberId, null, pageable)).thenReturn(routineSlice);
 
-        RoutineResponse response = routineService.getRoutine(pageable, memberId);
+        RoutineResponse response = routineService.getAllRoutines(pageable, null, memberId);
 
         assertNotNull(response);
         assertEquals(routineSlice.hasNext(), response.isHasNext());
 
-        verify(routineRepository).findAllByMember(mockMember, pageable);
+        verify(memberRepository).findById(memberId);
+        verify(routineRepository).findRoutinesWithWeeklyDetails(memberId, null, pageable);
     }
 
     @Test
-    void 루틴조회_사용자_존재X() {
+    void 루틴_전체조회_사용자_존재X() {
         String memberId = "1";
         int pageSize = 5;
         Pageable pageable = PageRequest.of(0, pageSize);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> routineService.getRoutine(pageable, memberId))
+        assertThatThrownBy(() -> routineService.getAllRoutines(pageable, null, memberId))
                 .isInstanceOf(MemberException.class)
                 .hasFieldOrPropertyWithValue("errorCode", MEMBER_NOT_FOUND);
     }
+
+    @Test
+    void 루틴_상세조회_루틴존재O() {
+        String memberId = "1";
+        Long routineId = 1L;
+        Member mockMember = MemberFixture.MEMBER_ONE;
+        Routine mockRoutine = RoutineFixture.ROUTINE_ONE;
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
+        when(routineRepository.findByIdAndCategory(routineId)).thenReturn(Optional.of(mockRoutine));
+
+        RoutineDetail response = routineService.getRoutine(memberId, routineId);
+
+        assertNotNull(response);
+        assertEquals(mockRoutine.getMemo(), response.getRoutineMemo());
+        assertEquals(mockRoutine.getCategory().getName(), response.getCategoryName());
+
+        verify(memberRepository).findById(memberId);
+        verify(routineRepository).findByIdAndCategory(routineId);
+    }
+
+    @Test
+    void 루틴_상세조회_루틴존재X() {
+        String memberId = "1";
+        Long routineId = 1L;
+        Member mockMember = MemberFixture.MEMBER_ONE;
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
+        when(routineRepository.findByIdAndCategory(routineId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> routineService.getRoutine(memberId, routineId))
+                .isInstanceOf(RoutineException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ROUTINE_NOT_FOUND);
+
+        verify(memberRepository).findById(memberId);
+        verify(routineRepository).findByIdAndCategory(routineId);
+    }
+
 
     @Test
     void 루틴삭제_성공() {
@@ -245,6 +285,7 @@ class RoutineServiceTest {
 
         routineService.delete(routineId, memberId);
 
+        verify(memberRepository).findById(memberId);
         verify(routineRepository).delete(mockRoutine);
     }
 
@@ -260,6 +301,9 @@ class RoutineServiceTest {
         assertThatThrownBy(() -> routineService.delete(routineId, memberId))
                 .isInstanceOf(RoutineException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ROUTINE_NOT_FOUND);
+
+        verify(memberRepository).findById(memberId);
+        verify(routineRepository).findById(routineId);
     }
 
     @Test
@@ -272,6 +316,8 @@ class RoutineServiceTest {
         assertThatThrownBy(() -> routineService.delete(routineId, memberId))
                 .isInstanceOf(MemberException.class)
                 .hasFieldOrPropertyWithValue("errorCode", MEMBER_NOT_FOUND);
+
+        verify(memberRepository).findById(memberId);
     }
 
     @Test
@@ -291,5 +337,8 @@ class RoutineServiceTest {
         assertThatThrownBy(() -> routineService.delete(routineId, memberId))
                 .isInstanceOf(CommonException.class)
                 .hasFieldOrPropertyWithValue("errorCode", INVALID_PERMISSION);
+
+        verify(memberRepository).findById(memberId);
+        verify(routineRepository).findById(routineId);
     }
 }
