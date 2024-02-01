@@ -3,6 +3,7 @@ package com.umc5th.muffler.domain.goal.controller;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -94,9 +95,9 @@ class GoalControllerTest {
                 .endDate(LocalDate.of(2024, 3, 1))
                 .build();
 
-        when(goalService.getGoalNow("user")).thenReturn(mockResponse);
+        when(goalService.getGoalNow(any())).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/goal/now"))
+        mockMvc.perform(get("/api/goal/now"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.title", is(mockResponse.getTitle())))
                 .andExpect(jsonPath("$.result.icon", is(mockResponse.getIcon())))
@@ -112,11 +113,13 @@ class GoalControllerTest {
         GoalInfo past = GoalInfo.builder()
                 .title("endedGoal").icon("icon")
                 .totalBudget(10000L).totalCost(1000L)
+                .endDate(LocalDate.of(2024, 3, 1))
                 .build();
 
         GoalInfo future = GoalInfo.builder()
                 .title("futureGoal").icon("icon")
                 .totalBudget(10000L).totalCost(1000L)
+                .endDate(LocalDate.of(2024, 1, 1))
                 .build();
 
         GoalPreviewResponse mockResponse = GoalPreviewResponse.builder()
@@ -124,9 +127,9 @@ class GoalControllerTest {
                 .endedGoal(List.of(past))
                 .build();
 
-        when(goalService.getGoalPreview("user", any(Pageable.class))).thenReturn(mockResponse);
+        when(goalService.getGoalPreview(any(), any(Pageable.class), any())).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/goal/preview"))
+        mockMvc.perform(get("/api/goal/preview"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.futureGoal", hasSize(1)))
                 .andExpect(jsonPath("$.result.futureGoal[0].title", is(mockResponse.getFutureGoal().get(0).getTitle())))
@@ -142,9 +145,9 @@ class GoalControllerTest {
         GoalListInfo info2 = GoalListInfo.builder().title("title2").icon("icon").build();
         GoalListResponse mockResponse = GoalListResponse.builder().goalList(List.of(info1, info2)).build();
 
-        when(goalService.getGoalList("user")).thenReturn(mockResponse);
+        when(goalService.getGoalList(any())).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/goal/list"))
+        mockMvc.perform(get("/api/goal/list"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.goalList", hasSize(2)))
                 .andExpect(jsonPath("$.result.goalList[0].title", is(mockResponse.getGoalList().get(0).getTitle())));
