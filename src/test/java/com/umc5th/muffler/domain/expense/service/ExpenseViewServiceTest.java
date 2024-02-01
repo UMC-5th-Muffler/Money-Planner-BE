@@ -70,18 +70,13 @@ class ExpenseViewServiceTest {
                 .collect(Collectors.toList());
         Slice<Expense> expenseSlice = new SliceImpl<>(sortedExpenses, pageable, false);
 
-        Long dailyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
-
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(dailyPlanRepository.findByMemberIdAndDate(memberId, testDate)).thenReturn(Optional.of(dailyPlan));
         when(expenseRepository.findAllByMemberAndDate(mockMember, testDate, pageable)).thenReturn(expenseSlice);
 
         DailyExpenseResponse response = expenseViewService.getDailyExpenseDetails(memberId, testDate, pageable);
 
         assertNotNull(response);
-        assertEquals(testDate, response.getDate());
         assertEquals(pageSize, response.getExpenseDetailList().size());
-        assertEquals(dailyTotalCost, response.getDailyTotalCost());
         assertEquals(expenseSlice.hasNext(), response.isHasNext());
 
         // expenseId 내림차순 정렬 확인(createdAt 내림차순 정렬 확인)
@@ -90,7 +85,6 @@ class ExpenseViewServiceTest {
                 .collect(Collectors.toList());
         assertTrue(isSortedDescending(expenseIds));
 
-        verify(dailyPlanRepository).findByMemberIdAndDate(memberId, testDate);
         verify(expenseRepository).findAllByMemberAndDate(mockMember, testDate, pageable);
     }
 

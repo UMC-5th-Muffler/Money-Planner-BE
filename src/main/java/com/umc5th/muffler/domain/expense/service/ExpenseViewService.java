@@ -45,12 +45,9 @@ public class ExpenseViewService {
     public DailyExpenseResponse getDailyExpenseDetails(String memberId, LocalDate date, Pageable pageable){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-        DailyPlan dailyPlan = dailyPlanRepository.findByMemberIdAndDate(memberId, date)
-                .orElseThrow(() -> new GoalException(ErrorCode.DAILYPLAN_NOT_FOUND));
-
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(member, date, pageable);
 
-        DailyExpenseResponse response = ExpenseConverter.toDailyExpensesList(date, expenseList, dailyPlan);
+        DailyExpenseResponse response = ExpenseConverter.toDailyExpensesList(expenseList);
 
         return response;
     }

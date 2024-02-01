@@ -68,8 +68,6 @@ class ExpenseControllerTest {
         long expDailyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
 
         DailyExpenseResponse mockResponse = DailyExpenseResponse.builder()
-                .date(testDate)
-                .dailyTotalCost(expDailyTotalCost)
                 .expenseDetailList(expenseDetailDtos)
                 .build();
 
@@ -81,9 +79,7 @@ class ExpenseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.result.expenseDetailList", hasSize(10)))
-                .andExpect(jsonPath("$.result.dailyTotalCost", is((int) expDailyTotalCost)))
-                .andExpect(jsonPath("$.result.date", is(testDate.toString())));
+                .andExpect(jsonPath("$.result.expenseDetailList", hasSize(10)));
     }
 
 

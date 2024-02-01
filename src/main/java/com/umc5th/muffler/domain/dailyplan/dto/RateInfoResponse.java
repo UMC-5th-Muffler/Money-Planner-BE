@@ -16,7 +16,7 @@ public class RateInfoResponse {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Rate rate;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String memo;
+    private String rateMemo;
     private Long dailyPlanBudget;
     private Long dailyTotalCost;
     private Boolean isZeroDay;
