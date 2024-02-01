@@ -57,10 +57,10 @@ public class RoutineConverter {
                 .build();
     }
 
-    public static RoutineDetail toRoutineDetail(Routine routine, String categoryName) {
+    public static RoutineDetail toRoutineDetail(Routine routine) {
         return RoutineDetail.builder()
                 .routineMemo(routine.getMemo())
-                .categoryName(categoryName)
+                .categoryName(routine.getCategory().getName())
                 .build();
     }
 

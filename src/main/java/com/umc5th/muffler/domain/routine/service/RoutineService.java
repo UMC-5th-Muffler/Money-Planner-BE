@@ -99,11 +99,11 @@ public class RoutineService {
         );
     }
 
-    public RoutineResponse getAllRoutines(Pageable pageable, Long routineId, String memberId) {
+    public RoutineResponse getAllRoutines(Pageable pageable, Long endPointId, String memberId) {
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Slice<Routine> routineList = routineRepository.findRoutinesWithWeeklyDetails(member.getId(), routineId, pageable);
+        Slice<Routine> routineList = routineRepository.findRoutinesWithWeeklyDetails(member.getId(), endPointId, pageable);
 
         Map<Long, RoutineWeeklyDetailDto> weeklyDetailDto = getWeeklyRoutine(routineList);
         List<RoutineAll> routineInfoList  = RoutineConverter.toRoutineInfo(routineList, weeklyDetailDto);
@@ -130,9 +130,8 @@ public class RoutineService {
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
         Routine routine = routineRepository.findByIdAndCategory(routineId).orElseThrow(() -> new RoutineException(ErrorCode.ROUTINE_NOT_FOUND));
-        String categoryName = routine.getCategory().getName();
 
-        return RoutineConverter.toRoutineDetail(routine, categoryName);
+        return RoutineConverter.toRoutineDetail(routine);
     }
 
     @Transactional

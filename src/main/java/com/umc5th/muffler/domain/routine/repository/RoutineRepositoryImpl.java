@@ -19,14 +19,14 @@ public class RoutineRepositoryImpl implements RoutineRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Routine> findRoutinesWithWeeklyDetails(String memberId, Long routineId, Pageable pageable) {
+    public Slice<Routine> findRoutinesWithWeeklyDetails(String memberId, Long endPointId, Pageable pageable) {
         QRoutine routine = QRoutine.routine;
 
         List<Routine> routines = queryFactory
                 .selectFrom(routine)
                 .leftJoin(routine.category).fetchJoin()
                 .where(routine.member.id.eq(memberId),
-                        ltRoutineId(routineId)
+                        ltRoutineId(endPointId)
                 ).orderBy(routine.id.desc())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
@@ -40,7 +40,7 @@ public class RoutineRepositoryImpl implements RoutineRepositoryCustom {
         return new SliceImpl<>(routines, pageable, hasNext);
     }
 
-    private BooleanExpression ltRoutineId(Long routineId) {
-        return routineId == null ? null : routine.id.lt(routineId);
+    private BooleanExpression ltRoutineId(Long endPointId) {
+        return endPointId == null ? null : routine.id.lt(endPointId);
     }
 }

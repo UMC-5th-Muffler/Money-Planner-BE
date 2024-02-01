@@ -6,5 +6,5 @@ import org.springframework.data.domain.Slice;
 
 public interface RoutineRepositoryCustom {
 
-    Slice<Routine> findRoutinesWithWeeklyDetails(String memberId, Long routineId, Pageable pageabl);
+    Slice<Routine> findRoutinesWithWeeklyDetails(String memberId, Long routineId, Pageable pageable);
 }

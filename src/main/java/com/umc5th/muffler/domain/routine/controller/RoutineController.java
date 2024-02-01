@@ -21,10 +21,10 @@ public class RoutineController {
     @GetMapping
     public Response<RoutineResponse> getAllRoutines(
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam (name = "endPoint", required = false) Long routineId,
+            @RequestParam (name = "endPoint", required = false) Long endPointId,
             Authentication authentication) {
 
-        RoutineResponse response = routineService.getAllRoutines(pageable, routineId, authentication.getName());
+        RoutineResponse response = routineService.getAllRoutines(pageable, endPointId, authentication.getName());
         return Response.success(response);
     }
 
