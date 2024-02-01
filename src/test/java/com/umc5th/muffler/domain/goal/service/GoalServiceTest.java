@@ -145,23 +145,26 @@ class GoalServiceTest {
     @Test
     void 목표_탭_전체조회_성공() {
         String memberId = "1";
-        int pageSize = 20;
+        LocalDate today = LocalDate.now();
+        int pageSize = 10;
         Sort sort = Sort.by(Sort.Direction.DESC,"startDate").and(Sort.by(Sort.Direction.DESC, "createdAt"));
         Pageable pageable = PageRequest.of(0, pageSize, sort);
+
         Goal mockEndedGoal = GoalFixture.create();
         Goal mockFutureGoal = GoalFixture.create(LocalDate.of(2025, 2, 1), LocalDate.of(2025, 2, 2));
         List<Goal> goalList = List.of(mockFutureGoal, mockEndedGoal);
-        Slice<Goal> goalSlice = new SliceImpl<>(goalList);
+        Slice<Goal> goalSlice = new SliceImpl<>(goalList, pageable, false);
 
-        when(goalRepository.findByMemberIdAndDailyPlans(memberId, pageable, LocalDate.now())).thenReturn(goalSlice);
+        when(goalRepository.findByMemberIdAndDailyPlans(memberId, pageable, today, null)).thenReturn(goalSlice);
 
-        GoalPreviewResponse response = goalService.getGoalPreview(memberId, pageable);
+        GoalPreviewResponse response = goalService.getGoalPreview(memberId, pageable, null);
 
         assertNotNull(response);
         assertEquals(mockEndedGoal.getTitle(), response.getEndedGoal().get(0).getTitle());
         assertEquals(mockFutureGoal.getTitle(), response.getFutureGoal().get(0).getTitle());
+        assertEquals(goalSlice.hasNext(), response.getHasNext());
 
-        verify(goalRepository).findByMemberIdAndDailyPlans(memberId, pageable, LocalDate.now());
+        verify(goalRepository).findByMemberIdAndDailyPlans(memberId, pageable, today, null);
     }
 
     @Test

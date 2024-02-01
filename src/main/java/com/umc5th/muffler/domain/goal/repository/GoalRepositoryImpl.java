@@ -61,7 +61,7 @@ public class GoalRepositoryImpl implements GoalRepositoryCustom {
         return startDate.after(date).or(endDate.before(date));
     }
 
-    private BooleanExpression bfEndDate(LocalDate startDate) {
-        return startDate == null ? null : goal.endDate.before(startDate);
+    private BooleanExpression bfEndDate(LocalDate endDate) {
+        return endDate == null ? null : goal.endDate.before(endDate);
     }
 }
