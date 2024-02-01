@@ -1,7 +1,8 @@
 package com.umc5th.muffler.domain.routine.controller;
 
 import com.umc5th.muffler.config.TestSecurityConfig;
-import com.umc5th.muffler.domain.routine.dto.RoutineDetailDto;
+import com.umc5th.muffler.domain.routine.dto.RoutineAll;
+import com.umc5th.muffler.domain.routine.dto.RoutineDetail;
 import com.umc5th.muffler.domain.routine.dto.RoutineResponse;
 import com.umc5th.muffler.domain.routine.service.RoutineService;
 import org.junit.jupiter.api.Test;
@@ -38,26 +39,24 @@ public class RoutineControllerTest {
 
     @Test
     @WithMockUser
-    void 루틴_조회() throws Exception {
+    void 루틴_전체조회() throws Exception {
 
-        RoutineDetailDto routineDetail = RoutineDetailDto.builder()
+        RoutineAll routineAll = RoutineAll.builder()
                 .routineId(1L)
                 .routineTitle("title")
-                .routineMemo("memo")
                 .routineCost(1000L)
                 .categoryIcon("icon")
-                .categoryName("식비")
                 .monthlyRepeatDay(1)
                 .build();
 
         RoutineResponse mockResponse = RoutineResponse.builder()
-                        .routineList(List.of(routineDetail))
+                        .routineList(List.of(routineAll))
                         .hasNext(false)
                         .build();
 
-        when(routineService.getRoutine(any(Pageable.class), eq("user"))).thenReturn(mockResponse);
+        when(routineService.getAllRoutines(any(Pageable.class), any(), any())).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/routine?page=0"))
+        mockMvc.perform(get("/api/routine"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.routineList", hasSize(1)))
                 .andExpect(jsonPath("$.result.routineList[0].routineId", is(mockResponse.getRoutineList().get(0).getRoutineId().intValue())))
@@ -68,8 +67,26 @@ public class RoutineControllerTest {
 
     @Test
     @WithMockUser
+    void 루틴_상세조회() throws Exception {
+
+        Long routineId = 1L;
+        RoutineDetail routineDetail = RoutineDetail.builder()
+                .routineMemo("memo")
+                .categoryName("식비")
+                .build();
+
+        when(routineService.getRoutine(any(), eq(routineId))).thenReturn(routineDetail);
+
+        mockMvc.perform(get("/api/routine/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.routineMemo", is(routineDetail.getRoutineMemo())))
+                .andExpect(jsonPath("$.result.categoryName", is(routineDetail.getCategoryName())));
+    }
+
+    @Test
+    @WithMockUser
     void 루틴_삭제() throws Exception {
-        mockMvc.perform(delete("/routine/1"))
+        mockMvc.perform(delete("/api/routine/1"))
                 .andExpect(status().isOk());
     }
 }
