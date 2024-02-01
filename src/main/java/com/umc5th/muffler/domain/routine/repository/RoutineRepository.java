@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface RoutineRepository extends JpaRepository<Routine, Long> {
+public interface RoutineRepository extends JpaRepository<Routine, Long>, RoutineRepositoryCustom {
 
     @EntityGraph(attributePaths = {"category"})
     Slice<Routine> findAllByMemberId(String memberId, Pageable pageable);

@@ -21,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -60,6 +61,7 @@ public class Routine extends BaseTimeEntity {
 
     // Weekly Column
     @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL)
+    @BatchSize(size = 10)
     private List<WeeklyRepeatDay> weeklyRepeatDays;
 
     @Column
@@ -92,9 +94,5 @@ public class Routine extends BaseTimeEntity {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
-    }
-
-    public void setMember(Member member) {
-        this.member = member;
     }
 }

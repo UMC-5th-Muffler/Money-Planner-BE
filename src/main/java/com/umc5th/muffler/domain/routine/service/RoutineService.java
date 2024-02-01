@@ -99,11 +99,11 @@ public class RoutineService {
         );
     }
 
-    public RoutineResponse getAllRoutines(Pageable pageable, String memberId) {
+    public RoutineResponse getAllRoutines(Pageable pageable, Long routineId, String memberId) {
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Slice<Routine> routineList = routineRepository.findAllByMemberId(member.getId(), pageable);
+        Slice<Routine> routineList = routineRepository.findRoutinesWithWeeklyDetails(member.getId(), routineId, pageable);
 
         Map<Long, RoutineWeeklyDetailDto> weeklyDetailDto = getWeeklyRoutine(routineList);
         List<RoutineAll> routineInfoList  = RoutineConverter.toRoutineInfo(routineList, weeklyDetailDto);
@@ -113,11 +113,16 @@ public class RoutineService {
     }
 
     private static Map<Long, RoutineWeeklyDetailDto> getWeeklyRoutine(Slice<Routine> routineList) {
-        return routineList.stream()
+        return routineList.getContent().stream()
                 .filter(routine -> routine.getType() == RoutineType.WEEKLY)
                 .collect(Collectors.toMap(
                         Routine::getId,
-                        RoutineConverter::getWeeklyDetail
+                        routine -> {
+                            List<Integer> dayOfWeeks = routine.getWeeklyRepeatDays().stream()
+                                    .map(weeklyRepeatDay -> weeklyRepeatDay.getDayOfWeek().getValue())
+                                    .collect(Collectors.toList());
+                            return RoutineConverter.getWeeklyDetail(routine.getWeeklyTerm(), dayOfWeeks);
+                        }
                 ));
     }
 

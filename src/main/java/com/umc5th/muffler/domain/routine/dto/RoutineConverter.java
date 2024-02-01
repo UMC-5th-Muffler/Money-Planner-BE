@@ -43,16 +43,9 @@ public class RoutineConverter {
                 .collect(Collectors.toList());
     }
 
-
-    public static RoutineWeeklyDetailDto getWeeklyDetail(Routine routine) {
-
-        List<Integer> dayOfWeeks = routine.getWeeklyRepeatDays()
-                .stream()
-                .map(weeklyRepeatDay -> weeklyRepeatDay.getDayOfWeek().getValue())
-                .collect(Collectors.toList());
-
+    public static RoutineWeeklyDetailDto getWeeklyDetail(Integer weeklyTerm, List<Integer> dayOfWeeks) {
         return RoutineWeeklyDetailDto.builder()
-                .weeklyTerm(routine.getWeeklyTerm())
+                .weeklyTerm(weeklyTerm)
                 .weeklyRepeatDays(dayOfWeeks)
                 .build();
     }
