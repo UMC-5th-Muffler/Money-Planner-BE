@@ -23,6 +23,17 @@ public class ExpenseConverter {
                 .member(member)
                 .build();
     }
+    public static Expense toExpenseEntity(UpdateExpenseRequest request, Member member, Category category) {
+        return Expense.builder()
+                .id(request.getExpenseId())
+                .title(request.getExpenseTitle())
+                .memo(request.getExpenseMemo())
+                .date(request.getExpenseDate())
+                .cost(request.getExpenseCost())
+                .category(category)
+                .member(member)
+                .build();
+    }
 
     public static ExpenseDto toExpenseDto(Expense expense){
         return ExpenseDto.builder()

@@ -1,16 +1,18 @@
 package com.umc5th.muffler.domain.expense.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
+import java.time.LocalDate;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
-import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class NewExpenseRequest {
+public class UpdateExpenseRequest {
+    @NotNull
+    @Positive
+    private Long expenseId;
     @NotBlank
     private String expenseTitle;
     @Positive
@@ -18,6 +20,6 @@ public class NewExpenseRequest {
     @NotNull
     private LocalDate expenseDate;
     private String expenseMemo;
-    @NotBlank
-    private String categoryName;
+    @Positive
+    private Long categoryId;
 }

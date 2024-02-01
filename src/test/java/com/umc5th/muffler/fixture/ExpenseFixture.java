@@ -17,8 +17,9 @@ public class ExpenseFixture {
   public static Expense EXPENSE_ONE = Expense.builder()
             .id(1L)
             .title("ONE")
-            .cost(1L)
+            .cost(100L)
             .memo("ONE MEMO")
+            .category(CategoryFixture.CATEGORY_ONE)
             .date(LocalDate.of(2024, 1, 1))
             .category(CategoryFixture.CATEGORY_ONE)
             .build();
