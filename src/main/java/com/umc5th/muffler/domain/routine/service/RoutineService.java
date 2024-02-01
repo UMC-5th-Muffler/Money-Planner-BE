@@ -99,12 +99,12 @@ public class RoutineService {
         );
     }
 
-    public RoutineResponse getRoutine(Pageable pageable, String memberId) {
+    public RoutineResponse getAllRoutines(Pageable pageable, String memberId) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Slice<Routine> routineList = routineRepository.findAllByMember(member, pageable);
+        Slice<Routine> routineList = routineRepository.findAllByMemberId(memberId, pageable);
 
         Map<Long, RoutineWeeklyDetailDto> weeklyDetailDto = getWeeklyRoutine(routineList);
         List<RoutineDetailDto> routineInfoList  = RoutineConverter.toRoutineInfo(routineList, weeklyDetailDto);

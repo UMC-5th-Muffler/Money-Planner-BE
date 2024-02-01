@@ -18,11 +18,11 @@ public class RoutineController {
     private final RoutineService routineService;
 
     @GetMapping
-    public Response<RoutineResponse> getRoutine(
+    public Response<RoutineResponse> getAllRoutines(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             Authentication authentication) {
 
-        RoutineResponse response = routineService.getRoutine(pageable, authentication.getName());
+        RoutineResponse response = routineService.getAllRoutines(pageable, authentication.getName());
         return Response.success(response);
     }
 
