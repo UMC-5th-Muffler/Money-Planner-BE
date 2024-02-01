@@ -22,25 +22,27 @@ public class RoutineConverter {
     }
 
     public static List<RoutineAll> toRoutineInfo(Slice<Routine> routineList, Map<Long, RoutineWeeklyDetailDto> weeklyDetailDtoList) {
-
         return routineList.stream()
                 .map(routine -> {
-                    RoutineAll.RoutineAllBuilder builder = RoutineAll.builder()
+                    RoutineAll routineAll = RoutineAll.builder()
                             .routineId(routine.getId())
                             .routineTitle(routine.getTitle())
                             .routineCost(routine.getCost())
-                            .categoryIcon(routine.getCategory().getIcon());
+                            .categoryIcon(routine.getCategory().getIcon())
+                            .build();
 
-                    if (weeklyDetailDtoList.containsKey(routine.getId())) {
-                        builder.weeklyDetail(weeklyDetailDtoList.get(routine.getId()));
+                    RoutineWeeklyDetailDto weeklyDetail = weeklyDetailDtoList.get(routine.getId());
+                    if (weeklyDetail != null) {
+                        routineAll.setWeeklyDetail(weeklyDetail);
                     } else {
-                        builder.monthlyRepeatDay(routine.getMonthlyRepeatDay());
+                        routineAll.setMonthlyRepeatDay(routine.getMonthlyRepeatDay());
                     }
 
-                    return builder.build();
+                    return routineAll;
                 })
                 .collect(Collectors.toList());
     }
+
 
     public static RoutineWeeklyDetailDto getWeeklyDetail(Routine routine) {
 
