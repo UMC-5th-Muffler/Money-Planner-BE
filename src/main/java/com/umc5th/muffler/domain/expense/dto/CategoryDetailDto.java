@@ -7,6 +7,6 @@ import lombok.Getter;
 @Getter
 public class CategoryDetailDto {
 
-    private Long id; // 카테고리 id
-    private String name; // 카테고리 이름
+    private Long id;
+    private String name;
 }

@@ -5,7 +5,8 @@ import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.constant.Role;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.MemberException;
-import com.umc5th.muffler.global.security.jwt.TokenInfo;
+import java.util.Collections;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,8 +18,6 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.Collections;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -63,12 +62,12 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
     }
 
     @Transactional
-    public boolean determineUserStatusAndSetRefreshToken(Authentication authentication, TokenInfo tokenInfo) {
+    public boolean determineUserStatusAndSetRefreshToken(Authentication authentication, String refreshToken) {
         String memberId = authentication.getName();
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-        member.setRefreshToken(tokenInfo.getRefreshToken());
+        member.setRefreshToken(refreshToken);
 
         // 신규 회원인 경우
         if (member.getName() == null) {

@@ -14,10 +14,15 @@ import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/member")
+@RequestMapping("/api/member")
 public class MemberController {
 
     private final MemberService memberService;
+
+    @GetMapping("/connect")
+    public Response<Void> connectTest() {
+        return Response.success();
+    }
 
     @GetMapping("/login/kakao")
     public RedirectView kakaoLogin() {

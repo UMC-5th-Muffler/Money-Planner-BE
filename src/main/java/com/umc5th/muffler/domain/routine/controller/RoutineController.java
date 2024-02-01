@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/routine")
+@RequestMapping("/api/routine")
 public class RoutineController {
 
     private final RoutineService routineService;
