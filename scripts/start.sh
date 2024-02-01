@@ -20,7 +20,7 @@ echo "$TIME_NOW > $JAR_FILE 파일 실행" >> $DEPLOY_LOG
 # .env 파일이 존재하는지 확인
 if [ -f "$ENV_FILE" ]; then
   # .env 파일이 존재하면 모든 환경 변수를 -D 옵션에 추가
-  nohup java $(cat "$ENV_FILE" | xargs -I {} echo -n "-D{} ") -jar $JAR_FILE  > $APP_LOG 2> $ERROR_LOG &
+  nohup java $(cat "$ENV_FILE" | xargs -I {} echo -n "-D{} ") -jar $JAR_FILE --spring.profiles.active=prod  > $APP_LOG 2> $ERROR_LOG &
 else
   # .env 파일이 없으면 그냥 .jar 파일 실행
   echo "env파일 없음!\n"
