@@ -21,17 +21,15 @@ public class RoutineConverter {
                 .collect(Collectors.toList());
     }
 
-    public static List<RoutineDetailDto> toRoutineInfo(Slice<Routine> routineList, Map<Long, RoutineWeeklyDetailDto> weeklyDetailDtoList) {
+    public static List<RoutineAll> toRoutineInfo(Slice<Routine> routineList, Map<Long, RoutineWeeklyDetailDto> weeklyDetailDtoList) {
 
         return routineList.stream()
                 .map(routine -> {
-                    RoutineDetailDto.RoutineDetailDtoBuilder builder = RoutineDetailDto.builder()
+                    RoutineAll.RoutineAllBuilder builder = RoutineAll.builder()
                             .routineId(routine.getId())
                             .routineTitle(routine.getTitle())
-                            .routineMemo(routine.getMemo())
                             .routineCost(routine.getCost())
-                            .categoryIcon(routine.getCategory().getIcon())
-                            .categoryName(routine.getCategory().getName());
+                            .categoryIcon(routine.getCategory().getIcon());
 
                     if (weeklyDetailDtoList.containsKey(routine.getId())) {
                         builder.weeklyDetail(weeklyDetailDtoList.get(routine.getId()));
@@ -57,10 +55,17 @@ public class RoutineConverter {
                 .build();
     }
 
-    public static RoutineResponse toRoutineResponse(List<RoutineDetailDto> routineList, Boolean hasNext) {
+    public static RoutineResponse toRoutineResponse(List<RoutineAll> routineList, Boolean hasNext) {
         return RoutineResponse.builder()
                 .routineList(routineList)
                 .hasNext(hasNext)
+                .build();
+    }
+
+    public static RoutineDetail toRoutineDetail(Routine routine, String categoryName) {
+        return RoutineDetail.builder()
+                .routineMemo(routine.getMemo())
+                .categoryName(categoryName)
                 .build();
     }
 

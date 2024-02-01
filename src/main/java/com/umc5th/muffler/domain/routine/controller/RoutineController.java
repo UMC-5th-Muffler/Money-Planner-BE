@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.routine.controller;
 
+import com.umc5th.muffler.domain.routine.dto.RoutineDetail;
 import com.umc5th.muffler.domain.routine.dto.RoutineResponse;
 import com.umc5th.muffler.domain.routine.service.RoutineService;
 import com.umc5th.muffler.global.response.Response;
@@ -23,6 +24,13 @@ public class RoutineController {
             Authentication authentication) {
 
         RoutineResponse response = routineService.getAllRoutines(pageable, authentication.getName());
+        return Response.success(response);
+    }
+
+    @GetMapping("/{routineId}")
+    public Response<RoutineDetail> getRoutine(@PathVariable Long routineId, Authentication authentication) {
+
+        RoutineDetail response = routineService.getRoutine(authentication.getName(), routineId);
         return Response.success(response);
     }
 

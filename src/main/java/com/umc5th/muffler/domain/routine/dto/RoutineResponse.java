@@ -13,6 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 public class RoutineResponse {
 
-    private List<RoutineDetailDto> routineList;
+    private List<RoutineAll> routineList;
     private boolean hasNext;
 }

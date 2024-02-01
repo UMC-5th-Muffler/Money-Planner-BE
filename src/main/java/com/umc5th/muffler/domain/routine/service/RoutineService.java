@@ -101,13 +101,12 @@ public class RoutineService {
 
     public RoutineResponse getAllRoutines(Pageable pageable, String memberId) {
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Slice<Routine> routineList = routineRepository.findAllByMemberId(memberId, pageable);
+        Slice<Routine> routineList = routineRepository.findAllByMemberId(member.getId(), pageable);
 
         Map<Long, RoutineWeeklyDetailDto> weeklyDetailDto = getWeeklyRoutine(routineList);
-        List<RoutineDetailDto> routineInfoList  = RoutineConverter.toRoutineInfo(routineList, weeklyDetailDto);
+        List<RoutineAll> routineInfoList  = RoutineConverter.toRoutineInfo(routineList, weeklyDetailDto);
         RoutineResponse response = RoutineConverter.toRoutineResponse(routineInfoList, routineList.hasNext());
 
         return response;
@@ -120,6 +119,15 @@ public class RoutineService {
                         Routine::getId,
                         RoutineConverter::getWeeklyDetail
                 ));
+    }
+
+    public RoutineDetail getRoutine(String memberId, Long routineId) {
+
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+        Routine routine = routineRepository.findByIdAndCategory(routineId).orElseThrow(() -> new RoutineException(ErrorCode.ROUTINE_NOT_FOUND));
+        String categoryName = routine.getCategory().getName();
+
+        return RoutineConverter.toRoutineDetail(routine, categoryName);
     }
 
     @Transactional
