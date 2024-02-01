@@ -49,7 +49,7 @@ public class CategoryDeleteTest {
         member.addCategory(etcCategory);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findByIdWithFetchMember(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
         given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.of(etcCategory));
         given(routineRepository.updateRoutinesWithDeletedCategory(any(Long.class), any(Long.class))).willReturn(1);
@@ -88,7 +88,7 @@ public class CategoryDeleteTest {
         member.addCategory(etcCategory);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findByIdWithFetchMember(any(Long.class))).willReturn(Optional.empty());
+        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.empty());
 
         assertThatThrownBy(() ->categoryService.deactivateCategory(member.getId(), category.getId()))
                 .isInstanceOf(CategoryException.class)
@@ -106,7 +106,7 @@ public class CategoryDeleteTest {
         member.addCategory(etcCategory);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findByIdWithFetchMember(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
 
         assertThatThrownBy(() ->categoryService.deactivateCategory(member.getId(), category.getId()))
                 .isInstanceOf(CategoryException.class)
@@ -123,7 +123,7 @@ public class CategoryDeleteTest {
         member.addCategory(etcCategory);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findByIdWithFetchMember(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
 
         assertThatThrownBy(() ->categoryService.deactivateCategory(member.getId(), category.getId()))
                 .isInstanceOf(CategoryException.class)
@@ -140,7 +140,7 @@ public class CategoryDeleteTest {
         member.addCategory(etcCategory);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findByIdWithFetchMember(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
 
         assertThatThrownBy(() ->categoryService.deactivateCategory(member.getId(), category.getId()))
                 .isInstanceOf(CategoryException.class)
@@ -157,7 +157,7 @@ public class CategoryDeleteTest {
         member.addCategory(etcCategory);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findByIdWithFetchMember(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
 
         assertThatThrownBy(() ->categoryService.deactivateCategory(member.getId(), category.getId()))
                 .isInstanceOf(CategoryException.class)

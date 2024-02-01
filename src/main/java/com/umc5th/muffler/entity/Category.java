@@ -59,6 +59,8 @@ public class Category extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    public void changeName(String newName) {this.name = newName;}
+    public void changeIcon(String newIcon) {this.icon = newIcon;}
     public void setStatus(Status status) {
         this.status = status;
     }
@@ -68,14 +70,18 @@ public class Category extends BaseTimeEntity {
         this.member = member;
     }
 
+    public Boolean isIconChanged(String newIcon) { return !icon.equals(newIcon);}
     public Boolean isIconUpdatable(String newIcon) {
-        return icon.equals(newIcon) || type == CategoryType.CUSTOM;
+        return type == CategoryType.CUSTOM;
     }
     public Boolean isOwnMember(String memberId) {
         return member.getId().equals(memberId);
     }
-    public Boolean isNameUpdatable(String newName) {
-        return name.equals(newName) || !name.equals(ETC_CATEGORY_NAME);
+    public Boolean isNameUpdatable() {
+        return !name.equals(ETC_CATEGORY_NAME);
+    }
+    public Boolean isNameChanged(String newName) {
+        return !name.equals(newName);
     }
 
     // 생성 메서드

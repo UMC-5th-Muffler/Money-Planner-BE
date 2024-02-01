@@ -4,7 +4,8 @@ import com.umc5th.muffler.domain.category.dto.GetCategoryListResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.DeleteCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryRequest;
-import com.umc5th.muffler.domain.category.dto.UpdateCategoryRequest;
+import com.umc5th.muffler.domain.category.dto.UpdateCategoryDetailRequest;
+import com.umc5th.muffler.domain.category.dto.UpdateCategoryNameIconRequest;
 import com.umc5th.muffler.domain.category.service.CategoryService;
 import com.umc5th.muffler.global.response.Response;
 import java.security.Principal;
@@ -30,9 +31,11 @@ public class CategoryController {
         NewCategoryResponse newCategory = categoryService.createNewCategory(principal.getName(), request);
         return Response.success(newCategory);
     }
-    @PatchMapping
-    public Response<Void> updateCategory(Principal principal, @RequestBody @Valid UpdateCategoryRequest request) {
-        categoryService.updateCategory(principal.getName(), request);
+
+
+    @PatchMapping("/single")
+    public Response<Void> updateCategoryNameOrIcon(Principal principal, @RequestBody @Valid UpdateCategoryNameIconRequest request) {
+        categoryService.updateNameOrIcon(principal.getName(), request);
         return Response.success();
     }
 

@@ -9,7 +9,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.umc5th.muffler.domain.category.dto.UpdateCategoryRequest;
+import com.umc5th.muffler.domain.category.dto.UpdateCategoryNameIconRequest;
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Category;
@@ -36,34 +36,26 @@ public class CategoryUpdateTest {
     private MemberRepository memberRepository;
     @InjectMocks
     private CategoryService categoryService;
-    @Captor
-    private ArgumentCaptor<Category> categoryArgumentCaptor;
 
     @Test
     @Transactional
     void 커스텀카테고리_수정_성공() {
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
-        UpdateCategoryRequest request = new UpdateCategoryRequest(category.getId(),
-                "수정이름", "수정 아이콘", Boolean.FALSE, 0L);
+        UpdateCategoryNameIconRequest request = new UpdateCategoryNameIconRequest(category.getId(),
+                "수정이름", "수정 아이콘");
         member.addCategory(category);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findById(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
         given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.empty());
 
-        categoryService.updateCategory(member.getId(), request);
+        categoryService.updateNameOrIcon(member.getId(), request);
 
-        verify(categoryRepository).save(categoryArgumentCaptor.capture());
-        verify(categoryRepository, times(1)).save(any());
-        Category newCategory = categoryArgumentCaptor.getValue();
-
-        assertThat(newCategory.getId()).isEqualTo(request.getCategoryId());
-        assertThat(newCategory.getIcon()).isEqualTo(request.getIcon());
-        assertThat(newCategory.getName()).isEqualTo(request.getName());
-        assertThat(newCategory.getIsVisible()).isEqualTo(request.getIsVisible());
-        assertThat(newCategory.getPriority()).isEqualTo(request.getPriority());
+        assertThat(category.getId()).isEqualTo(request.getCategoryId());
+        assertThat(category.getIcon()).isEqualTo(request.getCategoryIcon());
+        assertThat(category.getName()).isEqualTo(request.getCategoryName());
     }
 
     @Test
@@ -71,26 +63,20 @@ public class CategoryUpdateTest {
     void 디폴트카테고리_아이콘_외_수정_성공() {
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.DEFAULT_CATEGORY_FOUR;
-        UpdateCategoryRequest request = new UpdateCategoryRequest(category.getId(),
-                "수정이름", category.getIcon(), Boolean.FALSE, 0L);
+        UpdateCategoryNameIconRequest request = new UpdateCategoryNameIconRequest(category.getId(),
+                "수정이름", category.getIcon());
         member.addCategory(category);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findById(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
         given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.empty());
 
-        categoryService.updateCategory(member.getId(), request);
+        categoryService.updateNameOrIcon(member.getId(), request);
 
-        verify(categoryRepository).save(categoryArgumentCaptor.capture());
-        verify(categoryRepository, times(1)).save(any());
-        Category newCategory = categoryArgumentCaptor.getValue();
-
-        assertThat(newCategory.getId()).isEqualTo(request.getCategoryId());
-        assertThat(newCategory.getIcon()).isEqualTo(request.getIcon());
-        assertThat(newCategory.getName()).isEqualTo(request.getName());
-        assertThat(newCategory.getIsVisible()).isEqualTo(request.getIsVisible());
-        assertThat(newCategory.getPriority()).isEqualTo(request.getPriority());
+        assertThat(category.getId()).isEqualTo(request.getCategoryId());
+        assertThat(category.getIcon()).isEqualTo(request.getCategoryIcon());
+        assertThat(category.getName()).isEqualTo(request.getCategoryName());
     }
 
     @Test
@@ -98,14 +84,14 @@ public class CategoryUpdateTest {
     void 디폴트카테고리_아이콘_수정_실패() {
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.DEFAULT_CATEGORY_FOUR;
-        UpdateCategoryRequest request = new UpdateCategoryRequest(category.getId(),
-                "수정이름", "수정아이콘", Boolean.FALSE, 0L);
+        UpdateCategoryNameIconRequest request = new UpdateCategoryNameIconRequest(category.getId(),
+                "수정이름", "수정아이콘");
         member.addCategory(category);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findById(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
 
-        assertThatThrownBy(() ->categoryService.updateCategory(member.getId(), request))
+        assertThatThrownBy(() ->categoryService.updateNameOrIcon(member.getId(), request))
                 .isInstanceOf(CategoryException.class)
                 .hasFieldOrPropertyWithValue("errorCode",CANNOT_UPDATE_DEFAULT_ICON);
     }
@@ -116,13 +102,13 @@ public class CategoryUpdateTest {
     void 사용자아이디가_존재하지_않는_경우_실패() {
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.DEFAULT_CATEGORY_FOUR;
-        UpdateCategoryRequest request = new UpdateCategoryRequest(category.getId(),
-                "수정이름", "수정아이콘", Boolean.FALSE, 0L);
+        UpdateCategoryNameIconRequest request = new UpdateCategoryNameIconRequest(category.getId(),
+                "수정이름", "수정아이콘");
         member.addCategory(category);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.empty());
 
-        assertThatThrownBy(() ->categoryService.updateCategory(member.getId(), request))
+        assertThatThrownBy(() ->categoryService.updateNameOrIcon(member.getId(), request))
                 .isInstanceOf(CategoryException.class)
                 .hasFieldOrPropertyWithValue("errorCode",MEMBER_NOT_FOUND);
     }
@@ -132,14 +118,14 @@ public class CategoryUpdateTest {
     void 활성화된_카테고리가_존재하지_않는_경우_실패() {
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.DEFAULT_CATEGORY_FOUR;
-        UpdateCategoryRequest request = new UpdateCategoryRequest(category.getId(),
-                "수정이름", "수정아이콘", Boolean.FALSE, 0L);
+        UpdateCategoryNameIconRequest request = new UpdateCategoryNameIconRequest(category.getId(),
+                "수정이름", "수정아이콘");
         member.addCategory(category);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findById(any(Long.class))).willReturn(Optional.empty());
+        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.empty());
 
-        assertThatThrownBy(() ->categoryService.updateCategory(member.getId(), request))
+        assertThatThrownBy(() ->categoryService.updateNameOrIcon(member.getId(), request))
                 .isInstanceOf(CategoryException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CATEGORY_NOT_FOUND);
     }
@@ -150,14 +136,14 @@ public class CategoryUpdateTest {
         Member member = MemberFixture.MEMBER_ONE;
         Member other = MemberFixture.MEMBER_TWO;
         Category category = CategoryFixture.DEFAULT_CATEGORY_FOUR;
-        UpdateCategoryRequest request = new UpdateCategoryRequest(category.getId(),
-                "수정이름", "수정아이콘", Boolean.FALSE, 0L);
+        UpdateCategoryNameIconRequest request = new UpdateCategoryNameIconRequest(category.getId(),
+                "수정이름", "수정아이콘");
         other.addCategory(category);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findById(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
 
-        assertThatThrownBy(() ->categoryService.updateCategory(member.getId(), request))
+        assertThatThrownBy(() ->categoryService.updateNameOrIcon(member.getId(), request))
                 .isInstanceOf(CategoryException.class)
                 .hasFieldOrPropertyWithValue("errorCode",ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
     }
@@ -168,16 +154,16 @@ public class CategoryUpdateTest {
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.DEFAULT_CATEGORY_FOUR;
         Category sameNamed = CategoryFixture.createSameNamedDifferentCategory(category);
-        UpdateCategoryRequest request = new UpdateCategoryRequest(category.getId(),
-                "수정이름", category.getIcon(), Boolean.FALSE, 0L);
+        UpdateCategoryNameIconRequest request = new UpdateCategoryNameIconRequest(category.getId(),
+                "수정이름", category.getIcon());
         member.addCategory(category);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findById(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
         given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.of(sameNamed));
 
-        assertThatThrownBy(() ->categoryService.updateCategory(member.getId(), request))
+        assertThatThrownBy(() ->categoryService.updateNameOrIcon(member.getId(), request))
                 .isInstanceOf(CategoryException.class)
                 .hasFieldOrPropertyWithValue("errorCode",ErrorCode.DUPLICATED_CATEGORY_NAME);
     }
@@ -187,14 +173,14 @@ public class CategoryUpdateTest {
     void 기타_카테고리의_이름을_수정하려는_경우_실패() {
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.ETC_CATEGORY;
-        UpdateCategoryRequest request = new UpdateCategoryRequest(category.getId(),
-                "수정이름", category.getIcon(), Boolean.FALSE, 0L);
+        UpdateCategoryNameIconRequest request = new UpdateCategoryNameIconRequest(category.getId(),
+                "수정이름", category.getIcon());
         member.addCategory(category);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findById(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
 
-        assertThatThrownBy(() ->categoryService.updateCategory(member.getId(), request))
+        assertThatThrownBy(() ->categoryService.updateNameOrIcon(member.getId(), request))
                 .isInstanceOf(CategoryException.class)
                 .hasFieldOrPropertyWithValue("errorCode",ErrorCode.CANNOT_UPDATE_ETC_CATEGORY_NAME);
     }

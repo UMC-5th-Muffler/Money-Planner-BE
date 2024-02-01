@@ -6,7 +6,8 @@ import com.umc5th.muffler.domain.category.dto.GetCategoryListResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.DeleteCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryRequest;
-import com.umc5th.muffler.domain.category.dto.UpdateCategoryRequest;
+import com.umc5th.muffler.domain.category.dto.UpdateCategoryDetailRequest;
+import com.umc5th.muffler.domain.category.dto.UpdateCategoryNameIconRequest;
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.domain.routine.repository.RoutineRepository;
@@ -47,35 +48,34 @@ public class CategoryService {
         return new NewCategoryResponse(newCategory.getId());
     }
 
-    public void updateCategory(String memberId, UpdateCategoryRequest request) throws CategoryException {
+    public void updateNameOrIcon(String memberId, UpdateCategoryNameIconRequest request) throws CategoryException{
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
-        Category originalCategory = categoryRepository.findById(request.getCategoryId())
+        Category category = categoryRepository.findActiveCategoryById(request.getCategoryId())
                 .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
-        Category updatedCategory;
-
-        if (!originalCategory.isOwnMember(memberId))
+        if (!category.isOwnMember(memberId))
             throw new CategoryException(ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
 
-        if (!originalCategory.isIconUpdatable(request.getIcon()))
-            throw new CategoryException(ErrorCode.CANNOT_UPDATE_DEFAULT_ICON);
-        if (!originalCategory.isNameUpdatable(request.getName()))
-            throw new CategoryException(ErrorCode.CANNOT_UPDATE_ETC_CATEGORY_NAME);
-
-        Optional<Category> duplicatedCategory = categoryRepository.findCategoryWithNameAndMemberId(request.getName(), memberId);
-        if (duplicatedCategory.isPresent()) {
-            Category category = duplicatedCategory.get();
-            if (!category.getId().equals(request.getCategoryId()))
+        if (category.isNameChanged(request.getCategoryName())) {
+            if (!category.isNameUpdatable())
+                throw new CategoryException(ErrorCode.CANNOT_UPDATE_ETC_CATEGORY_NAME);
+            Optional<Category> duplicatedCategory = categoryRepository.findCategoryWithNameAndMemberId(
+                    request.getCategoryName(), memberId);
+            if (duplicatedCategory.isPresent())
                 throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
+            category.changeName(request.getCategoryName());
         }
-        updatedCategory = CategoryConverter.toEntity(originalCategory, request);
-        categoryRepository.save(updatedCategory);
+        if (category.isIconChanged(request.getCategoryIcon())) {
+            if (!category.isIconUpdatable(request.getCategoryIcon()))
+                throw new CategoryException(ErrorCode.CANNOT_UPDATE_DEFAULT_ICON);
+            category.changeIcon(request.getCategoryIcon());
+        }
     }
 
     public DeleteCategoryResponse deactivateCategory(String memberId, Long categoryId) throws CategoryException {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
-        Category category = categoryRepository.findByIdWithFetchMember(categoryId)
+        Category category = categoryRepository.findActiveCategoryById(categoryId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
 
         if (!category.isOwnMember(memberId))
