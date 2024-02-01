@@ -4,8 +4,8 @@ import com.umc5th.muffler.domain.category.dto.GetCategoryListResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.DeleteCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryRequest;
-import com.umc5th.muffler.domain.category.dto.UpdateCategoryDetailRequest;
 import com.umc5th.muffler.domain.category.dto.UpdateCategoryNameIconRequest;
+import com.umc5th.muffler.domain.category.dto.UpdateCategoryPriorityVisibilityRequest;
 import com.umc5th.muffler.domain.category.service.CategoryService;
 import com.umc5th.muffler.global.response.Response;
 import java.security.Principal;
@@ -32,10 +32,14 @@ public class CategoryController {
         return Response.success(newCategory);
     }
 
-
     @PatchMapping("/single")
     public Response<Void> updateCategoryNameOrIcon(Principal principal, @RequestBody @Valid UpdateCategoryNameIconRequest request) {
         categoryService.updateNameOrIcon(principal.getName(), request);
+        return Response.success();
+    }
+    @PatchMapping
+    public Response<Void> updateCategoryPriorityVisibility(Principal principal, @RequestBody @Valid UpdateCategoryPriorityVisibilityRequest request) {
+        categoryService.updateBatchPriorityOrVisibility(principal.getName(), request);
         return Response.success();
     }
 
