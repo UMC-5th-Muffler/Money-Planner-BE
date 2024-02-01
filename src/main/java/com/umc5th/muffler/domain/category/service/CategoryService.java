@@ -1,6 +1,6 @@
 package com.umc5th.muffler.domain.category.service;
 
-import com.umc5th.muffler.domain.category.converter.CategoryConverter;
+import com.umc5th.muffler.domain.category.dto.CategoryConverter;
 import com.umc5th.muffler.domain.category.dto.CategoryDto;
 import com.umc5th.muffler.domain.category.dto.NewCategoryRequest;
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
@@ -31,7 +31,9 @@ public class CategoryService {
 
         if (duplicatedCategory.isPresent())
             throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
-        Category newCategory = CategoryConverter.toEntity(request);
+
+        Long count = categoryRepository.countByMember(member);
+        Category newCategory = CategoryConverter.toEntity(request, count + 1);
         member.addCategory(newCategory);
         newCategory = categoryRepository.save(newCategory);
         return new CategoryDto(newCategory.getId(), newCategory.getName());

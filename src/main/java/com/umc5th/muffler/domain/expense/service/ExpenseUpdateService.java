@@ -1,6 +1,7 @@
 package com.umc5th.muffler.domain.expense.service;
 
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
+import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
 import com.umc5th.muffler.domain.expense.dto.AlarmControlDTO;
 import com.umc5th.muffler.domain.expense.dto.ExpenseConverter;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
@@ -9,7 +10,6 @@ import com.umc5th.muffler.domain.expense.dto.UpdateExpenseRequest;
 import com.umc5th.muffler.domain.expense.dto.UpdateExpenseResponse;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.goal.repository.CategoryGoalRepository;
-import com.umc5th.muffler.domain.goal.repository.DailyPlanRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.CategoryGoal;
@@ -32,16 +32,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class ExpenseUpdateService {
     private final ExpenseRepository expenseRepository;
     private final MemberRepository memberRepository;
-    private final DailyPlanRepository dailyPlanRepository;
     private final CategoryRepository categoryRepository;
     private final CategoryGoalRepository  categoryGoalRepository;
+    private final DailyPlanRepository dailyPlanRepository;
 
     public NewExpenseResponse enrollExpense(String memberId, NewExpenseRequest request) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.MEMBER_NOT_FOUND));
         Category category = categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), member.getId())
                 .orElseThrow(() -> new ExpenseException(ErrorCode.CATEGORY_NOT_FOUND));
-        DailyPlan dailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(request.getExpenseDate(), memberId)
+        DailyPlan dailyPlan = dailyPlanRepository.findByMemberIdAndDate(memberId, request.getExpenseDate())
                 .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
         if (dailyPlan.getIsZeroDay())
             throw new ExpenseException(ErrorCode.CANNOT_UPDATE_TO_ZERO_DAY);
@@ -63,7 +63,7 @@ public class ExpenseUpdateService {
                 .orElseThrow(() -> new ExpenseException(ErrorCode.EXPENSE_NOT_FOUND));
         if (!oldExpense.isOwnMember(memberId))
             throw new ExpenseException(ErrorCode.CANNOT_UPDATE_OTHER_MEMBER_EXPENSE);
-        DailyPlan oldDailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(oldExpense.getDate(), memberId)
+        DailyPlan oldDailyPlan = dailyPlanRepository.findByMemberIdAndDate(memberId, oldExpense.getDate())
                 .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
         Long difference = request.getExpenseCost() - oldExpense.getCost();
 
@@ -82,7 +82,7 @@ public class ExpenseUpdateService {
 
     private DailyPlan syncDailyPlanWithRequest(Expense expense, DailyPlan dailyPlan, String memberId ,UpdateExpenseRequest request) {
         if (expense.isDateChanged(request.getExpenseDate())) {
-            DailyPlan newDailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(request.getExpenseDate(), memberId)
+            DailyPlan newDailyPlan = dailyPlanRepository.findByMemberIdAndDate(memberId, request.getExpenseDate())
                     .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
             if (newDailyPlan.getIsZeroDay())
                 throw new ExpenseException(ErrorCode.CANNOT_UPDATE_TO_ZERO_DAY);
@@ -127,7 +127,7 @@ public class ExpenseUpdateService {
                 .orElseThrow(() -> new ExpenseException(ErrorCode.EXPENSE_NOT_FOUND));
         if (!expense.isOwnMember(memberId))
             throw new ExpenseException(ErrorCode.CANNOT_UPDATE_OTHER_MEMBER_EXPENSE);
-        DailyPlan dailyPlan = dailyPlanRepository.findDailyPlanByDateAndMemberId(expense.getDate(), memberId)
+        DailyPlan dailyPlan = dailyPlanRepository.findByMemberIdAndDate(memberId, expense.getDate())
                 .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
         dailyPlan.addExpenseDifference(-expense.getCost());
         dailyPlanRepository.save(dailyPlan);
