@@ -16,18 +16,6 @@ public class CategoryConverter {
                 .status(Status.ACTIVE)
                 .build();
     }
-    public static Category toEntity(Category original, UpdateCategoryRequest request) {
-        return Category.builder()
-                .id(original.getId())
-                .name(request.getName())
-                .icon(request.getIcon())
-                .isVisible(request.getIsVisible())
-                .priority(request.getPriority())
-                .type(original.getType())
-                .status(Status.ACTIVE)
-                .member(original.getMember())
-                .build();
-    }
 
     public static CategoryDTO toCategoryDTO(Category category) {
         return CategoryDTO.builder()

@@ -1,7 +1,9 @@
 package com.umc5th.muffler.domain.category.repository;
 
+import static java.sql.Statement.EXECUTE_FAILED;
 import static java.sql.Statement.SUCCESS_NO_INFO;
 
+import com.umc5th.muffler.domain.category.dto.CategoryPriorityVisibilityDTO;
 import com.umc5th.muffler.domain.category.dto.DefaultCategoryDTO;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.ExpenseException;
@@ -23,15 +25,28 @@ public class BatchUpdateCategoryRepository {
         List<DefaultCategoryDTO> defaultCategoryDTOS = defaultCategoryLoader.getDefaultCategoryDTOS(memberId);
         return batchInsertCategories(defaultCategoryDTOS);
     }
+
     @Modifying(clearAutomatically = true)
     private int batchInsertCategories(List<DefaultCategoryDTO> defaultCategoryDTOS) {
         String sql = "INSERT INTO category(name, icon, priority, status, is_visible, type, member_id) "
                 + "values (:name, :icon, :priority, :status, :isVisible, :type, :memberId) ";
-        int failNum =  Arrays.stream(namedParameterJdbcTemplate.batchUpdate(sql, SqlParameterSourceUtils.createBatch(defaultCategoryDTOS)))
+        int failNum = Arrays.stream(
+                        namedParameterJdbcTemplate.batchUpdate(sql, SqlParameterSourceUtils.createBatch(defaultCategoryDTOS)))
                 .filter(result -> result != SUCCESS_NO_INFO)
                 .sum();
         if (failNum != 0)
             throw new ExpenseException(ErrorCode.CATEGORY_BATCH_INSERT_FAIL);
         return defaultCategoryDTOS.size();
+    }
+
+    @Modifying(clearAutomatically = true)
+    public int batchUpdatePriorityAndVisibility(List<CategoryPriorityVisibilityDTO> dtos) {
+        String sql = "UPDATE category SET priority = :priority, is_visible = :isVisible WHERE id = :categoryId";
+        int failNum = Arrays.stream(namedParameterJdbcTemplate.batchUpdate(sql, SqlParameterSourceUtils.createBatch(dtos)))
+                .filter(result -> result == EXECUTE_FAILED)
+                .sum();
+        if (failNum != 0)
+            throw new ExpenseException(ErrorCode.CATEGORY_BATCH_INSERT_FAIL);
+        return dtos.size();
     }
 }
