@@ -54,7 +54,7 @@ class GoalControllerTest {
         String expectedStartDate = goal.getStartDate().toString();
         String expectedEndDate = goal.getEndDate().toString();
 
-        mockMvc.perform(get("/goal/previous"))
+        mockMvc.perform(get("/api/goal/previous"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.terms", hasSize(1)))
                 .andExpect(jsonPath("$.result.terms[0].startDate", is(expectedStartDate)))
@@ -66,7 +66,7 @@ class GoalControllerTest {
     void 목표를_생성한다() throws Exception {
         GoalCreateRequest request = GoalCreateRequestFixture.create();
 
-        mockMvc.perform(post("/goal")
+        mockMvc.perform(post("/api/goal")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(request))).andDo(print())
                 .andExpect(status().isOk());
@@ -77,7 +77,7 @@ class GoalControllerTest {
     @Test
     @WithMockUser
     void 목표를_삭제한다() throws Exception {
-        mockMvc.perform(delete("/goal/1"))
+        mockMvc.perform(delete("/api/goal/1"))
                 .andExpect(status().isOk());
     }
 }

@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@Profile("!test")
+@Profile({"local", "prod"})
 public class SecurityConfig {
 
     private final OAuthService oAuthService;
@@ -28,8 +28,10 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-                .antMatchers("/member/refresh-token")
-                .antMatchers("/swagger-ui/**", "/v3/api-docs/**");
+                .antMatchers(
+                        "/", "/css/**", "/images/**", "/js/**", "/favicon.ico",
+                        "/swagger-ui.html", "/swagger-ui/**", "/*/api-docs/**", "/swagger-resources/**", "/webjars/**",
+                        "/api/member/refresh-token");
     }
 
     @Bean
@@ -39,9 +41,7 @@ public class SecurityConfig {
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests(auth -> auth
-                        .antMatchers("/member/login/**").authenticated()
-                        .antMatchers("/category/**", "/challenge/**", "/expense/**",
-                                "/goal/**", "/rate/**", "/routine/**").authenticated()
+                        .antMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()
                 ).oauth2Login(oAuth -> oAuth
                         .successHandler(oAuthLoginSuccessHandler)

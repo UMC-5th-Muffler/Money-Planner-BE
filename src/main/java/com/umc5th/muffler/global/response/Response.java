@@ -1,7 +1,5 @@
 package com.umc5th.muffler.global.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.umc5th.muffler.global.response.code.SuccessCode;
@@ -16,7 +14,6 @@ public class Response<T> {
     @JsonProperty("isSuccess")
     private final Boolean isSuccess;
     private final String message;
-    @JsonInclude(Include.NON_NULL)
     private T result;
 
     public static Response<Void> success() {

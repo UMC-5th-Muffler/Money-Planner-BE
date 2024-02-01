@@ -1,7 +1,6 @@
 package com.umc5th.muffler.domain.dailyplan.dto;
 
 import com.mysema.commons.lang.Pair;
-import com.umc5th.muffler.domain.category.dto.CategoryConverter;
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.DailyPlan;
 import com.umc5th.muffler.entity.Expense;
@@ -16,10 +15,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class HomeConverter {
-    public static WholeCalendar toBasicCalendarResponse(List<InactiveGoalInfo> inactiveGoalsResponse, List<Category> categories) {
+    public static WholeCalendar toBasicCalendarResponse(List<InactiveGoalInfo> inactiveGoalsResponse) {
         return WholeCalendar.builder()
                 .inactiveGoalsResponse(inactiveGoalsResponse)
-                .categoryFilters(CategoryConverter.toCategoryDtos(categories))
                 .build();
     }
 

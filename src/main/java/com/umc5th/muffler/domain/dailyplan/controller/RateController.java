@@ -14,7 +14,7 @@ import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/rate")
+@RequestMapping("/api/rate")
 public class RateController {
 
     private final RateService rateService;

@@ -30,6 +30,8 @@ public enum ErrorCode {
 
     // DailyPlan 에러
     DAILYPLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 일일 소비 계획입니다."),
+    NO_DAILY_PLAN_GIVEN_DATE(HttpStatus.NOT_FOUND, "수정하려는 소비날짜에 맞는 일일 목표가 없습니다. "
+            + "목표가 설정된 다른 날로 수정을 하거나 수정하려는 날에 목표를 설정해주세요."),
 
 
     // Category 에러
@@ -45,11 +47,20 @@ public enum ErrorCode {
 
     // Expense 에러
     EXPENSE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 소비 내역입니다."),
+    CANNOT_UPDATE_OTHER_MEMBER_EXPENSE(HttpStatus.UNAUTHORIZED, "다른 유저의 소비 내역을 수정할 수 없습니다"),
+    CANNOT_UPDATE_TO_ZERO_DAY(HttpStatus.CONFLICT, "제로 데이로 지정한 날로는 소비 내역을 옮길 수 없습니다."),
 
 
     // Routine 에러
     INVALID_ROUTINE_INPUT(HttpStatus.BAD_REQUEST, "올바르지 않은 루틴 입력입니다."),
-    ROUTINE_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "루틴 타입이 없거나 유효하지 않습니다.")
+    ROUTINE_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "루틴 타입이 없거나 유효하지 않습니다."),
+
+    // Rate 에러,
+    RATE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 평가입니다."),
+    CATEGORY_RATE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 카테고리 평가입니다."),
+    RATE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 평가가 존재합니다."),
+    CATEGORY_RATE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 카테고리 평가가 존재합니다."),
+    CANNOT_UPDATE_OTHER_MEMBER_DAILY_PLAN(HttpStatus.UNAUTHORIZED, "다른 유저의 일일 목표를 수정할 수 없습니다.")
     ;
 
     private final HttpStatus httpStatus;
