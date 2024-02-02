@@ -11,6 +11,7 @@ import com.umc5th.muffler.domain.category.dto.UpdateCategoryNameIconRequest;
 import com.umc5th.muffler.domain.category.dto.UpdateCategoryPriorityVisibilityRequest;
 import com.umc5th.muffler.domain.category.repository.BatchUpdateCategoryRepository;
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
+import com.umc5th.muffler.domain.category.repository.dto.NameProjection;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.domain.routine.repository.RoutineRepository;
 import com.umc5th.muffler.entity.Category;
@@ -42,12 +43,13 @@ public class CategoryService {
     public NewCategoryResponse createNewCategory(String memberId, NewCategoryRequest request) throws CategoryException {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
-        Optional<Category> duplicatedCategory = categoryRepository.findCategoryWithNameAndMemberId(
-                request.getName(), memberId);
-        if (duplicatedCategory.isPresent()) {
+        List<NameProjection> categoryNames = categoryRepository.findByMember(member);
+        Optional<NameProjection> duplicateName = categoryNames.stream()
+                .filter(row -> row.getName().equals(request.getName()))
+                .findAny();
+        if (duplicateName.isPresent())
             throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
-        }
-        Category newCategory = CategoryConverter.toEntity(request);
+        Category newCategory = CategoryConverter.toEntity(request, categoryNames.size() + 1L);
         newCategory.setMember(member);
         newCategory = categoryRepository.save(newCategory);
         return new NewCategoryResponse(newCategory.getId());
@@ -98,7 +100,7 @@ public class CategoryService {
     }
 
     private Boolean isChanged(Category category, CategoryPriorityVisibilityDTO dto) {
-        return category.getIsVisible() != dto.getIsVisible() || category.getPriority() != dto.getPriority();
+        return category.getIsVisible() != dto.getIsVisible() || !category.getPriority().equals(dto.getPriority());
     }
 
     public DeleteCategoryResponse deactivateCategory(String memberId, Long categoryId) throws CategoryException {
@@ -127,7 +129,7 @@ public class CategoryService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
         List<CategoryDTO> categories = categoryRepository.findActiveCategoriesAsc(member.getId())
-                .stream().map(category -> CategoryConverter.toCategoryDTO(category))
+                .stream().map(CategoryConverter::toCategoryDTO)
                 .collect(Collectors.toList());
         return new GetCategoryListResponse(categories);
     }

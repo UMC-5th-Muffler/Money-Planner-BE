@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CategoryConverter {
-    public static Category toEntity(NewCategoryRequest dto) {
+    public static Category toEntity(NewCategoryRequest dto, Long priority) {
         return Category.builder()
                 .icon(dto.getIcon())
                 .name(dto.getName())
-                .priority(dto.getPriority())
+                .priority(priority)
                 .type(CategoryType.CUSTOM)
                 .status(Status.ACTIVE)
                 .build();
@@ -25,15 +25,6 @@ public class CategoryConverter {
                 .isVisible(category.getIsVisible())
                 .priority(category.getPriority())
                 .type(category.getType())
-                .build();
-    }
-
-    public static Category toEntity(NewCategoryRequest dto, Long count) {
-        return Category.builder()
-                .icon(dto.getIcon())
-                .name(dto.getName())
-                .status(Status.ACTIVE)
-                .priority(count)
                 .build();
     }
 

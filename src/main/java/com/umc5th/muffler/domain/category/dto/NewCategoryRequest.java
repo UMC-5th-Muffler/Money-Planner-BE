@@ -14,6 +14,4 @@ public class NewCategoryRequest {
     private String name;
     @NotBlank
     private String icon;
-    @NotNull
-    private Long priority;
 }
