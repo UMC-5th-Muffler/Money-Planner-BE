@@ -24,14 +24,14 @@ public class GoalService {
     private final MemberRepository memberRepository;
     private final GoalRepository goalRepository;
 
-    public List<Goal> getGoals(Long memberId) {
+    public List<Goal> getGoals(String memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
         return member.getGoals();
     }
 
     @Transactional
-    public void delete(Long goalId, Long memberId) {
+    public void delete(Long goalId, String memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
         Goal goal = goalRepository.findById(goalId)
