@@ -1,4 +1,4 @@
-package com.umc5th.muffler.domain.category.dto;
+package com.umc5th.muffler.domain.category.repository.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

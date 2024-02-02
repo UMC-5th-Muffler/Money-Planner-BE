@@ -9,10 +9,10 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class CategoryDTO {
-    private Long id;
+    private Long categoryId;
     private String name;
     private String icon;
-    private Long orderNumber;
+    private Long priority;
     private Boolean isVisible;
     private CategoryType type;
 }

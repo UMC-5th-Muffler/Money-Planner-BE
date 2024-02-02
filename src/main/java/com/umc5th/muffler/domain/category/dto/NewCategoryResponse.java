@@ -8,5 +8,5 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class NewCategoryResponse {
-    private Long id;
+    private Long categoryId;
 }

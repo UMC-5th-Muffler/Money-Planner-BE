@@ -11,7 +11,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class NewCategoryRequest {
     @NotBlank
-    private String categoryName;
+    private String name;
     @NotBlank
     private String icon;
     @NotNull

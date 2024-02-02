@@ -4,7 +4,7 @@ import static java.sql.Statement.EXECUTE_FAILED;
 import static java.sql.Statement.SUCCESS_NO_INFO;
 
 import com.umc5th.muffler.domain.category.dto.CategoryPriorityVisibilityDTO;
-import com.umc5th.muffler.domain.category.dto.DefaultCategoryDTO;
+import com.umc5th.muffler.domain.category.repository.dto.DefaultCategoryDTO;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.ExpenseException;
 import java.util.Arrays;

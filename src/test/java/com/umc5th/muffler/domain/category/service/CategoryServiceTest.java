@@ -45,7 +45,7 @@ class CategoryServiceTest {
         Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
         NewCategoryRequest request = new NewCategoryRequest(category.getName(), category.getIcon(), 0L);
 
-        given(categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), member.getId()))
+        given(categoryRepository.findCategoryWithNameAndMemberId(request.getName(), member.getId()))
                 .willReturn(Optional.empty());
         given(memberRepository.findById(member.getId()))
                 .willReturn(Optional.ofNullable(member));
@@ -57,7 +57,7 @@ class CategoryServiceTest {
         verify(categoryRepository).save(categoryArgumentCaptor.capture());
 
         Category saved = categoryArgumentCaptor.getValue();
-        Assertions.assertEquals(request.getCategoryName(), saved.getName());
+        Assertions.assertEquals(request.getName(), saved.getName());
     }
 
     @Test
@@ -70,7 +70,7 @@ class CategoryServiceTest {
         NewCategoryRequest request = new NewCategoryRequest(haveCategory.getName(), haveCategory.getIcon(), 0L);
         // when
         given(memberRepository.findById(member.getId())).willReturn(Optional.ofNullable(member));
-        given(categoryRepository.findCategoryWithNameAndMemberId(request.getCategoryName(), member.getId()))
+        given(categoryRepository.findCategoryWithNameAndMemberId(request.getName(), member.getId()))
                 .willReturn(Optional.of(haveCategory));
 
         // then

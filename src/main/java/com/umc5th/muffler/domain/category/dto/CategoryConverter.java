@@ -10,7 +10,7 @@ public class CategoryConverter {
     public static Category toEntity(NewCategoryRequest dto) {
         return Category.builder()
                 .icon(dto.getIcon())
-                .name(dto.getCategoryName())
+                .name(dto.getName())
                 .priority(dto.getPriority())
                 .type(CategoryType.CUSTOM)
                 .status(Status.ACTIVE)
@@ -19,11 +19,11 @@ public class CategoryConverter {
 
     public static CategoryDTO toCategoryDTO(Category category) {
         return CategoryDTO.builder()
-                .id(category.getId())
+                .categoryId(category.getId())
                 .icon(category.getIcon())
                 .name(category.getName())
                 .isVisible(category.getIsVisible())
-                .orderNumber(category.getPriority())
+                .priority(category.getPriority())
                 .type(category.getType())
                 .build();
     }
@@ -31,7 +31,7 @@ public class CategoryConverter {
     public static Category toEntity(NewCategoryRequest dto, Long count) {
         return Category.builder()
                 .icon(dto.getIcon())
-                .name(dto.getCategoryName())
+                .name(dto.getName())
                 .status(Status.ACTIVE)
                 .priority(count)
                 .build();

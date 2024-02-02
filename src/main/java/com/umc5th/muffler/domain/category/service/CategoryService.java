@@ -43,7 +43,7 @@ public class CategoryService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
         Optional<Category> duplicatedCategory = categoryRepository.findCategoryWithNameAndMemberId(
-                request.getCategoryName(), memberId);
+                request.getName(), memberId);
         if (duplicatedCategory.isPresent()) {
             throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
         }
@@ -61,19 +61,19 @@ public class CategoryService {
         if (!category.isOwnMember(memberId))
             throw new CategoryException(ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
 
-        if (category.isNameChanged(request.getCategoryName())) {
+        if (category.isNameChanged(request.getName())) {
             if (!category.isNameUpdatable())
                 throw new CategoryException(ErrorCode.CANNOT_UPDATE_ETC_CATEGORY_NAME);
             Optional<Category> duplicatedCategory = categoryRepository.findCategoryWithNameAndMemberId(
-                    request.getCategoryName(), memberId);
+                    request.getName(), memberId);
             if (duplicatedCategory.isPresent())
                 throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
-            category.changeName(request.getCategoryName());
+            category.changeName(request.getName());
         }
-        if (category.isIconChanged(request.getCategoryIcon())) {
-            if (!category.isIconUpdatable(request.getCategoryIcon()))
+        if (category.isIconChanged(request.getIcon())) {
+            if (!category.isIconUpdatable(request.getIcon()))
                 throw new CategoryException(ErrorCode.CANNOT_UPDATE_DEFAULT_ICON);
-            category.changeIcon(request.getCategoryIcon());
+            category.changeIcon(request.getIcon());
         }
     }
 

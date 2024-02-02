@@ -2,7 +2,7 @@ package com.umc5th.muffler.domain.category.repository;
 
 import static net.minidev.json.parser.JSONParser.MODE_JSON_SIMPLE;
 
-import com.umc5th.muffler.domain.category.dto.DefaultCategoryDTO;
+import com.umc5th.muffler.domain.category.repository.dto.DefaultCategoryDTO;
 import com.umc5th.muffler.entity.Category;
 import java.io.BufferedReader;
 import java.io.IOException;

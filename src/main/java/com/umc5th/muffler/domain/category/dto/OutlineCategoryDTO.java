@@ -9,6 +9,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class OutlineCategoryDTO {
-    private Long id;
+    private Long categoryId;
     private String name;
 }

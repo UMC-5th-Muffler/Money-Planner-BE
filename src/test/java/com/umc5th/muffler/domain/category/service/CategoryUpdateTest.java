@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.umc5th.muffler.domain.category.dto.UpdateCategoryNameIconRequest;
@@ -21,8 +20,6 @@ import com.umc5th.muffler.global.response.exception.CategoryException;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -54,8 +51,8 @@ public class CategoryUpdateTest {
         categoryService.updateNameOrIcon(member.getId(), request);
 
         assertThat(category.getId()).isEqualTo(request.getCategoryId());
-        assertThat(category.getIcon()).isEqualTo(request.getCategoryIcon());
-        assertThat(category.getName()).isEqualTo(request.getCategoryName());
+        assertThat(category.getIcon()).isEqualTo(request.getIcon());
+        assertThat(category.getName()).isEqualTo(request.getName());
     }
 
     @Test
@@ -75,8 +72,8 @@ public class CategoryUpdateTest {
         categoryService.updateNameOrIcon(member.getId(), request);
 
         assertThat(category.getId()).isEqualTo(request.getCategoryId());
-        assertThat(category.getIcon()).isEqualTo(request.getCategoryIcon());
-        assertThat(category.getName()).isEqualTo(request.getCategoryName());
+        assertThat(category.getIcon()).isEqualTo(request.getIcon());
+        assertThat(category.getName()).isEqualTo(request.getName());
     }
 
     @Test

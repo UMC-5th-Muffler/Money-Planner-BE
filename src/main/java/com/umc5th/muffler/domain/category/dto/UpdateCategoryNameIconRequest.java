@@ -13,7 +13,7 @@ public class UpdateCategoryNameIconRequest {
     @Positive
     private Long categoryId;
     @NotBlank
-    private String categoryName;
+    private String name;
     @NotBlank
-    private String categoryIcon;
+    private String icon;
 }
