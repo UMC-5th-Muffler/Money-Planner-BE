@@ -29,7 +29,7 @@ public class Goal extends BaseTimeEntity {
     @Column(length = 1024)
     private String memo;
 
-    @Column
+    @Column(nullable = false)
     private String icon;
 
     @Column(nullable = false)
