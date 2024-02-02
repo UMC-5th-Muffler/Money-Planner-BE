@@ -21,6 +21,7 @@ import com.umc5th.muffler.entity.constant.Status;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.CategoryException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -86,9 +87,14 @@ public class CategoryService {
                 .stream().collect(Collectors.toMap(Category::getId, item -> item));
         List<CategoryPriorityVisibilityDTO> requestCategories = request.getCategories();
         List<CategoryPriorityVisibilityDTO> updateList = new ArrayList<>();
+        Long expectOrder = 1L;
 
+        requestCategories.sort(Comparator.comparingLong(CategoryPriorityVisibilityDTO::getPriority));
         for (CategoryPriorityVisibilityDTO requestCategory : requestCategories) {
+            if (!requestCategory.getPriority().equals(expectOrder))
+                throw new CategoryException(ErrorCode.CATEGORY_UNEXPECTED_ORDER);
             Category category = entityMap.get(requestCategory.getCategoryId());
+            expectOrder += 1;
             if (category == null)
                 throw new CategoryException(ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
             if (isChanged(category, requestCategory)) {
