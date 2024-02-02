@@ -48,12 +48,8 @@ public class ExpenseConverter {
                 .build();
     }
 
-    public static WeeklyExpenseResponse toWeeklyExpensesResponse(List<DailyExpensesDto> dailyExpensesDtos, Slice<Expense> expenseList,
-                                                                 List<Category> categoryList){
-        List<CategoryDetailDto> categoryDetails = toCategoryDetails(categoryList);
-
+    public static WeeklyExpenseResponse toWeeklyExpensesResponse(List<DailyExpensesDto> dailyExpensesDtos, Slice<Expense> expenseList){
         return WeeklyExpenseResponse.builder()
-                .categoryList(categoryDetails)
                 .dailyExpenseList(dailyExpensesDtos)
                 .hasNext(expenseList.hasNext())
                 .build();
@@ -132,17 +128,6 @@ public class ExpenseConverter {
                 .hasNext(expenseList.hasNext())
                 .dailyExpenseList(dailyExpensesDtos)
                 .build();
-    }
-
-    private static List<CategoryDetailDto> toCategoryDetails(List<Category> categoryList) {
-        return categoryList.stream()
-                .filter(category -> category.getStatus() == Status.ACTIVE && category.getIsVisible())
-                .sorted(Comparator.comparingLong(Category::getPriority))
-                .map(category -> CategoryDetailDto.builder()
-                        .id(category.getId())
-                        .name(category.getName())
-                        .build())
-                .collect(Collectors.toList());
     }
 
     private static List<ExpenseDetailDto> toExpensesDetailsInDaily(List<Expense> expenseList) {

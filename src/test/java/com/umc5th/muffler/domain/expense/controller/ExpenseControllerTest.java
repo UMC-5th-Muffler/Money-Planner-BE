@@ -12,7 +12,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.umc5th.muffler.config.TestSecurityConfig;
-import com.umc5th.muffler.domain.expense.dto.CategoryDetailDto;
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.DailyExpensesDto;
 import com.umc5th.muffler.domain.expense.dto.ExpenseConverter;
@@ -113,10 +112,7 @@ class ExpenseControllerTest {
                 })
                 .collect(Collectors.toList());
 
-        List<CategoryDetailDto> categoryList = List.of(CategoryDetailDto.builder().id(1L).name("icon").build());
-
         WeeklyExpenseResponse mockResponse = WeeklyExpenseResponse.builder()
-                .categoryList(categoryList)
                 .dailyExpenseList(dailyExpensesDtos)
                 .build();
 
@@ -128,8 +124,7 @@ class ExpenseControllerTest {
                         .param("endDate", endDate.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.dailyExpenseList", hasSize(2))) // 이틀에 대한 데이터가 있는지 확인
-                .andExpect(jsonPath("$.result.dailyExpenseList[0].expenseDetailList", hasSize(10))) // 첫 번째 날에 대한 지출이 10개 있는지 확인
-                .andExpect(jsonPath("$.result.categoryList", notNullValue()));
+                .andExpect(jsonPath("$.result.dailyExpenseList[0].expenseDetailList", hasSize(10))); // 첫 번째 날에 대한 지출이 10개 있는지 확인
     }
 
     @Test

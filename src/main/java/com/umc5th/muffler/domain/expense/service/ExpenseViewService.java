@@ -65,7 +65,6 @@ public class ExpenseViewService {
         LocalDate expenseEndDate = goal.getEndDate().isAfter(weeklyEndDate) ? weeklyEndDate : goal.getEndDate();
 
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDateAndCategoryId(member.getId(), expenseStartDate, expenseEndDate, null, pageable);
-        List<Category> categoryList = member.getCategories();
 
         // 일별로 Expense 그룹화
         Map<LocalDate, List<Expense>> expensesByDate = expenseList.getContent().stream()
@@ -77,7 +76,7 @@ public class ExpenseViewService {
                 ));
 
         List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesList(expensesByDate, dailyTotalCostMap);
-        WeeklyExpenseResponse response = ExpenseConverter.toWeeklyExpensesResponse(dailyExpensesDtos, expenseList, categoryList);
+        WeeklyExpenseResponse response = ExpenseConverter.toWeeklyExpensesResponse(dailyExpensesDtos, expenseList);
 
         return response;
     }
