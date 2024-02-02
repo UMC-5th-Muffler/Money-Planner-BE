@@ -7,6 +7,7 @@ import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.*;
 import com.umc5th.muffler.global.response.code.ErrorCode;
+import com.umc5th.muffler.global.response.exception.DailyPlanException;
 import com.umc5th.muffler.global.response.exception.ExpenseException;
 import com.umc5th.muffler.global.response.exception.GoalException;
 import com.umc5th.muffler.global.response.exception.MemberException;
@@ -21,6 +22,7 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,14 +68,21 @@ public class ExpenseViewService {
 
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDateAndCategoryId(member.getId(), expenseStartDate, expenseEndDate, null, pageable);
 
-        // 일별로 Expense 그룹화
+        // 일별로 그룹화
         Map<LocalDate, List<Expense>> expensesByDate = expenseList.getContent().stream()
                 .collect(Collectors.groupingBy(Expense::getDate));
-        Map<LocalDate, Long> dailyTotalCostMap = expensesByDate.entrySet().stream()
-                .collect(Collectors.toMap(
-                        entry -> entry.getKey(),
-                        entry -> findDailyPlan(dailyPlans, entry.getKey()).getTotalCost()
-                ));
+        Map<LocalDate, DailyPlan> dailyPlanByDate = dailyPlans.stream()
+                .collect(Collectors.toMap(DailyPlan::getDate, Function.identity()));
+
+        Map<LocalDate, Long> dailyTotalCostMap = expensesByDate.keySet().stream()
+                .collect(Collectors.toMap(date -> date, date -> {
+                    DailyPlan dailyPlan = dailyPlanByDate.get(date);
+                    if (dailyPlan == null) {
+                        throw new DailyPlanException(ErrorCode.DAILYPLAN_NOT_FOUND);
+                    }
+                    return dailyPlan.getTotalCost();
+                }));
+
 
         List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesList(expensesByDate, dailyTotalCostMap);
         WeeklyExpenseResponse response = ExpenseConverter.toWeeklyExpensesResponse(dailyExpensesDtos, expenseList);
@@ -102,14 +111,20 @@ public class ExpenseViewService {
 
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDateAndCategoryId(member.getId(), startDate, endDate, null, pageable);
 
-        // 일별로 Expense 그룹화
+        // 일별로 그룹화
         Map<LocalDate, List<Expense>> expensesByDate = expenseList.getContent().stream()
                 .collect(Collectors.groupingBy(Expense::getDate));
-        Map<LocalDate, Long> dailyTotalCostMap = expensesByDate.entrySet().stream()
-                .collect(Collectors.toMap(
-                        entry -> entry.getKey(),
-                        entry -> findDailyPlan(dailyPlans, entry.getKey()).getTotalCost()
-                ));
+        Map<LocalDate, DailyPlan> dailyPlanByDate = dailyPlans.stream()
+                .collect(Collectors.toMap(DailyPlan::getDate, Function.identity()));
+
+        Map<LocalDate, Long> dailyTotalCostMap = expensesByDate.keySet().stream()
+                .collect(Collectors.toMap(date -> date, date -> {
+                    DailyPlan dailyPlan = dailyPlanByDate.get(date);
+                    if (dailyPlan == null) {
+                        throw new DailyPlanException(ErrorCode.DAILYPLAN_NOT_FOUND);
+                    }
+                    return dailyPlan.getTotalCost();
+                }));
 
         List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesListWithOrderAndTotalCost(expensesByDate, dailyTotalCostMap, order);
         return ExpenseConverter.toMonthlyExpensesResponse(dailyExpensesDtos, expenseList);

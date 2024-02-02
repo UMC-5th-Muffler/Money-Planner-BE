@@ -49,9 +49,6 @@ class ExpenseViewServiceTest {
     @MockBean
     private GoalRepository goalRepository;
 
-    @MockBean
-    private DailyPlanRepository dailyPlanRepository;
-
     @Test
     public void 일일_소비내역_조회_성공() {
 
