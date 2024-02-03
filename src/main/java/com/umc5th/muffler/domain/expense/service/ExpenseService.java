@@ -9,8 +9,8 @@ import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
 import com.umc5th.muffler.domain.expense.dto.AlarmControlDTO;
 import com.umc5th.muffler.domain.expense.dto.ExpenseConverter;
 import com.umc5th.muffler.domain.expense.dto.ExpenseResponse;
-import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
-import com.umc5th.muffler.domain.expense.dto.UpdateExpenseRequest;
+import com.umc5th.muffler.domain.expense.dto.ExpenseCreateRequest;
+import com.umc5th.muffler.domain.expense.dto.ExpenseUpdateRequest;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.goal.repository.CategoryGoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
@@ -45,7 +45,7 @@ public class ExpenseService {
     private final DailyPlanRepository dailyPlanRepository;
 
     @Transactional
-    public ExpenseResponse enrollExpense(String memberId, NewExpenseRequest request) {
+    public ExpenseResponse create(String memberId, ExpenseCreateRequest request) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.MEMBER_NOT_FOUND));
         Category category = categoryRepository.findCategoryWithCategoryIdAndMemberId(request.getCategoryId(), member.getId())
@@ -67,7 +67,7 @@ public class ExpenseService {
     }
 
     @Transactional
-    public ExpenseResponse updateExpense(String memberId, UpdateExpenseRequest request) {
+    public ExpenseResponse update(String memberId, ExpenseUpdateRequest request) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.MEMBER_NOT_FOUND));
         Expense expense = expenseRepository.findByIdAndMemberId(request.getExpenseId(), memberId)
@@ -90,11 +90,11 @@ public class ExpenseService {
         return alarms;
     }
 
-    private void updateTitleAndMemo(Expense expense, UpdateExpenseRequest request) {
+    private void updateTitleAndMemo(Expense expense, ExpenseUpdateRequest request) {
         expense.setTitleAndMemo(request.getExpenseTitle(), request.getExpenseMemo());
     }
 
-    private List<AlarmControlDTO> updateCostAndDate(Expense expense, DailyPlan dailyPlan, UpdateExpenseRequest request) {
+    private List<AlarmControlDTO> updateCostAndDate(Expense expense, DailyPlan dailyPlan, ExpenseUpdateRequest request) {
         boolean dateChanged = expense.isDateChanged(request.getExpenseDate());
         boolean costChanged = expense.isCostChanged(request.getExpenseCost());
 
@@ -145,7 +145,7 @@ public class ExpenseService {
         }
     }
 
-    private List<AlarmControlDTO> updateCostAndDateWithAlarm(Expense expense, DailyPlan dailyPlan, UpdateExpenseRequest request, boolean dateChanged) {
+    private List<AlarmControlDTO> updateCostAndDateWithAlarm(Expense expense, DailyPlan dailyPlan, ExpenseUpdateRequest request, boolean dateChanged) {
         dailyPlan.updateTotalCost(-expense.getCost());
         Long expenditure = request.getExpenseCost();
         expense.setCost(expenditure);
@@ -170,7 +170,7 @@ public class ExpenseService {
         return alarm;
     }
 
-    public void deleteExpense(String memberId, Long expenseId) {
+    public void delete(String memberId, Long expenseId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.MEMBER_NOT_FOUND));
         Expense expense = expenseRepository.findById(expenseId)

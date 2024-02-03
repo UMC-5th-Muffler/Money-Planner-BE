@@ -4,9 +4,9 @@ import com.umc5th.muffler.domain.expense.dto.DailyExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.ExpenseDto;
 import com.umc5th.muffler.domain.expense.dto.ExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.MonthlyExpenseResponse;
-import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
+import com.umc5th.muffler.domain.expense.dto.ExpenseCreateRequest;
 import com.umc5th.muffler.domain.expense.dto.SearchResponse;
-import com.umc5th.muffler.domain.expense.dto.UpdateExpenseRequest;
+import com.umc5th.muffler.domain.expense.dto.ExpenseUpdateRequest;
 import com.umc5th.muffler.domain.expense.dto.WeekRequestParam;
 import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseResponse;
 import com.umc5th.muffler.domain.expense.service.ExpenseSearchService;
@@ -49,20 +49,20 @@ public class ExpenseController {
     private final ExpenseViewService expenseViewService;
 
     @PostMapping
-    public Response<ExpenseResponse> enrollNewExpense(Principal principal,
-                                                         @RequestBody @Valid NewExpenseRequest request) {
-        return Response.success(expenseService.enrollExpense(principal.getName(), request));
+    public Response<ExpenseResponse> create(Principal principal,
+                                            @RequestBody @Valid ExpenseCreateRequest request) {
+        return Response.success(expenseService.create(principal.getName(), request));
     }
 
     @PatchMapping
-    public Response<ExpenseResponse> updateExpense(Principal principal,
-                                                   @RequestBody @Valid UpdateExpenseRequest request) {
-        return Response.success(expenseService.updateExpense(principal.getName(), request));
+    public Response<ExpenseResponse> update(Principal principal,
+                                            @RequestBody @Valid ExpenseUpdateRequest request) {
+        return Response.success(expenseService.update(principal.getName(), request));
     }
 
     @DeleteMapping("/{expenseId}")
-    private Response<Void> deleteExpense(Principal principal, @PathVariable("expenseId") Long expenseId) {
-        expenseService.deleteExpense(principal.getName(), expenseId);
+    private Response<Void> delete(Principal principal, @PathVariable("expenseId") Long expenseId) {
+        expenseService.delete(principal.getName(), expenseId);
         return Response.success();
     }
 
