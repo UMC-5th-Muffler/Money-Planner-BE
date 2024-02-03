@@ -65,7 +65,7 @@ public class ExpenseController {
 
     @DeleteMapping("/{expenseId}")
     private Response<Void> deleteExpense(Principal principal, @PathVariable("expenseId") Long expenseId) {
-        expenseUpdateService.deleteExpense(principal.getName(), expenseId);
+        expenseService.deleteExpense(principal.getName(), expenseId);
         return Response.success();
     }
 
@@ -133,7 +133,7 @@ public class ExpenseController {
             @RequestParam(name = "sort", defaultValue = "DESC") String sortDirection,
             Authentication authentication) {
 
-        SearchResponse response = expenseService.searchExpense(authentication.getName(), title, page, size,
+        SearchResponse response = expenseSearchService.searchExpense(authentication.getName(), title, page, size,
                 sortDirection);
         return Response.success(response);
     }
