@@ -65,6 +65,21 @@ public class ExpenseService {
         }
         return new ExpenseResponse(alarms);
     }
+
+    @Transactional
+    public ExpenseResponse updateExpense(String memberId, UpdateExpenseRequest request) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ExpenseException(ErrorCode.MEMBER_NOT_FOUND));
+        Expense expense = expenseRepository.findByIdAndMemberId(request.getExpenseId(), memberId)
+                .orElseThrow(() -> new ExpenseException(ErrorCode.EXPENSE_NOT_FOUND));
+        DailyPlan dailyPlan = dailyPlanRepository.findByMemberIdAndDate(memberId, expense.getDate())
+                .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
+
+        updateTitleAndMemo(expense, request);
+        List<AlarmControlDTO> alarm = updateCostAndDate(expense, dailyPlan, request);
+        updateCategory(expense, request.getCategoryId());
+
+        return new ExpenseResponse(alarm);
     }
 
     private List<AlarmControlDTO> getAlarms(DailyPlan dailyPlan, Category category, Long expenditure) {
@@ -78,10 +93,26 @@ public class ExpenseService {
     private void updateTitleAndMemo(Expense expense, UpdateExpenseRequest request) {
         expense.setTitleAndMemo(request.getExpenseTitle(), request.getExpenseMemo());
     }
+
+    private List<AlarmControlDTO> updateCostAndDate(Expense expense, DailyPlan dailyPlan, UpdateExpenseRequest request) {
+        boolean dateChanged = expense.isDateChanged(request.getExpenseDate());
+        boolean costChanged = expense.isCostChanged(request.getExpenseCost());
+
+        if (!dateChanged && !costChanged) {
+            return new ArrayList<>();
         }
 
-    public SearchResponse searchExpense(String memberId, String searchKeyword, int page, int size, String sortDirection) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+        // date 변화 or cost 변화 둘중 하나는 꼭 있음 -> alarm check 필수
+        return updateCostAndDateWithAlarm(expense, dailyPlan, request, dateChanged);
+    }
+
+    private void updateCategory(Expense expense, Long categoryId) {
+        if (expense.isCategoryChanged(categoryId)) {
+            Category category = categoryRepository.findByIdAndStatus(categoryId, Status.ACTIVE)
+                    .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
+            expense.setCategory(category);
+        }
+    }
 
     private void setDailyAlarm(DailyPlan dailyPlan, Long expenditure, List<AlarmControlDTO> alarms) {
         if (dailyPlan.isPossibleToAlarm(expenditure)) {
@@ -113,6 +144,30 @@ public class ExpenseService {
                     totalGoalExpense + expenditure - goal.getTotalBudget()));
         }
     }
+
+    private List<AlarmControlDTO> updateCostAndDateWithAlarm(Expense expense, DailyPlan dailyPlan, UpdateExpenseRequest request, boolean dateChanged) {
+        dailyPlan.updateTotalCost(-expense.getCost());
+        Long expenditure = request.getExpenseCost();
+        expense.setCost(expenditure);
+
+        if (dateChanged) {
+            dailyPlan = dailyPlanRepository.findByMemberIdAndDate(expense.getMember().getId(), request.getExpenseDate())
+                    .orElseThrow(() -> new ExpenseException(ErrorCode.DAILYPLAN_NOT_FOUND));
+            if (dailyPlan.getIsZeroDay()) {
+                throw new ExpenseException(ErrorCode.CANNOT_UPDATE_TO_ZERO_DAY);
+            }
+            expense.setDate(request.getExpenseDate());
+        }
+
+        List<AlarmControlDTO> alarm = getDailyAlarm(dailyPlan, expenditure);
+        dailyPlan.updateTotalCost(expenditure);
+        return alarm;
+    }
+
+    private List<AlarmControlDTO> getDailyAlarm(DailyPlan dailyPlan, Long expenditure) {
+        List<AlarmControlDTO> alarm = new ArrayList<>();
+        setDailyAlarm(dailyPlan, expenditure, alarm);
+        return alarm;
     }
 
     public void deleteExpense(String memberId, Long expenseId) {

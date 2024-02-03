@@ -55,10 +55,9 @@ public class ExpenseController {
     }
 
     @PatchMapping
-    public Response<UpdateExpenseResponse> updateExpense(Principal principal,
-                                                         @RequestBody @Valid UpdateExpenseRequest request) {
-        UpdateExpenseResponse result = expenseUpdateService.updateExpense(principal.getName(), request);
-        return Response.success(result);
+    public Response<ExpenseResponse> updateExpense(Principal principal,
+                                                   @RequestBody @Valid UpdateExpenseRequest request) {
+        return Response.success(expenseService.updateExpense(principal.getName(), request));
     }
 
     @DeleteMapping("/{expenseId}")

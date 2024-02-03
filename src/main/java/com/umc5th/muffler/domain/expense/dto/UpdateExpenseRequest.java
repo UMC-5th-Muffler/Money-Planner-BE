@@ -13,13 +13,13 @@ public class UpdateExpenseRequest {
     @NotNull
     @Positive
     private Long expenseId;
-    @NotBlank
-    private String expenseTitle;
     @Positive
     private Long expenseCost;
-    @NotNull
-    private LocalDate expenseDate;
-    private String expenseMemo;
     @Positive
     private Long categoryId;
+    @NotBlank
+    private String expenseTitle;
+    private String expenseMemo;
+    @NotNull
+    private LocalDate expenseDate;
 }
