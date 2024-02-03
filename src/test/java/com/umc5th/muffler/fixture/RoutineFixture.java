@@ -5,6 +5,7 @@ import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.Routine;
 import com.umc5th.muffler.entity.constant.RoutineType;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 public class RoutineFixture {
     public static Routine ROUTINE_PER_ONE_WEEK(Member member, Category category, LocalDate startDate, LocalDate endDate) {
@@ -18,6 +19,7 @@ public class RoutineFixture {
                 .weeklyTerm(1)
                 .category(category)
                 .member(member)
+                .weeklyRepeatDays(new ArrayList<>())
                 .build();
     }
 
@@ -32,6 +34,7 @@ public class RoutineFixture {
                 .weeklyTerm(2)
                 .category(category)
                 .member(member)
+                .weeklyRepeatDays(new ArrayList<>())
                 .build();
     }
 
@@ -46,6 +49,7 @@ public class RoutineFixture {
                 .weeklyTerm(3)
                 .category(category)
                 .member(member)
+                .weeklyRepeatDays(new ArrayList<>())
                 .build();
     }
 

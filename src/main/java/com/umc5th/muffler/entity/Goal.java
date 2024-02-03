@@ -72,4 +72,9 @@ public class Goal extends BaseTimeEntity {
     public Boolean isPossibleToAlarm(Long sum, Long addition) {
         return sum <= totalBudget && totalBudget < sum + addition;
     }
+
+    public void addDailyPlan(DailyPlan dailyPlan) {
+        dailyPlans.add(dailyPlan);
+        dailyPlan.setGoal(this);
+    }
 }

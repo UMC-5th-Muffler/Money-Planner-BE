@@ -29,7 +29,7 @@ public class JDBCExpenseRepository {
         private Long cost;
         private LocalDate date;
 
-        private Long memberId;
+        private String memberId;
         private Long categoryId;
 
         private LocalDateTime createAt;

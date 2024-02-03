@@ -26,7 +26,6 @@ import org.hibernate.annotations.DynamicInsert;
 @DynamicInsert
 @Entity
 @Getter
-@DynamicInsert
 public class DailyPlan extends BaseTimeEntity {
 
     @Id

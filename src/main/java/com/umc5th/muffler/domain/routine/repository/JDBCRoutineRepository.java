@@ -73,7 +73,7 @@ public class JDBCRoutineRepository {
                     .routineDayOfMonth(rs.getInt("r.monthly_repeat_day"))
                     .routineWeeklyTerm(rs.getInt("r.weekly_term"))
                     .routineDayOfWeek(DayOfWeek.of(rs.getInt("wrd.day_of_week") + 1))
-                    .memberId(rs.getLong("m.id"))
+                    .memberId(rs.getString("m.id"))
                     .categoryId(rs.getLong("c.id"))
                     .dailyPlanId(rs.getLong("dp.id"))
                     .dailyPlanTotalCost(rs.getLong("dp.total_cost"))

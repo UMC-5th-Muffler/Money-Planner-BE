@@ -24,7 +24,7 @@ public class InsertableRoutine {
 
     private Long dailyPlanTotalCost;
 
-    private Long memberId;
+    private String memberId;
     private Long categoryId;
     private Long dailyPlanId;
 
