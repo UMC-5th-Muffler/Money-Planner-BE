@@ -30,7 +30,7 @@ public class Goal extends BaseTimeEntity {
     @Column(length = 1024)
     private String memo;
 
-    @Column
+    @Column(nullable = false)
     private String icon;
 
     @Column(nullable = false)
@@ -67,5 +67,9 @@ public class Goal extends BaseTimeEntity {
     public void setCategoryGoals(List<CategoryGoal> categoryGoals) {
         this.categoryGoals = categoryGoals;
         categoryGoals.forEach(categoryGoal -> categoryGoal.setGoal(this));
+    }
+
+    public Boolean isPossibleToAlarm(Long sum, Long addition) {
+        return sum <= totalBudget && totalBudget < sum + addition;
     }
 }

@@ -2,11 +2,22 @@ package com.umc5th.muffler.entity;
 
 import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import com.umc5th.muffler.entity.constant.Rate;
-import lombok.*;
-
-import javax.persistence.*;
 import java.time.LocalDate;
-import org.hibernate.annotations.ColumnDefault;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -33,8 +44,8 @@ public class DailyPlan extends BaseTimeEntity {
     private Boolean isZeroDay = false;
 
     @Column(nullable = false)
-    @ColumnDefault("0")
-    private Long totalCost;
+    @Builder.Default
+    private Long totalCost = 0L;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "goal_id")
@@ -65,7 +76,7 @@ public class DailyPlan extends BaseTimeEntity {
     public void toggleZeroDay() {
         isZeroDay = !isZeroDay;
     }
-    public void addExpenseDifference(Long difference) {
+    public void updateTotalCost(Long difference) {
         this.totalCost += difference;
     }
     public Boolean isPossibleToAlarm(Long addition) {

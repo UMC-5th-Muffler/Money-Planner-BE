@@ -1,7 +1,7 @@
-package com.umc5th.muffler.domain.goal.controller;
+package com.umc5th.muffler.domain.dailyplan.controller;
 
 import com.umc5th.muffler.domain.goal.dto.ToggleZeroDayRequest;
-import com.umc5th.muffler.domain.goal.service.DailyPlanService;
+import com.umc5th.muffler.domain.dailyplan.service.DailyPlanService;
 
 import com.umc5th.muffler.global.response.Response;
 import java.security.Principal;
