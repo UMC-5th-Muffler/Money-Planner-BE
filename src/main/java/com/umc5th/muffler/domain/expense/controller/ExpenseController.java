@@ -2,16 +2,15 @@ package com.umc5th.muffler.domain.expense.controller;
 
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.ExpenseDto;
+import com.umc5th.muffler.domain.expense.dto.ExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.MonthlyExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
-import com.umc5th.muffler.domain.expense.dto.NewExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.SearchResponse;
 import com.umc5th.muffler.domain.expense.dto.UpdateExpenseRequest;
-import com.umc5th.muffler.domain.expense.dto.UpdateExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.WeekRequestParam;
 import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseResponse;
+import com.umc5th.muffler.domain.expense.service.ExpenseSearchService;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
-import com.umc5th.muffler.domain.expense.service.ExpenseUpdateService;
 import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.global.response.Response;
 import com.umc5th.muffler.global.validation.ValidOrder;
@@ -45,15 +44,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RequestMapping("/api/expense")
 public class ExpenseController {
+    private final ExpenseSearchService expenseSearchService;
     private final ExpenseService expenseService;
-    private final ExpenseUpdateService expenseUpdateService;
     private final ExpenseViewService expenseViewService;
 
     @PostMapping
-    public Response<NewExpenseResponse> enrollNewExpense(Principal principal,
+    public Response<ExpenseResponse> enrollNewExpense(Principal principal,
                                                          @RequestBody @Valid NewExpenseRequest request) {
-        NewExpenseResponse result = expenseUpdateService.enrollExpense(principal.getName(), request);
-        return Response.success(result);
+        return Response.success(expenseService.enrollExpense(principal.getName(), request));
     }
 
     @PatchMapping

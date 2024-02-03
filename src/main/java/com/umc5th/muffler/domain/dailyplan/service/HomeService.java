@@ -135,7 +135,7 @@ public class HomeService {
         LocalDate startDate = findStartDateWithinYearMonth(activeGoal, yearMonth);
         LocalDate endDate = findEndDateWithinYearMonth(activeGoal, yearMonth);
 
-        Long totalCost = expenseRepository.calculateTotalCostByMemberAndDateBetween(member, activeGoal.getStartDate(), activeGoal.getEndDate());
+        Long totalCost = expenseRepository.sumCostByMemberAndDateBetween(member.getId(), activeGoal.getStartDate(), activeGoal.getEndDate());
 
         Map<LocalDate, List<Expense>> expenses = expenseRepository.findByMemberAndDateRangeGroupedByDate(member.getId(), startDate, endDate);
         List<DailyPlan> dailyPlans = dailyPlanRepository.findByGoalIdAndDateBetween(activeGoal.getId(), startDate, endDate);

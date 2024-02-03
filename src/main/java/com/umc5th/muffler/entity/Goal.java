@@ -66,4 +66,8 @@ public class Goal extends BaseTimeEntity {
         this.categoryGoals = categoryGoals;
         categoryGoals.forEach(categoryGoal -> categoryGoal.setGoal(this));
     }
+
+    public Boolean isPossibleToAlarm(Long sum, Long addition) {
+        return sum <= totalBudget && totalBudget < sum + addition;
+    }
 }
