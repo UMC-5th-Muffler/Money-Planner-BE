@@ -63,7 +63,7 @@ public class ExpenseService {
         if (request.isRoutine()) {
             routineService.create(savedExpense.getId(), request.getRoutineRequest());
         }
-        return new ExpenseResponse(alarms);
+        return new ExpenseResponse(savedExpense.getId(), alarms);
     }
 
     @Transactional
@@ -79,7 +79,7 @@ public class ExpenseService {
         List<AlarmControlDTO> alarm = updateCostAndDate(expense, dailyPlan, request);
         updateCategory(expense, request.getCategoryId());
 
-        return new ExpenseResponse(alarm);
+        return new ExpenseResponse(expense.getId(), alarm);
     }
 
     private List<AlarmControlDTO> getAlarms(DailyPlan dailyPlan, Category category, Long expenditure) {

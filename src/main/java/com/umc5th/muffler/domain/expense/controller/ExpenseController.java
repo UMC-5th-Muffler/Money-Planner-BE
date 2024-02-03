@@ -61,7 +61,7 @@ public class ExpenseController {
     }
 
     @DeleteMapping("/{expenseId}")
-    private Response<Void> delete(Principal principal, @PathVariable("expenseId") Long expenseId) {
+    public Response<Void> delete(Principal principal, @PathVariable("expenseId") Long expenseId) {
         expenseService.delete(principal.getName(), expenseId);
         return Response.success();
     }
