@@ -44,9 +44,9 @@ public class CategoryService {
     public NewCategoryResponse createNewCategory(String memberId, NewCategoryRequest request) throws CategoryException {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
-        List<NameProjection> categoryNames = categoryRepository.findByMember(member);
+        List<NameProjection> categoryNames = categoryRepository.findByMemberAndStatus(member, Status.ACTIVE);
         Optional<NameProjection> duplicateName = categoryNames.stream()
-                .filter(row -> row.getName().equals(request.getName()))
+                    .filter(row -> row.getName().equals(request.getName()))
                 .findAny();
         if (duplicateName.isPresent())
             throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
@@ -135,8 +135,19 @@ public class CategoryService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
         List<CategoryDTO> categories = categoryRepository.findActiveCategoriesAsc(member.getId())
-                .stream().map(CategoryConverter::toCategoryDTO)
+                .stream().map(CategoryConverter::toFullCategoryDTO)
                 .collect(Collectors.toList());
         return new GetCategoryListResponse(categories);
+    }
+
+    @Transactional(readOnly = true)
+    public GetCategoryListResponse getVisibleOutlineCategories(String memberId) throws CategoryException {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
+        List<CategoryDTO> outlineCategoryDTOs = categoryRepository
+                .findByMemberAndIsVisibleAndStatusOrderByPriorityAsc(member, true, Status.ACTIVE)
+                .stream().map(CategoryConverter::toOutlineCategoryDTO)
+                .collect(Collectors.toList());
+        return new GetCategoryListResponse(outlineCategoryDTOs);
     }
 }

@@ -88,4 +88,10 @@ public class CategoryController {
         GetCategoryListResponse response = this.categoryService.getActiveCategories(principal.getName());
         return Response.success(response);
     }
+    
+    @GetMapping("/visible")
+    public Response<GetCategoryListResponse> getVisibleOutlineCategoryList(Principal principal) {
+        GetCategoryListResponse response = this.categoryService.getVisibleOutlineCategories(principal.getName());
+        return Response.success(response);
+    }
 }
