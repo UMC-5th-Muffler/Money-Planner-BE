@@ -1,5 +1,7 @@
 package com.umc5th.muffler.domain.category.controller;
 
+import static com.umc5th.muffler.global.response.code.ErrorCode.*;
+
 import com.umc5th.muffler.domain.category.dto.GetCategoryListResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.DeleteCategoryResponse;
@@ -11,10 +13,6 @@ import com.umc5th.muffler.global.response.Response;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.swagger.ErrorResponses;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.security.Principal;
 import javax.validation.Valid;
@@ -38,18 +36,21 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
+    @Operation(summary = "카테고리 생성 API",
+            description = "새 카테고리를 저장한다. 가지고 있는 카테고리 중에서 중복된 이름이 있으면 등록에 실패한다. "
+                    + "생성된 카테고리의 우선순위는 제일 나중에 나오도록 설정된다.")
     public Response<NewCategoryResponse> createCategory(Principal principal, @RequestBody @Valid NewCategoryRequest request) {
         NewCategoryResponse newCategory = categoryService.createNewCategory(principal.getName(), request);
         return Response.success(newCategory);
     }
 
     @PatchMapping("/single")
-    @Operation(summary = "Category icon/name update",
+    @Operation(summary = "카테고리 이름, 아이콘 변경 API",
             description = "특정 카테고리의 아이콘이나 이름을 업데이트 한다. 가지고 있는 카테고리 중 중복되는 이름은 허용되지 않고, "
                     + "기본으로 가지고 있는 카테고리의 아이콘은 변경할 수 없다. 카테고리 아이콘/이름 수정 화면에서 저장버튼 누를 시 호출")
     @ErrorResponses(value = {
-            ErrorCode.MEMBER_NOT_FOUND, ErrorCode.CATEGORY_NOT_FOUND, ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY,
-            ErrorCode.CANNOT_UPDATE_ETC_CATEGORY_NAME, ErrorCode.DUPLICATED_CATEGORY_NAME, ErrorCode.CANNOT_UPDATE_DEFAULT_ICON
+            MEMBER_NOT_FOUND, CATEGORY_NOT_FOUND, ACCESS_TO_OTHER_USER_CATEGORY,
+            CANNOT_UPDATE_ETC_CATEGORY_NAME, DUPLICATED_CATEGORY_NAME, CANNOT_UPDATE_DEFAULT_ICON
     })
     public Response<Void> updateCategoryNameOrIcon(Principal principal, @RequestBody @Valid UpdateCategoryNameIconRequest request) {
         categoryService.updateNameOrIcon(principal.getName(), request);
@@ -57,17 +58,32 @@ public class CategoryController {
     }
 
     @PatchMapping
-    public Response<Void> updateCategoryPriorityVisibility(Principal principal, @RequestBody @Valid UpdateCategoryPriorityVisibilityRequest request) {
+    @Operation(summary ="카테고리 숨김 여부,순서 변경 API",
+            description = "유저가 가진 카테고리들의 보여줄 순서와 숨김여부를 변경한다. 순서는 1부터 시작하는 연속된 숫자로 각 카테고리별로 부여되어야 한다. " 
+                    + "전체 카테고리 (숨김 카테고리 포함)를 보는 화면에서 뒤로가기를 누를 때 호출")
+    @ErrorResponses(value = {
+        MEMBER_NOT_FOUND, CATEGORY_UNEXPECTED_ORDER, ACCESS_TO_OTHER_USER_CATEGORY, CATEGORY_BATCH_INSERT_FAIL
+    })
+    public Response<Void> updateCategoryPriorityVisibility(
+            Principal principal,
+            @RequestBody @Valid UpdateCategoryPriorityVisibilityRequest request) {
         categoryService.updateBatchPriorityOrVisibility(principal.getName(), request);
         return Response.success();
     }
 
     @DeleteMapping("/{categoryId}")
+    @Operation(summary = "카테고리 삭제 API", description = "카테고리를 삭제하는 API, 반환되는 값은 이 때 \"기타\" 카테고리로 자동 분류되는 "
+            + "삭제되는 카테고리로 등록해둔 반복기록의 개수이다. 이미 삭제된 카테고리와 기본 카테고리는 삭제할 수 없다.")
+    @ErrorResponses(value = {MEMBER_NOT_FOUND, CATEGORY_NOT_FOUND, ACCESS_TO_OTHER_USER_CATEGORY, ALREADY_INACTIVE_CATEGORY, CANNOT_DELETE_DEFAULT_CATEGORY})
     public Response<DeleteCategoryResponse> deleteCategory(Principal principal, @PathVariable("categoryId") Long categoryId) {
         DeleteCategoryResponse response = categoryService.deactivateCategory(principal.getName(), categoryId);
         return Response.success(response);
     }
-    @GetMapping
+
+    @GetMapping("/all")
+    @Operation(summary = "숨긴 카테고리 포함 전체 카테고리 조회 API", description = "숨긴 카테고리를 포함한 전체 카테고리를 조회하는 API, "
+            + "priority를 오름차순으로 정렬하여 가지고 있는 모든 카테고리를 리스트 형식으로 반환한다.")
+    @ErrorResponses(value = {MEMBER_NOT_FOUND})
     public Response<GetCategoryListResponse> getCategoryList(Principal principal) {
         GetCategoryListResponse response = this.categoryService.getActiveCategories(principal.getName());
         return Response.success(response);
