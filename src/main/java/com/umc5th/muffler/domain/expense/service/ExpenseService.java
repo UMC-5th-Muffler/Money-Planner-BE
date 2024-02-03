@@ -1,24 +1,18 @@
 package com.umc5th.muffler.domain.expense.service;
 
-import static com.umc5th.muffler.entity.constant.ExpenseAlarm.CATEGORY;
-import static com.umc5th.muffler.entity.constant.ExpenseAlarm.DAILY;
-import static com.umc5th.muffler.entity.constant.ExpenseAlarm.TOTAL;
-
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
 import com.umc5th.muffler.domain.expense.dto.AlarmControlDTO;
 import com.umc5th.muffler.domain.expense.dto.ExpenseConverter;
-import com.umc5th.muffler.domain.expense.dto.ExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.ExpenseCreateRequest;
+import com.umc5th.muffler.domain.expense.dto.ExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.ExpenseUpdateRequest;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
-import com.umc5th.muffler.domain.goal.repository.CategoryGoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.domain.routine.service.RoutineService;
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.DailyPlan;
 import com.umc5th.muffler.entity.Expense;
-import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.constant.Status;
 import com.umc5th.muffler.global.response.code.ErrorCode;
@@ -34,14 +28,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ExpenseService {
 
     private final RoutineService routineService;
+    private final ExpenseAlarmService alarmService;
     private final ExpenseRepository expenseRepository;
     private final MemberRepository memberRepository;
     private final CategoryRepository categoryRepository;
-    private final CategoryGoalRepository  categoryGoalRepository;
     private final DailyPlanRepository dailyPlanRepository;
 
     @Transactional
@@ -56,7 +49,7 @@ public class ExpenseService {
             throw new ExpenseException(ErrorCode.CANNOT_UPDATE_TO_ZERO_DAY);
         }
 
-        List<AlarmControlDTO> alarms = getAlarms(dailyPlan, category, request.getExpenseCost());
+        List<AlarmControlDTO> alarms = alarmService.getAlarms(dailyPlan, category, request.getExpenseCost());
         Expense savedExpense = expenseRepository.save(ExpenseConverter.toExpenseEntity(request, member, category));
         dailyPlan.updateTotalCost(savedExpense.getCost());
 
@@ -80,14 +73,6 @@ public class ExpenseService {
         updateCategory(expense, request.getCategoryId());
 
         return new ExpenseResponse(expense.getId(), alarm);
-    }
-
-    private List<AlarmControlDTO> getAlarms(DailyPlan dailyPlan, Category category, Long expenditure) {
-        List<AlarmControlDTO> alarms = new ArrayList<>();
-        setDailyAlarm(dailyPlan, expenditure, alarms);
-        setCategoryAlarm(category, dailyPlan.getGoal(), expenditure, alarms);
-        setGoalAlarm(dailyPlan.getGoal(), expenditure, alarms);
-        return alarms;
     }
 
     private void updateTitleAndMemo(Expense expense, ExpenseUpdateRequest request) {
@@ -114,37 +99,6 @@ public class ExpenseService {
         }
     }
 
-    private void setDailyAlarm(DailyPlan dailyPlan, Long expenditure, List<AlarmControlDTO> alarms) {
-        if (dailyPlan.isPossibleToAlarm(expenditure)) {
-            alarms.add(new AlarmControlDTO(
-                    DAILY, dailyPlan.getBudget(),
-                    dailyPlan.getTotalCost() + expenditure - dailyPlan.getBudget()));
-        }
-    }
-
-    private void setCategoryAlarm(Category category, Goal goal, Long expenditure, List<AlarmControlDTO> alarms) {
-        categoryGoalRepository.findByGoalIdAndCategoryId(goal.getId(), category.getId())
-                .ifPresent(categoryGoal -> {
-                    Long totalCategoryExpense = expenseRepository.sumCategoryExpenseWithinGoal(goal.getMember().getId(), category, goal);
-
-                    if (categoryGoal.isPossibleToAlarm(totalCategoryExpense, expenditure)) {
-                        alarms.add(new AlarmControlDTO(
-                                CATEGORY, categoryGoal.getBudget(),
-                                totalCategoryExpense + expenditure - categoryGoal.getBudget()));
-                    }
-                });
-    }
-
-    private void setGoalAlarm(Goal goal, Long expenditure, List<AlarmControlDTO> alarms) {
-        Long totalGoalExpense = expenseRepository.sumCostByMemberAndDateBetween(goal.getMember().getId(), goal.getStartDate(), goal.getEndDate());
-
-        if (goal.isPossibleToAlarm(totalGoalExpense, expenditure)) {
-            alarms.add(new AlarmControlDTO(
-                    TOTAL, goal.getTotalBudget(),
-                    totalGoalExpense + expenditure - goal.getTotalBudget()));
-        }
-    }
-
     private List<AlarmControlDTO> updateCostAndDateWithAlarm(Expense expense, DailyPlan dailyPlan, ExpenseUpdateRequest request, boolean dateChanged) {
         dailyPlan.updateTotalCost(-expense.getCost());
         Long expenditure = request.getExpenseCost();
@@ -159,17 +113,12 @@ public class ExpenseService {
             expense.setDate(request.getExpenseDate());
         }
 
-        List<AlarmControlDTO> alarm = getDailyAlarm(dailyPlan, expenditure);
+        List<AlarmControlDTO> alarm = alarmService.getDailyAlarm(dailyPlan, expenditure);
         dailyPlan.updateTotalCost(expenditure);
         return alarm;
     }
 
-    private List<AlarmControlDTO> getDailyAlarm(DailyPlan dailyPlan, Long expenditure) {
-        List<AlarmControlDTO> alarm = new ArrayList<>();
-        setDailyAlarm(dailyPlan, expenditure, alarm);
-        return alarm;
-    }
-
+    @Transactional
     public void delete(String memberId, Long expenseId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ExpenseException(ErrorCode.MEMBER_NOT_FOUND));
