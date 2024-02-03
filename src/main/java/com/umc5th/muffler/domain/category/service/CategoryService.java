@@ -53,7 +53,7 @@ public class CategoryService {
         Category newCategory = CategoryConverter.toEntity(request, categoryNames.size() + 1L);
         newCategory.setMember(member);
         newCategory = categoryRepository.save(newCategory);
-        return new NewCategoryResponse(newCategory.getId());
+        return CategoryConverter.toDTO(newCategory);
     }
 
     public void updateNameOrIcon(String memberId, UpdateCategoryNameIconRequest request) throws CategoryException{

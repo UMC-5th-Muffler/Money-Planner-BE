@@ -27,6 +27,14 @@ public class CategoryConverter {
                 .type(category.getType())
                 .build();
     }
+    public static NewCategoryResponse toDTO(Category category) {
+        return NewCategoryResponse.builder()
+                .categoryId(category.getId())
+                .isVisible(category.getIsVisible())
+                .priority(category.getPriority())
+                .type(category.getType())
+                .build();
+    }
 
     public static List<OutlineCategoryDTO> toCategoryDtos(List<Category> categories) {
         return categories.stream()

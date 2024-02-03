@@ -43,7 +43,7 @@ class CategoryServiceTest {
         //given
         Member member = MemberFixture.MEMBER_ONE;
         Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
-        NewCategoryRequest request = new NewCategoryRequest(category.getName(), category.getIcon(), 0L);
+        NewCategoryRequest request = new NewCategoryRequest(category.getName(), category.getIcon());
 
         given(categoryRepository.findCategoryWithNameAndMemberId(request.getName(), member.getId()))
                 .willReturn(Optional.empty());
@@ -67,7 +67,7 @@ class CategoryServiceTest {
         Category haveCategory = CategoryFixture.CUSTOM_CATEGORY_ONE;
         member.addCategory(haveCategory);
 
-        NewCategoryRequest request = new NewCategoryRequest(haveCategory.getName(), haveCategory.getIcon(), 0L);
+        NewCategoryRequest request = new NewCategoryRequest(haveCategory.getName(), haveCategory.getIcon());
         // when
         given(memberRepository.findById(member.getId())).willReturn(Optional.ofNullable(member));
         given(categoryRepository.findCategoryWithNameAndMemberId(request.getName(), member.getId()))
@@ -83,7 +83,7 @@ class CategoryServiceTest {
         //given
         Member member = MemberFixture.MEMBER_TWO;
         Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
-        NewCategoryRequest request = new NewCategoryRequest(category.getName(), category.getIcon(), 0L);
+        NewCategoryRequest request = new NewCategoryRequest(category.getName(), category.getIcon());
 
         given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
         // when
