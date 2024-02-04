@@ -1,8 +1,6 @@
 package com.umc5th.muffler.domain.dailyplan.service;
 
 import com.mysema.commons.lang.Pair;
-import com.umc5th.muffler.domain.category.dto.CategoryConverter;
-import com.umc5th.muffler.domain.category.dto.CategoryDto;
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.dailyplan.dto.ActiveGoalResponse;
 import com.umc5th.muffler.domain.dailyplan.dto.CategoryCalendar;
@@ -69,9 +67,7 @@ public class HomeService {
         List<Goal> inactiveGoals = goalRepository.findGoalsByYearMonth(member.getId(), yearMonth);
         List<InactiveGoalInfo> inactiveGoalsResponse = getInactiveGoalsResponse(inactiveGoals, yearMonth);
 
-        List<Category> categoryFilters = getCategoryFilters(member);
-
-        return HomeConverter.toBasicCalendarResponse(inactiveGoalsResponse, categoryFilters);
+        return HomeConverter.toBasicCalendarResponse(inactiveGoalsResponse);
     }
 
     @Transactional(readOnly = true)
@@ -132,16 +128,14 @@ public class HomeService {
         inactiveGoals.remove(activeGoal);
         List<InactiveGoalInfo> inactiveGoalsResponse = getInactiveGoalsResponse(inactiveGoals, yearMonth);
 
-        List<CategoryDto> categoryFilters = CategoryConverter.toCategoryDtos(getCategoryFilters(member));
-
-        return new WholeCalendar(activeGoalResponse, inactiveGoalsResponse, categoryFilters);
+        return new WholeCalendar(activeGoalResponse, inactiveGoalsResponse);
     }
 
     private ActiveGoalResponse getActiveGoalResponse(Member member, Goal activeGoal, YearMonth yearMonth) {
         LocalDate startDate = findStartDateWithinYearMonth(activeGoal, yearMonth);
         LocalDate endDate = findEndDateWithinYearMonth(activeGoal, yearMonth);
 
-        Long totalCost = expenseRepository.calculateTotalCostByMemberAndDateBetween(member, activeGoal.getStartDate(), activeGoal.getEndDate());
+        Long totalCost = expenseRepository.sumCostByMemberAndDateBetween(member.getId(), activeGoal.getStartDate(), activeGoal.getEndDate());
 
         Map<LocalDate, List<Expense>> expenses = expenseRepository.findByMemberAndDateRangeGroupedByDate(member.getId(), startDate, endDate);
         List<DailyPlan> dailyPlans = dailyPlanRepository.findByGoalIdAndDateBetween(activeGoal.getId(), startDate, endDate);
@@ -165,6 +159,7 @@ public class HomeService {
         return HomeConverter.toInactiveGoalsResponse(inactiveGoals, goalRates, goalDates);
     }
 
+    @Deprecated
     private static List<Category> getCategoryFilters(Member member) {
         return member.getCategories().stream()
                 .filter(category -> category.getStatus().isActive() && category.getIsVisible())

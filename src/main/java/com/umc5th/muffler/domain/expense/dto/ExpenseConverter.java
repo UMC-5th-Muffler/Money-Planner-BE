@@ -13,8 +13,19 @@ import java.util.stream.Stream;
 
 public class ExpenseConverter {
 
-    public static Expense toExpenseEntity(NewExpenseRequest request, Member member, Category category) {
+    public static Expense toExpenseEntity(ExpenseCreateRequest request, Member member, Category category) {
         return Expense.builder()
+                .title(request.getExpenseTitle())
+                .memo(request.getExpenseMemo())
+                .date(request.getExpenseDate())
+                .cost(request.getExpenseCost())
+                .category(category)
+                .member(member)
+                .build();
+    }
+    public static Expense toExpenseEntity(ExpenseUpdateRequest request, Member member, Category category) {
+        return Expense.builder()
+                .id(request.getExpenseId())
                 .title(request.getExpenseTitle())
                 .memo(request.getExpenseMemo())
                 .date(request.getExpenseDate())
