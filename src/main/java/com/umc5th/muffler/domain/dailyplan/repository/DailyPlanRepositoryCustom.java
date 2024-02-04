@@ -5,5 +5,5 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface DailyPlanRepositoryCustom {
-    List<Tuple> findRatesByGoalAndDateRange(Long goalId, LocalDate startDate, LocalDate endDate);
+    List<Tuple> findDateAndRateByGoalAndDateRange(Long goalId, LocalDate startDate, LocalDate endDate);
 }

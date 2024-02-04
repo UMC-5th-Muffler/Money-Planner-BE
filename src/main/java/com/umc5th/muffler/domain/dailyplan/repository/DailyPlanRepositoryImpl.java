@@ -13,7 +13,7 @@ public class DailyPlanRepositoryImpl implements DailyPlanRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Tuple> findRatesByGoalAndDateRange(Long goalId, LocalDate startDate, LocalDate endDate) {
+    public List<Tuple> findDateAndRateByGoalAndDateRange(Long goalId, LocalDate startDate, LocalDate endDate) {
         QDailyPlan dailyPlan = QDailyPlan.dailyPlan;
 
          return queryFactory
@@ -22,11 +22,5 @@ public class DailyPlanRepositoryImpl implements DailyPlanRepositoryCustom {
                 .where(dailyPlan.goal.id.eq(goalId)
                         .and(dailyPlan.date.between(startDate, endDate))
                 ).fetch();
-//
-//        return result.stream()
-//                .collect(Collectors.toMap(
-//                        tuple -> tuple.get(dailyPlan.date),
-//                        tuple -> tuple.get(dailyPlan.rate)
-//                ));
     }
 }

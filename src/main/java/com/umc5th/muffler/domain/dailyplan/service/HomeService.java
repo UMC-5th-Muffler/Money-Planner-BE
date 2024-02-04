@@ -154,7 +154,7 @@ public class HomeService {
             LocalDate startDate = findStartDateWithinYearMonth(goal, yearMonth);
             LocalDate endDate = findEndDateWithinYearMonth(goal, yearMonth);
 
-            List<Tuple> rates = dailyPlanRepository.findRatesByGoalAndDateRange(goal.getId(), startDate, endDate);
+            List<Tuple> rates = dailyPlanRepository.findDateAndRateByGoalAndDateRange(goal.getId(), startDate, endDate);
             rates.stream()
                     .forEach(tuple -> {
                         inactiveDailies.add((DailyInfo)
