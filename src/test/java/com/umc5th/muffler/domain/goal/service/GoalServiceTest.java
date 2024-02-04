@@ -18,6 +18,7 @@ import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.fixture.GoalFixture;
+import com.umc5th.muffler.fixture.MemberFixture;
 import com.umc5th.muffler.global.response.exception.CommonException;
 import com.umc5th.muffler.global.response.exception.GoalException;
 import com.umc5th.muffler.global.response.exception.MemberException;
@@ -126,11 +127,13 @@ class GoalServiceTest {
     }
 
     @Test
-    void 목표_탭_진행중_조회_성공() {
+    void 목표탭_진행중_조회_성공() {
         String memberId = "1";
         LocalDate today = LocalDate.now();
+        Member mockMember = MemberFixture.MEMBER_ONE;
         Goal mockGoal = GoalFixture.create(LocalDate.now(), LocalDate.now().plusDays(1));
 
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findByDateBetweenAndDailyPlans(today, memberId)).thenReturn(Optional.of(mockGoal));
 
         GoalInfo response = goalService.getGoalNow(memberId);
@@ -142,18 +145,30 @@ class GoalServiceTest {
     }
 
     @Test
-    void 목표_탭_전체조회_성공() {
+    void 목표탭_진행중_사용자_존재X() {
+        String memberId = "1";
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> goalService.getGoalNow(memberId))
+                .isInstanceOf(MemberException.class)
+                .hasFieldOrPropertyWithValue("errorCode", MEMBER_NOT_FOUND);
+    }
+
+    @Test
+    void 목표탭_전체조회_성공() {
         String memberId = "1";
         LocalDate today = LocalDate.now();
         int pageSize = 10;
-        Sort sort = Sort.by(Sort.Direction.DESC,"startDate").and(Sort.by(Sort.Direction.DESC, "createdAt"));
-        Pageable pageable = PageRequest.of(0, pageSize, sort);
+        Pageable pageable = PageRequest.of(0, pageSize);
 
+        Member mockMember = MemberFixture.MEMBER_ONE;
         Goal mockEndedGoal = GoalFixture.create();
         Goal mockFutureGoal = GoalFixture.create(LocalDate.of(2025, 2, 1), LocalDate.of(2025, 2, 2));
         List<Goal> goalList = List.of(mockFutureGoal, mockEndedGoal);
         Slice<Goal> goalSlice = new SliceImpl<>(goalList, pageable, false);
 
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findByMemberIdAndDailyPlans(memberId, pageable, today, null)).thenReturn(goalSlice);
 
         GoalPreviewResponse response = goalService.getGoalPreview(memberId, pageable, null);
@@ -164,6 +179,19 @@ class GoalServiceTest {
         assertEquals(goalSlice.hasNext(), response.getHasNext());
 
         verify(goalRepository).findByMemberIdAndDailyPlans(memberId, pageable, today, null);
+    }
+
+    @Test
+    void 목표탭_전체조회_사용자_존재X() {
+        String memberId = "1";
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(0, pageSize);
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> goalService.getGoalPreview(memberId, pageable, null))
+                .isInstanceOf(MemberException.class)
+                .hasFieldOrPropertyWithValue("errorCode", MEMBER_NOT_FOUND);
     }
 
     @Test

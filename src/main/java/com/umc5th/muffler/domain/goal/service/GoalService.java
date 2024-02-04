@@ -58,7 +58,8 @@ public class GoalService {
     @Transactional(readOnly = true)
     public GoalInfo getGoalNow(String memberId) {
 
-        Optional<Goal> goal = goalRepository.findByDateBetweenAndDailyPlans(LocalDate.now(), memberId);
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
+        Optional<Goal> goal = goalRepository.findByDateBetweenAndDailyPlans(LocalDate.now(), member.getId());
         if (!goal.isPresent()) {
             return new GoalInfo();
         }
@@ -72,7 +73,8 @@ public class GoalService {
     @Transactional(readOnly = true)
     public GoalPreviewResponse getGoalPreview(String memberId, Pageable pageable, LocalDate endDate) {
 
-        Slice<Goal> goalList = goalRepository.findByMemberIdAndDailyPlans(memberId, pageable, LocalDate.now(), endDate);
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
+        Slice<Goal> goalList = goalRepository.findByMemberIdAndDailyPlans(member.getId(), pageable, LocalDate.now(), endDate);
         if (goalList.isEmpty()) {
             return new GoalPreviewResponse();
         }
