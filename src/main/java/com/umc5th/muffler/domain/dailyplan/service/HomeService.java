@@ -64,7 +64,7 @@ public class HomeService {
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         List<Goal> inactiveGoals = goalRepository.findGoalsByYearMonth(member.getId(), yearMonth);
-        List<DailyInfo> inactiveDailies = getInactiveGoalsResponse(inactiveGoals, yearMonth);
+        List<DailyInfo> inactiveDailies = getInactiveDailies(inactiveGoals, yearMonth);
 
         return HomeConverter.toBasicCalendar(inactiveDailies);
     }
@@ -128,7 +128,7 @@ public class HomeService {
 
         List<Goal> inactiveGoals = goalRepository.findGoalsByYearMonth(member.getId(), yearMonth);
         inactiveGoals.remove(activeGoal);
-        List<DailyInfo> inactiveDailies = getInactiveGoalsResponse(inactiveGoals, yearMonth);
+        List<DailyInfo> inactiveDailies = getInactiveDailies(inactiveGoals, yearMonth);
 
         return HomeConverter.toGoalCalendar(goalInfo, activeDailies, inactiveDailies);
     }
@@ -148,7 +148,7 @@ public class HomeService {
         return HomeConverter.toDailyList(dailyPlans);
     }
 
-    private List<DailyInfo> getInactiveGoalsResponse(List<Goal> inactiveGoals, YearMonth yearMonth) {
+    private List<DailyInfo> getInactiveDailies(List<Goal> inactiveGoals, YearMonth yearMonth) {
         List<DailyInfo> inactiveDailies = new ArrayList<>();
         for (Goal goal : inactiveGoals) {
             LocalDate startDate = findStartDateWithinYearMonth(goal, yearMonth);
