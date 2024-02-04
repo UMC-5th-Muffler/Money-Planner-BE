@@ -3,7 +3,6 @@ package com.umc5th.muffler.domain.goal.controller;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -90,6 +89,7 @@ class GoalControllerTest {
     @WithMockUser
     void 목표_탭_진행중목표_조회() throws Exception {
         GoalInfo mockResponse = GoalInfo.builder()
+                .goalId(1L)
                 .title("progress").icon("icon")
                 .totalBudget(10000L).totalCost(1000L)
                 .endDate(LocalDate.of(2024, 3, 1))
@@ -99,6 +99,7 @@ class GoalControllerTest {
 
         mockMvc.perform(get("/api/goal/now"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.goalId", is(mockResponse.getGoalId().intValue())))
                 .andExpect(jsonPath("$.result.title", is(mockResponse.getTitle())))
                 .andExpect(jsonPath("$.result.icon", is(mockResponse.getIcon())))
                 .andExpect(jsonPath("$.result.totalBudget", is(mockResponse.getTotalBudget().intValue())))
@@ -111,12 +112,14 @@ class GoalControllerTest {
     void 목표_탭_목표전체조회() throws Exception {
 
         GoalInfo past = GoalInfo.builder()
+                .goalId(1L)
                 .title("endedGoal").icon("icon")
                 .totalBudget(10000L).totalCost(1000L)
                 .endDate(LocalDate.of(2024, 3, 1))
                 .build();
 
         GoalInfo future = GoalInfo.builder()
+                .goalId(2L)
                 .title("futureGoal").icon("icon")
                 .totalBudget(10000L).totalCost(1000L)
                 .endDate(LocalDate.of(2024, 1, 1))
@@ -132,17 +135,17 @@ class GoalControllerTest {
         mockMvc.perform(get("/api/goal/preview"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.futureGoal", hasSize(1)))
-                .andExpect(jsonPath("$.result.futureGoal[0].title", is(mockResponse.getFutureGoal().get(0).getTitle())))
+                .andExpect(jsonPath("$.result.futureGoal[0].goalId", is(mockResponse.getFutureGoal().get(0).getGoalId().intValue())))
                 .andExpect(jsonPath("$.result.endedGoal", hasSize(1)))
-                .andExpect(jsonPath("$.result.endedGoal[0].title", is(mockResponse.getEndedGoal().get(0).getTitle())));
+                .andExpect(jsonPath("$.result.endedGoal[0].goalId", is(mockResponse.getEndedGoal().get(0).getGoalId().intValue())));
     }
 
     @Test
     @WithMockUser
     void 목표_리스트_조회() throws Exception {
 
-        GoalListInfo info1 = GoalListInfo.builder().title("title1").icon("icon").build();
-        GoalListInfo info2 = GoalListInfo.builder().title("title2").icon("icon").build();
+        GoalListInfo info1 = GoalListInfo.builder().goalId(1L).title("title1").icon("icon").build();
+        GoalListInfo info2 = GoalListInfo.builder().goalId(2L).title("title2").icon("icon").build();
         GoalListResponse mockResponse = GoalListResponse.builder().goalList(List.of(info1, info2)).build();
 
         when(goalService.getGoalList(any())).thenReturn(mockResponse);
@@ -150,6 +153,6 @@ class GoalControllerTest {
         mockMvc.perform(get("/api/goal/list"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.goalList", hasSize(2)))
-                .andExpect(jsonPath("$.result.goalList[0].title", is(mockResponse.getGoalList().get(0).getTitle())));
+                .andExpect(jsonPath("$.result.goalList[0].goalId", is(mockResponse.getGoalList().get(0).getGoalId().intValue())));
     }
 }

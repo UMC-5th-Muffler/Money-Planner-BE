@@ -23,7 +23,6 @@ import com.umc5th.muffler.global.response.exception.GoalException;
 import com.umc5th.muffler.global.response.exception.MemberException;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -137,7 +136,7 @@ class GoalServiceTest {
         GoalInfo response = goalService.getGoalNow(memberId);
 
         assertNotNull(response);
-        assertEquals(mockGoal.getTitle(), response.getTitle());
+        assertEquals(mockGoal.getId(), response.getGoalId());
 
         verify(goalRepository).findByDateBetweenAndDailyPlans(today, memberId);
     }
@@ -160,8 +159,8 @@ class GoalServiceTest {
         GoalPreviewResponse response = goalService.getGoalPreview(memberId, pageable, null);
 
         assertNotNull(response);
-        assertEquals(mockEndedGoal.getTitle(), response.getEndedGoal().get(0).getTitle());
-        assertEquals(mockFutureGoal.getTitle(), response.getFutureGoal().get(0).getTitle());
+        assertEquals(mockEndedGoal.getId(), response.getEndedGoal().get(0).getGoalId());
+        assertEquals(mockFutureGoal.getId(), response.getFutureGoal().get(0).getGoalId());
         assertEquals(goalSlice.hasNext(), response.getHasNext());
 
         verify(goalRepository).findByMemberIdAndDailyPlans(memberId, pageable, today, null);

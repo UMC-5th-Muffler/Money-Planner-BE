@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GoalInfo {
-
+    private Long goalId;
     private String title;
     private String icon;
     private Long totalBudget;

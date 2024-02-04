@@ -19,6 +19,7 @@ public class GoalConverter {
 
     public static GoalInfo getNowGoalResponse(Goal goal, Long totalCost) {
         return GoalInfo.builder()
+                .goalId(goal.getId())
                 .title(goal.getTitle())
                 .icon(goal.getIcon())
                 .totalBudget(goal.getTotalBudget())
@@ -32,6 +33,7 @@ public class GoalConverter {
         List<GoalInfo> past = pastInfos.entrySet().stream()
                 .sorted(Comparator.comparing((Map.Entry<Goal, Long> entry) -> entry.getKey().getStartDate()).reversed())
                 .map(entry -> GoalInfo.builder()
+                        .goalId(entry.getKey().getId())
                         .title(entry.getKey().getTitle())
                         .icon(entry.getKey().getIcon())
                         .totalBudget(entry.getKey().getTotalBudget())
@@ -42,6 +44,7 @@ public class GoalConverter {
 
         List<GoalInfo> future = futureGoals.stream()
                 .map(goal -> GoalInfo.builder()
+                        .goalId(goal.getId())
                         .title(goal.getTitle())
                         .icon(goal.getIcon())
                         .totalBudget(goal.getTotalBudget())
@@ -60,6 +63,7 @@ public class GoalConverter {
 
         List<GoalListInfo> info = goalList.stream()
                 .map(goal -> GoalListInfo.builder()
+                        .goalId(goal.getId())
                         .title(goal.getTitle())
                         .icon(goal.getIcon())
                         .build())

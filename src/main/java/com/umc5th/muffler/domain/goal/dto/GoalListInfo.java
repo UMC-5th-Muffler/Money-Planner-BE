@@ -6,6 +6,7 @@ import lombok.Getter;
 @Builder
 @Getter
 public class GoalListInfo {
+    private Long goalId;
     private String title;
     private String icon;
 }
