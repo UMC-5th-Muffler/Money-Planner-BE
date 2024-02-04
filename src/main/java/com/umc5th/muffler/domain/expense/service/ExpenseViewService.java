@@ -5,7 +5,10 @@ import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
-import com.umc5th.muffler.entity.*;
+import com.umc5th.muffler.entity.DailyPlan;
+import com.umc5th.muffler.entity.Expense;
+import com.umc5th.muffler.entity.Goal;
+import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.DailyPlanException;
 import com.umc5th.muffler.global.response.exception.ExpenseException;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -70,7 +74,7 @@ public class ExpenseViewService {
 
         // 일별로 그룹화
         Map<LocalDate, List<Expense>> expensesByDate = expenseList.getContent().stream()
-                .collect(Collectors.groupingBy(Expense::getDate));
+                .collect(Collectors.groupingBy(Expense::getDate, LinkedHashMap::new, Collectors.toList()));
         Map<LocalDate, DailyPlan> dailyPlanByDate = dailyPlans.stream()
                 .collect(Collectors.toMap(DailyPlan::getDate, Function.identity()));
 
@@ -113,7 +117,7 @@ public class ExpenseViewService {
 
         // 일별로 그룹화
         Map<LocalDate, List<Expense>> expensesByDate = expenseList.getContent().stream()
-                .collect(Collectors.groupingBy(Expense::getDate));
+                .collect(Collectors.groupingBy(Expense::getDate, LinkedHashMap::new, Collectors.toList()));
         Map<LocalDate, DailyPlan> dailyPlanByDate = dailyPlans.stream()
                 .collect(Collectors.toMap(DailyPlan::getDate, Function.identity()));
 
@@ -150,18 +154,10 @@ public class ExpenseViewService {
 
         // 일별로 Expense 그룹화
         Map<LocalDate, List<Expense>> expensesByDate = expenseList.getContent().stream()
-                .collect(Collectors.groupingBy(Expense::getDate));
+                .collect(Collectors.groupingBy(Expense::getDate, LinkedHashMap::new, Collectors.toList()));
 
         List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesListWithOrderAndTotalCost(expensesByDate, order);
         return ExpenseConverter.toMonthlyExpensesResponse(dailyExpensesDtos, expenseList);
-    }
-
-
-    private DailyPlan findDailyPlan(List<DailyPlan> dailyPlans, LocalDate date) {
-        return dailyPlans.stream()
-                .filter(dailyPlan -> dailyPlan.getDate().equals(date))
-                .findAny()
-                .orElseThrow(() -> new GoalException(ErrorCode.DAILYPLAN_NOT_FOUND));
     }
 
     private LocalDate getStartDate(Goal goal, YearMonth yearMonth) {

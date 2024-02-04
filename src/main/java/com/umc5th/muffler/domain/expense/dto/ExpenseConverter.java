@@ -1,12 +1,12 @@
 package com.umc5th.muffler.domain.expense.dto;
 
-import com.umc5th.muffler.entity.*;
-import com.umc5th.muffler.entity.constant.Status;
+import com.umc5th.muffler.entity.Category;
+import com.umc5th.muffler.entity.Expense;
+import com.umc5th.muffler.entity.Member;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Slice;
 
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -71,7 +71,6 @@ public class ExpenseConverter {
                     .build();
         }).collect(Collectors.toList());
 
-        dailyExpensesList.sort(Comparator.comparing(DailyExpensesDto::getDate).reversed());
         return dailyExpensesList;
     }
 
@@ -90,25 +89,11 @@ public class ExpenseConverter {
                     .build();
         }).collect(Collectors.toList());
 
-        if ("ASC".equalsIgnoreCase(order)) {
-            dailyExpensesList.sort(Comparator.comparing(DailyExpensesDto::getDate));
-        } else if ("DESC".equalsIgnoreCase(order)) {
-            dailyExpensesList.sort(Comparator.comparing(DailyExpensesDto::getDate).reversed());
-        }
-
-
         return dailyExpensesList;
     }
 
     public static List<DailyExpensesDto> toDailyExpensesListWithOrderAndTotalCost(Map<LocalDate, List<Expense>> expensesByDate, String order) {
         Stream<Map.Entry<LocalDate, List<Expense>>> stream = expensesByDate.entrySet().stream();
-
-        if ("ASC".equalsIgnoreCase(order)) {
-            stream = stream.sorted(Map.Entry.comparingByKey());
-        }
-        else if ("DESC".equalsIgnoreCase(order)) {
-            stream = stream.sorted(Map.Entry.<LocalDate, List<Expense>>comparingByKey().reversed());
-        }
 
         return stream.map(entry -> {
             LocalDate dailyDate = entry.getKey();
