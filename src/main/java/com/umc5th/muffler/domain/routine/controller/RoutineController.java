@@ -20,7 +20,7 @@ public class RoutineController {
 
     @GetMapping
     public Response<RoutineResponse> getAllRoutines(
-            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @PageableDefault(size = 10) Pageable pageable,
             @RequestParam (name = "endPoint", required = false) Long endPointId,
             Authentication authentication) {
 
