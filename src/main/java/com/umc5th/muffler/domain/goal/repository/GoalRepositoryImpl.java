@@ -41,10 +41,10 @@ public class GoalRepositoryImpl implements GoalRepositoryCustom {
 
         List<Goal> goals = queryFactory
                 .selectFrom(goal)
-                .where(bfEndDate(endDate),
-                        goal.member.id.eq(memberId)
-                        .and(dateNotBetween(today, goal.startDate, goal.endDate))
-                ).orderBy(goal.startDate.desc())
+                .where(goal.member.id.eq(memberId),
+                        dateNotBetween(today, goal.startDate, goal.endDate),
+                        bfEndDate(endDate)
+                ).orderBy(goal.endDate.desc())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
 
