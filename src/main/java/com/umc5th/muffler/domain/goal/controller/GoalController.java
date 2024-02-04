@@ -56,10 +56,7 @@ public class GoalController {
     @GetMapping("/preview")
     public Response<GoalPreviewResponse> getGoalPreview(Authentication authentication,
             @RequestParam (name = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
-            @PageableDefault(size = 10) @SortDefault.SortDefaults({
-                    @SortDefault(sort = "startDate", direction = Sort.Direction.DESC),
-                    @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC)
-            }) Pageable pageable) {
+            @PageableDefault(size = 10) Pageable pageable) {
         GoalPreviewResponse response = goalService.getGoalPreview(authentication.getName(), pageable, endDate);
         return Response.success(response);
     }
