@@ -2,16 +2,15 @@ package com.umc5th.muffler.domain.expense.controller;
 
 import com.umc5th.muffler.domain.expense.dto.DailyExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.ExpenseDto;
+import com.umc5th.muffler.domain.expense.dto.ExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.MonthlyExpenseResponse;
-import com.umc5th.muffler.domain.expense.dto.NewExpenseRequest;
-import com.umc5th.muffler.domain.expense.dto.NewExpenseResponse;
+import com.umc5th.muffler.domain.expense.dto.ExpenseCreateRequest;
 import com.umc5th.muffler.domain.expense.dto.SearchResponse;
-import com.umc5th.muffler.domain.expense.dto.UpdateExpenseRequest;
-import com.umc5th.muffler.domain.expense.dto.UpdateExpenseResponse;
+import com.umc5th.muffler.domain.expense.dto.ExpenseUpdateRequest;
 import com.umc5th.muffler.domain.expense.dto.WeekRequestParam;
 import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseResponse;
+import com.umc5th.muffler.domain.expense.service.ExpenseSearchService;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
-import com.umc5th.muffler.domain.expense.service.ExpenseUpdateService;
 import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.global.response.Response;
 import com.umc5th.muffler.global.validation.ValidOrder;
@@ -45,27 +44,25 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RequestMapping("/api/expense")
 public class ExpenseController {
+    private final ExpenseSearchService expenseSearchService;
     private final ExpenseService expenseService;
-    private final ExpenseUpdateService expenseUpdateService;
     private final ExpenseViewService expenseViewService;
 
     @PostMapping
-    public Response<NewExpenseResponse> enrollNewExpense(Principal principal,
-                                                         @RequestBody @Valid NewExpenseRequest request) {
-        NewExpenseResponse result = expenseUpdateService.enrollExpense(principal.getName(), request);
-        return Response.success(result);
+    public Response<ExpenseResponse> create(Principal principal,
+                                            @RequestBody @Valid ExpenseCreateRequest request) {
+        return Response.success(expenseService.create(principal.getName(), request));
     }
 
     @PatchMapping
-    public Response<UpdateExpenseResponse> updateExpense(Principal principal,
-                                                         @RequestBody @Valid UpdateExpenseRequest request) {
-        UpdateExpenseResponse result = expenseUpdateService.updateExpense(principal.getName(), request);
-        return Response.success(result);
+    public Response<ExpenseResponse> update(Principal principal,
+                                            @RequestBody @Valid ExpenseUpdateRequest request) {
+        return Response.success(expenseService.update(principal.getName(), request));
     }
 
     @DeleteMapping("/{expenseId}")
-    private Response<Void> deleteExpense(Principal principal, @PathVariable("expenseId") Long expenseId) {
-        expenseUpdateService.deleteExpense(principal.getName(), expenseId);
+    public Response<Void> delete(Principal principal, @PathVariable("expenseId") Long expenseId) {
+        expenseService.delete(principal.getName(), expenseId);
         return Response.success();
     }
 
@@ -133,7 +130,7 @@ public class ExpenseController {
             @RequestParam(name = "sort", defaultValue = "DESC") String sortDirection,
             Authentication authentication) {
 
-        SearchResponse response = expenseService.searchExpense(authentication.getName(), title, page, size,
+        SearchResponse response = expenseSearchService.searchExpense(authentication.getName(), title, page, size,
                 sortDirection);
         return Response.success(response);
     }
