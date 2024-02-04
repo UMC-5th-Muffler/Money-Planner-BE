@@ -74,13 +74,13 @@ public class GoalService {
     public GoalPreviewResponse getGoalPreview(String memberId, Pageable pageable, LocalDate endDate) {
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
-        Slice<Goal> goalList = goalRepository.findByMemberIdAndDailyPlans(member.getId(), pageable, LocalDate.now(), endDate);
+        LocalDate today = LocalDate.now();
+        Slice<Goal> goalList = goalRepository.findByMemberIdAndDailyPlans(member.getId(), pageable, today, endDate);
         if (goalList.isEmpty()) {
             return new GoalPreviewResponse();
         }
 
-        LocalDate today = LocalDate.now();
-        Map<Goal, Long> goalAndTotalCost = new HashMap<>();
+        Map<Goal, Long> goalAndTotalCost = new LinkedHashMap<>();
         List<Goal> futureGoals = new ArrayList<>();
 
         for (Goal goal : goalList) {

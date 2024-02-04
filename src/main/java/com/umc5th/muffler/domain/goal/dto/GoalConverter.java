@@ -31,7 +31,6 @@ public class GoalConverter {
     public static GoalPreviewResponse getGoalPreviewResponse(Map<Goal, Long> pastInfos, List<Goal> futureGoals, Boolean hasNext) {
 
         List<GoalInfo> past = pastInfos.entrySet().stream()
-                .sorted(Comparator.comparing((Map.Entry<Goal, Long> entry) -> entry.getKey().getStartDate()).reversed())
                 .map(entry -> GoalInfo.builder()
                         .goalId(entry.getKey().getId())
                         .title(entry.getKey().getTitle())
