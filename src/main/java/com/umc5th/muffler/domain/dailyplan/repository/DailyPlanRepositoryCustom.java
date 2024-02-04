@@ -1,9 +1,9 @@
 package com.umc5th.muffler.domain.dailyplan.repository;
 
-import com.umc5th.muffler.entity.constant.Rate;
+import com.querydsl.core.Tuple;
 import java.time.LocalDate;
 import java.util.List;
 
 public interface DailyPlanRepositoryCustom {
-    List<Rate> findRatesByGoalAndDateRange(Long goalId, LocalDate startDate, LocalDate endDate);
+    List<Tuple> findRatesByGoalAndDateRange(Long goalId, LocalDate startDate, LocalDate endDate);
 }
