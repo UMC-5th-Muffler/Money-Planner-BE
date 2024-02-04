@@ -99,6 +99,7 @@ public class RoutineService {
         );
     }
 
+    @Transactional(readOnly = true)
     public RoutineResponse getAllRoutines(Pageable pageable, Long endPointId, String memberId) {
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
@@ -126,6 +127,7 @@ public class RoutineService {
                 ));
     }
 
+    @Transactional(readOnly = true)
     public RoutineDetail getRoutine(String memberId, Long routineId) {
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
