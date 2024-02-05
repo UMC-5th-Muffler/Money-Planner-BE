@@ -13,6 +13,7 @@ import java.util.List;
 @Builder
 @Entity
 @Getter
+@Table(name = "goal", indexes = {@Index(name = "idx_goal_endDate", columnList = "endDate")})
 public class Goal extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
