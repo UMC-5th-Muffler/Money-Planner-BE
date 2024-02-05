@@ -23,7 +23,4 @@ public class ExpenseDetailDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long categoryId;
     private String categoryIcon;
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private LocalDateTime createdAt;
 }

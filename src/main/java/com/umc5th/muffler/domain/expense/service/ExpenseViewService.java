@@ -47,10 +47,10 @@ public class ExpenseViewService {
         return ExpenseConverter.toExpenseDto(expense);
     }
 
-    public DailyExpenseResponse getDailyExpenseDetails(String memberId, LocalDate date, LocalDateTime lastCreatedAt, Pageable pageable){
+    public DailyExpenseResponse getDailyExpenseDetails(String memberId, LocalDate date, Long lastExpenseId, Pageable pageable){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-        Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(memberId, date, lastCreatedAt, pageable);
+        Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(memberId, date, lastExpenseId, pageable);
 
         DailyExpenseResponse response = ExpenseConverter.toDailyExpensesList(expenseList);
 

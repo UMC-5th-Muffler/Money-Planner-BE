@@ -48,10 +48,10 @@ public class ExpenseController {
     public Response<DailyExpenseResponse> getDailyExpenseDetails(
             Authentication authentication,
             @RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
-            @RequestParam(name = "lastCreatedAt", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS") LocalDateTime lastCreatedAt,
+            @RequestParam(name = "lastExpenseId", required = false) Long lastExpenseId,
             @PageableDefault(size = 20) Pageable pageable){
 
-        DailyExpenseResponse response = expenseViewService.getDailyExpenseDetails(authentication.getName(), date, lastCreatedAt, pageable);
+        DailyExpenseResponse response = expenseViewService.getDailyExpenseDetails(authentication.getName(), date, lastExpenseId, pageable);
         return Response.success(response);
     }
 

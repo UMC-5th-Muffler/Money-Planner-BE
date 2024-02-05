@@ -124,7 +124,6 @@ public class ExpenseConverter {
                         .categoryIcon(expense.getCategory().getIcon())
                         .cost(expense.getCost())
                         .memo(expense.getMemo())
-                        .createdAt(expense.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
     }

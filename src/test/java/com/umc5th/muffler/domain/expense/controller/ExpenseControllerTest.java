@@ -52,7 +52,7 @@ class ExpenseControllerTest {
         LocalDate testDate = LocalDate.of(2024, 1, 1);
         List<Expense> expenses = ExpenseFixture.createList(10, testDate);
         List<ExpenseDetailDto> expenseDetailDtos = expenses.stream()
-                .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getMemo(), expense.getCategory().getId(), expense.getCategory().getIcon(), expense.getCreatedAt()))
+                .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getMemo(), expense.getCategory().getId(), expense.getCategory().getIcon()))
                 .collect(Collectors.toList());
 
         DailyExpenseResponse mockResponse = DailyExpenseResponse.builder()
@@ -89,7 +89,7 @@ class ExpenseControllerTest {
                     LocalDate dailyDate = entry.getKey();
                     List<Expense> dailyExpenses = entry.getValue();
                     List<ExpenseDetailDto> expenseDetailDtos = dailyExpenses.stream()
-                            .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getMemo(), expense.getCategory().getId(), expense.getCategory().getIcon(), expense.getCreatedAt()))
+                            .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getMemo(), expense.getCategory().getId(), expense.getCategory().getIcon()))
                             .collect(Collectors.toList());
 
                     Long dailyTotalCost = dailyExpenses.stream().mapToLong(Expense::getCost).sum();

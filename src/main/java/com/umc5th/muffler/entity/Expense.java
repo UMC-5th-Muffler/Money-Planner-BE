@@ -1,21 +1,16 @@
 package com.umc5th.muffler.entity;
 
 import com.umc5th.muffler.entity.base.BaseTimeEntity;
-import java.time.LocalDate;
-import javax.persistence.*;
+import lombok.*;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import javax.persistence.*;
+import java.time.LocalDate;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 @Entity
 @Getter
-@Table(indexes = {@Index(name = "expense_index", columnList = "created_at")})
 public class Expense extends BaseTimeEntity {
 
     @Id

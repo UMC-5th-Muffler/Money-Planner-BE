@@ -55,7 +55,7 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
     }
 
 
-    public Slice<Expense> findAllByMemberAndDate(String memberId, LocalDate date, LocalDateTime lastCreatedAt, Pageable pageable) {
+    public Slice<Expense> findAllByMemberAndDate(String memberId, LocalDate date, Long lastExpenseId, Pageable pageable) {
         QExpense expense = QExpense.expense;
         QCategory category = QCategory.category;
 
@@ -64,8 +64,8 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
                 .leftJoin(expense.category, category).fetchJoin()
                 .where(expense.member.id.eq(memberId),
                         expense.date.eq(date),
-                        lastCreatedAt == null ? null : expense.createdAt.lt(lastCreatedAt))
-                .orderBy(expense.createdAt.desc())
+                        lastExpenseId == null ? null : expense.id.lt(lastExpenseId))
+                .orderBy(expense.id.desc())
                 .limit(pageable.getPageSize() + 1);
 
         List<Expense> expenses = query.fetch();
