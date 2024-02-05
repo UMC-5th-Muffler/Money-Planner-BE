@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
 
 import com.umc5th.muffler.domain.category.dto.UpdateCategoryNameIconRequest;
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
@@ -44,7 +43,7 @@ public class CategoryUpdateTest {
         member.addCategory(category);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findCategoryWithCategoryIdAndMemberId(any(Long.class), any(String.class))).willReturn(Optional.of(category));
         given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.empty());
 
@@ -65,7 +64,7 @@ public class CategoryUpdateTest {
         member.addCategory(category);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findCategoryWithCategoryIdAndMemberId(any(Long.class), any(String.class))).willReturn(Optional.of(category));
         given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.empty());
 
@@ -86,7 +85,7 @@ public class CategoryUpdateTest {
         member.addCategory(category);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findCategoryWithCategoryIdAndMemberId(any(Long.class), any(String.class))).willReturn(Optional.of(category));
 
         assertThatThrownBy(() ->categoryService.updateNameOrIcon(member.getId(), request))
                 .isInstanceOf(CategoryException.class)
@@ -120,7 +119,7 @@ public class CategoryUpdateTest {
         member.addCategory(category);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.empty());
+        given(categoryRepository.findCategoryWithCategoryIdAndMemberId(any(Long.class), any(String.class))).willReturn(Optional.empty());
 
         assertThatThrownBy(() ->categoryService.updateNameOrIcon(member.getId(), request))
                 .isInstanceOf(CategoryException.class)
@@ -138,11 +137,11 @@ public class CategoryUpdateTest {
         other.addCategory(category);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findCategoryWithCategoryIdAndMemberId(any(Long.class), any(String.class))).willReturn(Optional.of(category));
 
         assertThatThrownBy(() ->categoryService.updateNameOrIcon(member.getId(), request))
                 .isInstanceOf(CategoryException.class)
-                .hasFieldOrPropertyWithValue("errorCode",ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
+                .hasFieldOrPropertyWithValue("errorCode",ErrorCode.CATEGORY_NOT_FOUND);
     }
 
     @Test
@@ -156,7 +155,7 @@ public class CategoryUpdateTest {
         member.addCategory(category);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findCategoryWithCategoryIdAndMemberId(any(Long.class), any(String.class))).willReturn(Optional.of(category));
         given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.of(sameNamed));
 
@@ -175,7 +174,7 @@ public class CategoryUpdateTest {
         member.addCategory(category);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findCategoryWithCategoryIdAndMemberId(any(Long.class), any(String.class))).willReturn(Optional.of(category));
 
         assertThatThrownBy(() ->categoryService.updateNameOrIcon(member.getId(), request))
                 .isInstanceOf(CategoryException.class)

@@ -59,10 +59,10 @@ public class CategoryService {
     public void updateNameOrIcon(String memberId, UpdateCategoryNameIconRequest request) throws CategoryException {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
-        Category category = categoryRepository.findActiveCategoryById(request.getCategoryId())
+        Category category = categoryRepository.findCategoryWithCategoryIdAndMemberId(request.getCategoryId(), memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
         if (!category.isOwnMember(memberId)) {
-            throw new CategoryException(ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
+            throw new CategoryException(ErrorCode.CATEGORY_NOT_FOUND);
         }
 
         if (category.isNameChanged(request.getName())) {
@@ -101,7 +101,7 @@ public class CategoryService {
             }
             Category category = entityMap.get(requestCategory.getCategoryId());
             if (category == null) {
-                throw new CategoryException(ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
+                throw new CategoryException(ErrorCode.CATEGORY_NOT_FOUND);
             }
             if (isChanged(category, requestCategory)) {
                 updateList.add(requestCategory);
@@ -119,12 +119,9 @@ public class CategoryService {
     public DeleteCategoryResponse deactivateCategory(String memberId, Long categoryId) throws CategoryException {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
-        Category category = categoryRepository.findActiveCategoryById(categoryId)
+        Category category = categoryRepository.findCategoryWithCategoryIdAndMemberId(categoryId, memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        if (!category.isOwnMember(memberId)) {
-            throw new CategoryException(ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
-        }
         if (category.getType() == CategoryType.DEFAULT) {
             throw new CategoryException(ErrorCode.CANNOT_DELETE_DEFAULT_CATEGORY);
         }

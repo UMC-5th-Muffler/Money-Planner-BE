@@ -110,7 +110,7 @@ public class CategoryDeleteTest {
 
         assertThatThrownBy(() ->categoryService.deactivateCategory(member.getId(), category.getId()))
                 .isInstanceOf(CategoryException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CATEGORY_GOAL_NOT_FOUND);
     }
 
     @Test

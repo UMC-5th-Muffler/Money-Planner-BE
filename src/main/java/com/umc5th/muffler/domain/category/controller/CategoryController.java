@@ -48,8 +48,7 @@ public class CategoryController {
             description = "특정 카테고리의 아이콘이나 이름을 업데이트 한다. 가지고 있는 카테고리 중 중복되는 이름은 허용되지 않고, "
                     + "기본으로 가지고 있는 카테고리의 아이콘은 변경할 수 없다. 카테고리 아이콘/이름 수정 화면에서 저장버튼 누를 시 호출")
     @ErrorResponses(value = {
-            MEMBER_NOT_FOUND, CATEGORY_NOT_FOUND, ACCESS_TO_OTHER_USER_CATEGORY,
-            CANNOT_UPDATE_ETC_CATEGORY_NAME, DUPLICATED_CATEGORY_NAME, CANNOT_UPDATE_DEFAULT_ICON
+            MEMBER_NOT_FOUND, CATEGORY_NOT_FOUND, CANNOT_UPDATE_ETC_CATEGORY_NAME, DUPLICATED_CATEGORY_NAME, CANNOT_UPDATE_DEFAULT_ICON
     })
     public Response<Void> updateCategoryNameOrIcon(Principal principal, @RequestBody @Valid UpdateCategoryNameIconRequest request) {
         categoryService.updateNameOrIcon(principal.getName(), request);
@@ -61,7 +60,7 @@ public class CategoryController {
             description = "유저가 가진 카테고리들의 보여줄 순서와 숨김여부를 변경한다. 순서는 1부터 시작하는 연속된 숫자로 각 카테고리별로 부여되어야 한다. " 
                     + "전체 카테고리 (숨김 카테고리 포함)를 보는 화면에서 뒤로가기를 누를 때 호출")
     @ErrorResponses(value = {
-        MEMBER_NOT_FOUND, CATEGORY_UNEXPECTED_ORDER, ACCESS_TO_OTHER_USER_CATEGORY, CATEGORY_BATCH_INSERT_FAIL
+        MEMBER_NOT_FOUND, CATEGORY_UNEXPECTED_ORDER, CATEGORY_BATCH_INSERT_FAIL
     })
     public Response<Void> updateCategoryPriorityVisibility(
             Principal principal,
@@ -73,7 +72,7 @@ public class CategoryController {
     @DeleteMapping("/{categoryId}")
     @Operation(summary = "카테고리 삭제 API", description = "카테고리를 삭제하는 API, 반환되는 값은 이 때 \"기타\" 카테고리로 자동 분류되는 "
             + "삭제되는 카테고리로 등록해둔 반복기록의 개수이다. 이미 삭제된 카테고리와 기본 카테고리는 삭제할 수 없다.")
-    @ErrorResponses(value = {MEMBER_NOT_FOUND, CATEGORY_NOT_FOUND, ACCESS_TO_OTHER_USER_CATEGORY, ALREADY_INACTIVE_CATEGORY, CANNOT_DELETE_DEFAULT_CATEGORY})
+    @ErrorResponses(value = {MEMBER_NOT_FOUND, CATEGORY_NOT_FOUND, ALREADY_INACTIVE_CATEGORY, CANNOT_DELETE_DEFAULT_CATEGORY})
     public Response<DeleteCategoryResponse> deleteCategory(Principal principal, @PathVariable("categoryId") Long categoryId) {
         DeleteCategoryResponse response = categoryService.deactivateCategory(principal.getName(), categoryId);
         return Response.success(response);
