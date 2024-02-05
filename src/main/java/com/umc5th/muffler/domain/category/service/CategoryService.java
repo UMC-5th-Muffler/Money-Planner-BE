@@ -46,63 +46,72 @@ public class CategoryService {
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
         List<NameProjection> categoryNames = categoryRepository.findByMemberAndStatus(member, Status.ACTIVE);
         Optional<NameProjection> duplicateName = categoryNames.stream()
-                    .filter(row -> row.getName().equals(request.getName()))
+                .filter(row -> row.getName().equals(request.getName()))
                 .findAny();
-        if (duplicateName.isPresent())
+        if (duplicateName.isPresent()) {
             throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
+        }
         Category newCategory = CategoryConverter.toEntity(request, categoryNames.size() + 1L);
         newCategory.setMember(member);
         newCategory = categoryRepository.save(newCategory);
         return CategoryConverter.toDTO(newCategory);
     }
 
-    public void updateNameOrIcon(String memberId, UpdateCategoryNameIconRequest request) throws CategoryException{
+    public void updateNameOrIcon(String memberId, UpdateCategoryNameIconRequest request) throws CategoryException {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
         Category category = categoryRepository.findActiveCategoryById(request.getCategoryId())
                 .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
-        if (!category.isOwnMember(memberId))
+        if (!category.isOwnMember(memberId)) {
             throw new CategoryException(ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
+        }
 
         if (category.isNameChanged(request.getName())) {
-            if (!category.isNameUpdatable())
+            if (!category.isNameUpdatable()) {
                 throw new CategoryException(ErrorCode.CANNOT_UPDATE_ETC_CATEGORY_NAME);
+            }
             Optional<Category> duplicatedCategory = categoryRepository.findCategoryWithNameAndMemberId(
                     request.getName(), memberId);
-            if (duplicatedCategory.isPresent())
+            if (duplicatedCategory.isPresent()) {
                 throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
+            }
             category.changeName(request.getName());
         }
         if (category.isIconChanged(request.getIcon())) {
-            if (!category.isIconUpdatable(request.getIcon()))
+            if (!category.isIconUpdatable(request.getIcon())) {
                 throw new CategoryException(ErrorCode.CANNOT_UPDATE_DEFAULT_ICON);
+            }
             category.changeIcon(request.getIcon());
         }
     }
 
-    public void updateBatchPriorityOrVisibility(String memberId, UpdateCategoryPriorityVisibilityRequest request) throws CategoryException {
+    public void updateBatchPriorityOrVisibility(String memberId, UpdateCategoryPriorityVisibilityRequest request)
+            throws CategoryException {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
         Map<Long, Category> entityMap = categoryRepository.findAllByMember(member)
                 .stream().collect(Collectors.toMap(Category::getId, item -> item));
         List<CategoryPriorityVisibilityDTO> requestCategories = request.getCategories();
         List<CategoryPriorityVisibilityDTO> updateList = new ArrayList<>();
-        Long expectOrder = 1L;
+        long expectOrder = 1L;
 
         requestCategories.sort(Comparator.comparingLong(CategoryPriorityVisibilityDTO::getPriority));
         for (CategoryPriorityVisibilityDTO requestCategory : requestCategories) {
-            if (!requestCategory.getPriority().equals(expectOrder))
+            if (!requestCategory.getPriority().equals(expectOrder)) {
                 throw new CategoryException(ErrorCode.CATEGORY_UNEXPECTED_ORDER);
+            }
             Category category = entityMap.get(requestCategory.getCategoryId());
             expectOrder += 1;
-            if (category == null)
+            if (category == null) {
                 throw new CategoryException(ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
+            }
             if (isChanged(category, requestCategory)) {
                 updateList.add(requestCategory);
             }
         }
-        if (!updateList.isEmpty())
+        if (!updateList.isEmpty()) {
             batchUpdateCategoryRepository.batchUpdatePriorityAndVisibility(updateList);
+        }
     }
 
     private Boolean isChanged(Category category, CategoryPriorityVisibilityDTO dto) {
@@ -115,12 +124,15 @@ public class CategoryService {
         Category category = categoryRepository.findActiveCategoryById(categoryId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        if (!category.isOwnMember(memberId))
+        if (!category.isOwnMember(memberId)) {
             throw new CategoryException(ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
-        if (category.getStatus() == Status.INACTIVE)
+        }
+        if (category.getStatus() == Status.INACTIVE) {
             throw new CategoryException(ErrorCode.ALREADY_INACTIVE_CATEGORY);
-        if (category.getType() == CategoryType.DEFAULT)
+        }
+        if (category.getType() == CategoryType.DEFAULT) {
             throw new CategoryException(ErrorCode.CANNOT_DELETE_DEFAULT_CATEGORY);
+        }
         category.setStatus(Status.INACTIVE);
         categoryRepository.save(category);
 
