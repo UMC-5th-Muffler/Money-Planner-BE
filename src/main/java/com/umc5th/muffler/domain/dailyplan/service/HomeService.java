@@ -145,7 +145,7 @@ public class HomeService {
         List<DailyPlan> dailyPlans = dailyPlanRepository
                 .findByGoalIdAndDateBetween(activeGoal.getId(), startDate, endDate);
 
-        return HomeConverter.toDailyList(dailyPlans);
+        return HomeConverter.toActiveDailies(dailyPlans);
     }
 
     private List<DailyInfo> getInactiveDailies(List<Goal> inactiveGoals, YearMonth yearMonth) {

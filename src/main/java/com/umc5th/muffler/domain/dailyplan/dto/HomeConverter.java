@@ -54,7 +54,7 @@ public class HomeConverter {
                 .build();
     }
 
-    public static List<DailyInfo> toDailyList(List<DailyPlan> dailyPlans) {
+    public static List<DailyInfo> toActiveDailies(List<DailyPlan> dailyPlans) {
         return dailyPlans.stream()
                 .map(HomeConverter::createActiveDaily)
                 .collect(Collectors.toList());
