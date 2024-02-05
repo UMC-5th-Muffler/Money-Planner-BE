@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class CategoryPriorityVisibilityDTO {
+public class CategoryFilterOptions {
     @NotNull
     @Positive
     private Long categoryId;

@@ -21,10 +21,10 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     Optional<Category> findCategoryWithNameAndMemberId(@Param("name") String name, @Param("memberId") String memberId);
     @Query(value = "select c from Category c where c.id = :categoryId and c.status = 'ACTIVE'")
     Optional<Category> findActiveCategoryById(@Param("categoryId") Long categoryId);
-
-    List<Category> findAllByMember(Member member);
     @Query("SELECT c FROM Category c WHERE c.status = 'ACTIVE' AND c.member.id = :memberId ORDER BY c.priority ASC")
     List<Category> findActiveCategoriesAsc(@Param(("memberId")) String memberId);
+    @Query("SELECT c FROM Category c WHERE c.status = 'ACTIVE' AND c.member.id = :memberId")
+    List<Category> findActiveCategories(@Param(("memberId")) String memberId);
 
     @Query("SELECT c FROM Category c WHERE c.member IS NULL")
     List<Category> findAllWithNoMember(); //공통 카테고리 찾기

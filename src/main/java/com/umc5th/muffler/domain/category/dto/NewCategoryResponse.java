@@ -10,7 +10,4 @@ import lombok.Getter;
 @AllArgsConstructor
 public class NewCategoryResponse {
     private Long categoryId;
-    private Long priority;
-    private Boolean isVisible;
-    private CategoryType type;
 }

@@ -2,17 +2,19 @@ package com.umc5th.muffler.domain.category.dto;
 
 import com.umc5th.muffler.domain.category.repository.dto.OutlinedCategoryProjection;
 import com.umc5th.muffler.entity.Category;
+import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.constant.CategoryType;
 import com.umc5th.muffler.entity.constant.Status;
 
 public class CategoryConverter {
-    public static Category toEntity(NewCategoryRequest dto, Long priority) {
+    public static Category toEntity(NewCategoryRequest dto, Long priority, Member member) {
         return Category.builder()
                 .icon(dto.getIcon())
                 .name(dto.getName())
                 .priority(priority)
                 .type(CategoryType.CUSTOM)
                 .status(Status.ACTIVE)
+                .member(member)
                 .build();
     }
 
@@ -37,9 +39,6 @@ public class CategoryConverter {
     public static NewCategoryResponse toDTO(Category category) {
         return NewCategoryResponse.builder()
                 .categoryId(category.getId())
-                .isVisible(category.getIsVisible())
-                .priority(category.getPriority())
-                .type(category.getType())
                 .build();
     }
 

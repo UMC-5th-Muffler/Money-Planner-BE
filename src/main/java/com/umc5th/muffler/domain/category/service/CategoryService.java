@@ -2,13 +2,13 @@ package com.umc5th.muffler.domain.category.service;
 
 import com.umc5th.muffler.domain.category.dto.CategoryConverter;
 import com.umc5th.muffler.domain.category.dto.CategoryDTO;
-import com.umc5th.muffler.domain.category.dto.CategoryPriorityVisibilityDTO;
+import com.umc5th.muffler.domain.category.dto.CategoryFilterOptions;
 import com.umc5th.muffler.domain.category.dto.GetCategoryListResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.DeleteCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryRequest;
 import com.umc5th.muffler.domain.category.dto.UpdateCategoryNameIconRequest;
-import com.umc5th.muffler.domain.category.dto.UpdateCategoryPriorityVisibilityRequest;
+import com.umc5th.muffler.domain.category.dto.CategoryFilterUpdateRequest;
 import com.umc5th.muffler.domain.category.repository.BatchUpdateCategoryRepository;
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.category.repository.dto.NameProjection;
@@ -51,8 +51,7 @@ public class CategoryService {
         if (duplicateName.isPresent()) {
             throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
         }
-        Category newCategory = CategoryConverter.toEntity(request, categoryNames.size() + 1L);
-        newCategory.setMember(member);
+        Category newCategory = CategoryConverter.toEntity(request, categoryNames.size() + 1L, member);
         newCategory = categoryRepository.save(newCategory);
         return CategoryConverter.toDTO(newCategory);
     }
@@ -85,23 +84,22 @@ public class CategoryService {
         }
     }
 
-    public void updateBatchPriorityOrVisibility(String memberId, UpdateCategoryPriorityVisibilityRequest request)
+    public void updateBatchPriorityOrVisibility(String memberId, CategoryFilterUpdateRequest request)
             throws CategoryException {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
-        Map<Long, Category> entityMap = categoryRepository.findAllByMember(member)
+        Map<Long, Category> entityMap = categoryRepository.findActiveCategories(memberId)
                 .stream().collect(Collectors.toMap(Category::getId, item -> item));
-        List<CategoryPriorityVisibilityDTO> requestCategories = request.getCategories();
-        List<CategoryPriorityVisibilityDTO> updateList = new ArrayList<>();
+        List<CategoryFilterOptions> requestCategories = request.getCategories();
+        List<CategoryFilterOptions> updateList = new ArrayList<>();
         long expectOrder = 1L;
 
-        requestCategories.sort(Comparator.comparingLong(CategoryPriorityVisibilityDTO::getPriority));
-        for (CategoryPriorityVisibilityDTO requestCategory : requestCategories) {
-            if (!requestCategory.getPriority().equals(expectOrder)) {
+        requestCategories.sort(Comparator.comparingLong(CategoryFilterOptions::getPriority));
+        for (CategoryFilterOptions requestCategory : requestCategories) {
+            if (!requestCategory.getPriority().equals(expectOrder++)) {
                 throw new CategoryException(ErrorCode.CATEGORY_UNEXPECTED_ORDER);
             }
             Category category = entityMap.get(requestCategory.getCategoryId());
-            expectOrder += 1;
             if (category == null) {
                 throw new CategoryException(ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
             }
@@ -114,7 +112,7 @@ public class CategoryService {
         }
     }
 
-    private Boolean isChanged(Category category, CategoryPriorityVisibilityDTO dto) {
+    private Boolean isChanged(Category category, CategoryFilterOptions dto) {
         return category.getIsVisible() != dto.getIsVisible() || !category.getPriority().equals(dto.getPriority());
     }
 
@@ -126,9 +124,6 @@ public class CategoryService {
 
         if (!category.isOwnMember(memberId)) {
             throw new CategoryException(ErrorCode.ACCESS_TO_OTHER_USER_CATEGORY);
-        }
-        if (category.getStatus() == Status.INACTIVE) {
-            throw new CategoryException(ErrorCode.ALREADY_INACTIVE_CATEGORY);
         }
         if (category.getType() == CategoryType.DEFAULT) {
             throw new CategoryException(ErrorCode.CANNOT_DELETE_DEFAULT_CATEGORY);

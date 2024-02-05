@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateCategoryPriorityVisibilityRequest {
-    private List<CategoryPriorityVisibilityDTO> categories;
+public class CategoryFilterUpdateRequest {
+    private List<CategoryFilterOptions> categories;
 }
