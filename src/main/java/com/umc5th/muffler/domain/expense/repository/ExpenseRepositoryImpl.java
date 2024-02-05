@@ -73,4 +73,6 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
                 ).fetchOne();
         return sum == null ? 0L : sum;
     }
+
+
 }

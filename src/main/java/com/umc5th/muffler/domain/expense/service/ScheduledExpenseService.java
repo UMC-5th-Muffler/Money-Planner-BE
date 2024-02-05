@@ -5,7 +5,7 @@ import com.umc5th.muffler.domain.expense.repository.JDBCExpenseRepository.Insert
 import com.umc5th.muffler.domain.goal.repository.JDBCGoalRepository;
 import com.umc5th.muffler.domain.goal.repository.JDBCGoalRepository.UpdateTotalCost;
 import com.umc5th.muffler.domain.routine.dto.InsertableRoutine;
-import com.umc5th.muffler.domain.routine.repository.JDBCRoutineRepository;
+import com.umc5th.muffler.domain.routine.repository.RoutineRepository;
 import com.umc5th.muffler.global.util.DateTimeProvider;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ScheduledExpenseService {
     private final DateTimeProvider dateTimeProvider;
-    private final JDBCRoutineRepository jdbcRoutineRepository;
+    private final RoutineRepository routineRepository;
     private final JDBCExpenseRepository jdbcExpenseRepository;
     private final JDBCGoalRepository jdbcGoalRepository;
 
@@ -30,7 +30,7 @@ public class ScheduledExpenseService {
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     public void saveExpenseWithRoutine() {
         LocalDate today = dateTimeProvider.nowDate();
-        List<InsertableRoutine> insertableRoutines = jdbcRoutineRepository.findInsertableRoutines(today);
+        List<InsertableRoutine> insertableRoutines = routineRepository.findInsertableRoutines(today);
         List<InsertExpenseEntity> insertExpenses = insertableRoutines.stream()
                 .map(insertableRoutine -> makeExpense(insertableRoutine, today))
                 .collect(Collectors.toList());

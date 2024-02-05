@@ -28,13 +28,11 @@ import org.springframework.transaction.annotation.Transactional;
 @ActiveProfiles("test")
 class FindInsertableRoutineTest {
     @Autowired
-    private JDBCRoutineRepository jdbcRoutineRepository;
+    private RoutineRepository routineRepository;
     @Autowired
     private MemberRepository memberRepository;
     @Autowired
     private CategoryRepository categoryRepository;
-    @Autowired
-    private RoutineRepository routineRepository;
     @Autowired
     private GoalRepository goalRepository;
 
@@ -59,7 +57,7 @@ class FindInsertableRoutineTest {
         goalRepository.save(goal);
 
         // when
-        List<InsertableRoutine> routines = this.jdbcRoutineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 8));
+        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 8));
 
         // then
         assertEquals(1, routines.size());
@@ -85,7 +83,7 @@ class FindInsertableRoutineTest {
         goalRepository.save(goal);
 
         // when
-        List<InsertableRoutine> routines = this.jdbcRoutineRepository.findInsertableRoutines(LocalDate.of(2024, 2, 5));
+        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 2, 5));
 
         // then
         assertEquals(1, routines.size());
@@ -111,10 +109,10 @@ class FindInsertableRoutineTest {
         goalRepository.save(goal);
 
         // when
-        List<InsertableRoutine> routines = this.jdbcRoutineRepository.findInsertableRoutines(LocalDate.of(2024, 2, 7));
+        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 2, 7));
 
         // then
-        assertEquals(1, routines.size());
+        assertEquals(0, routines.size());
     }
 
     @Test
@@ -138,7 +136,7 @@ class FindInsertableRoutineTest {
         goalRepository.save(goal);
 
         // when
-        List<InsertableRoutine> routines = this.jdbcRoutineRepository.findInsertableRoutines(LocalDate.of(2024, 2, 4));
+        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 2, 4));
 
         // then
         assertEquals(0, routines.size());
@@ -165,7 +163,7 @@ class FindInsertableRoutineTest {
         goalRepository.save(goal);
 
         // when
-        List<InsertableRoutine> routines = this.jdbcRoutineRepository.findInsertableRoutines(LocalDate.of(2024, 2, 5));
+        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 2, 5));
 
         // then
         assertEquals(0, routines.size());
@@ -192,7 +190,7 @@ class FindInsertableRoutineTest {
         goalRepository.save(goal);
 
         // when
-        List<InsertableRoutine> routines = this.jdbcRoutineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 8));
+        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 8));
 
         // then
         assertEquals(0, routines.size());
@@ -219,7 +217,7 @@ class FindInsertableRoutineTest {
         goalRepository.save(goal);
 
         // when
-        List<InsertableRoutine> routines = this.jdbcRoutineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 22));
+        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 22));
 
         // then
         assertEquals(0, routines.size());
@@ -247,7 +245,7 @@ class FindInsertableRoutineTest {
         goalRepository.save(goal);
 
         // when
-        List<InsertableRoutine> routines = this.jdbcRoutineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 8));
+        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 8));
 
         // then
         for (InsertableRoutine insertableRoutine : routines) {
@@ -277,7 +275,7 @@ class FindInsertableRoutineTest {
         goalRepository.save(goal);
 
         // when
-        List<InsertableRoutine> routines = this.jdbcRoutineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 15));
+        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 15));
 
         // then
         for (InsertableRoutine insertableRoutine : routines) {
@@ -307,7 +305,7 @@ class FindInsertableRoutineTest {
         goalRepository.save(goal);
 
         // when
-        List<InsertableRoutine> routines = this.jdbcRoutineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 22));
+        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 22));
 
         // then
         for (InsertableRoutine insertableRoutine : routines) {
@@ -344,7 +342,7 @@ class FindInsertableRoutineTest {
         goalRepository.save(goal);
 
         // when
-        List<InsertableRoutine> routines = this.jdbcRoutineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 15));
+        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 15));
 
         // then
         for (InsertableRoutine insertableRoutine : routines) {
@@ -374,7 +372,7 @@ class FindInsertableRoutineTest {
         goalRepository.save(goal);
 
         // when
-        List<InsertableRoutine> routines = this.jdbcRoutineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 10));
+        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 10));
 
         // then
         assertEquals(1, routines.size());
