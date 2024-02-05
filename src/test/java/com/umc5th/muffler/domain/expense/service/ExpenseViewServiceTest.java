@@ -113,16 +113,16 @@ class ExpenseViewServiceTest {
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findById(mockGoal.getId())).thenReturn(Optional.of(mockGoal));
-        when(expenseRepository.findAllByMemberAndDateAndCategoryId(memberId, expenseStartDate, expenseEndDate, null, pageable)).thenReturn(expenseSlice);
+        when(expenseRepository.findAllByMemberAndDateAndCategoryId(memberId, null, null, expenseStartDate, expenseEndDate, null, pageable)).thenReturn(expenseSlice);
 
-        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(memberId, mockGoal.getId(), weeklyStartDate, weeklyEndDate, pageable);
+        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(memberId, mockGoal.getId(), weeklyStartDate, weeklyEndDate, null, null, pageable);
 
         assertNotNull(response);
         assertEquals(expenseSlice.hasNext(), response.isHasNext());
 
         verify(memberRepository).findById(memberId);
         verify(goalRepository).findById(mockGoal.getId());
-        verify(expenseRepository).findAllByMemberAndDateAndCategoryId(memberId, expenseStartDate, expenseEndDate, null, pageable);
+        verify(expenseRepository).findAllByMemberAndDateAndCategoryId(memberId, null, null, expenseStartDate, expenseEndDate, null, pageable);
     }
 
     @Test
@@ -158,9 +158,9 @@ class ExpenseViewServiceTest {
 
         Page<Expense> expenseSlice = new PageImpl<>(sortedExpenses, pageable, expenses.size());
 
-        when(expenseRepository.findAllByMemberAndDateAndCategoryId(memberId, startDate, endDate, null, pageable)).thenReturn(expenseSlice);
+        when(expenseRepository.findAllByMemberAndDateAndCategoryId(memberId, null, null, startDate, endDate, null, pageable)).thenReturn(expenseSlice);
 
-        MonthlyExpenseResponse response = expenseViewService.getMonthlyExpenses(memberId, yearMonth, goalId, order, pageable);
+        MonthlyExpenseResponse response = expenseViewService.getMonthlyExpenses(memberId, yearMonth, goalId, order, null, null, pageable);
 
         // expenseId 내림차순 정렬 확인(date 오름차순, createdAt 내림차순 정렬 확인)
         List<Long> expenseIds = response.getDailyExpenseList().stream()
@@ -179,7 +179,7 @@ class ExpenseViewServiceTest {
 
         verify(memberRepository).findById(memberId);
         verify(goalRepository).findById(goalId);
-        verify(expenseRepository).findAllByMemberAndDateAndCategoryId(memberId, startDate, endDate, null, pageable);
+        verify(expenseRepository).findAllByMemberAndDateAndCategoryId(memberId, null, null, startDate, endDate, null, pageable);
     }
 
     @Test
@@ -215,9 +215,9 @@ class ExpenseViewServiceTest {
         when(mockGoal.getDailyPlans()).thenReturn(mockDailyPlans);
 
         Page<Expense> expenseSlice = new PageImpl<>(filteredExpenses, pageable, filteredExpenses.size());
-        when(expenseRepository.findAllByMemberAndDateAndCategoryId(memberId, startDate, endDate, categoryId, pageable)).thenReturn(expenseSlice);
+        when(expenseRepository.findAllByMemberAndDateAndCategoryId(memberId, null, null, startDate, endDate, categoryId, pageable)).thenReturn(expenseSlice);
 
-        MonthlyExpenseResponse response = expenseViewService.getMonthlyExpensesWithCategory(memberId, yearMonth, goalId, categoryId, order, pageable);
+        MonthlyExpenseResponse response = expenseViewService.getMonthlyExpensesWithCategory(memberId, yearMonth, goalId, categoryId, order, null, null, pageable);
 
         // expenseId 내림차순 정렬 확인(date 오름차순, createdAt 내림차순 정렬 확인)
         List<Long> expenseIds = response.getDailyExpenseList().stream()
@@ -236,7 +236,7 @@ class ExpenseViewServiceTest {
                 .flatMap(dto -> dto.getExpenseDetailList().stream())
                 .allMatch(dto -> dto.getCategoryIcon().equals(String.valueOf(categoryId))));
 
-        verify(expenseRepository).findAllByMemberAndDateAndCategoryId(memberId, startDate, endDate, categoryId, pageable);
+        verify(expenseRepository).findAllByMemberAndDateAndCategoryId(memberId, null, null, startDate, endDate, categoryId, pageable);
     }
 
     @Test

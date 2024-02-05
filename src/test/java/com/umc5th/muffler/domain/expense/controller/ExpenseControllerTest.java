@@ -105,7 +105,7 @@ class ExpenseControllerTest {
                 .dailyExpenseList(dailyExpensesDtos)
                 .build();
 
-        when(expenseViewService.getWeeklyExpenseDetails(any(), any(), eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(mockResponse);
+        when(expenseViewService.getWeeklyExpenseDetails(any(), any(), eq(startDate), eq(endDate), any(), any(), any(Pageable.class))).thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/expense/weekly")
                         .param("goalId", "1")
@@ -158,7 +158,7 @@ class ExpenseControllerTest {
                 .dailyExpenseList(dailyExpensesDtos)
                 .build();
 
-        when(expenseViewService.getMonthlyExpenses(any(), eq(yearMonth), eq(goalId), eq(order), any(Pageable.class)))
+        when(expenseViewService.getMonthlyExpenses(any(), eq(yearMonth), eq(goalId), eq(order), any(), any(), any(Pageable.class)))
                 .thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/expense/monthly")
