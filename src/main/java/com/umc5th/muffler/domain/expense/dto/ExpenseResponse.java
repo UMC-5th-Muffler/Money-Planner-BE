@@ -10,5 +10,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ExpenseResponse {
     private Long expenseId;
-    private List<AlarmControlDTO> alarms;
+    private List<ExpenseAlarm> alarms;
 }

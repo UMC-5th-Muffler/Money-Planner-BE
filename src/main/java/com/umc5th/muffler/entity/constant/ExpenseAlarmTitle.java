@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ExpenseAlarm {
+public enum ExpenseAlarmTitle {
     DAILY("하루"),
     CATEGORY("카테고리"),
     TOTAL("전체");
