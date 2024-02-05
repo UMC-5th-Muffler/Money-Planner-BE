@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.expense.repository;
 
+import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -80,7 +81,7 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
     }
 
     @Override
-    public Slice<Expense> findAllByMemberAndDateAndCategoryId(String memberId, LocalDate startDate, LocalDate endDate, Long categoryId, Pageable pageable) {
+    public Slice<Expense> findAllByMemberAndDateAndCategoryId(String memberId, LocalDate lastDate, Long lastExpenseId, LocalDate startDate, LocalDate endDate, Long categoryId, Pageable pageable) {
         QExpense expense = QExpense.expense;
         QCategory category = QCategory.category;
 
@@ -90,15 +91,28 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
                 .where(expense.member.id.eq(memberId)
                         .and(expense.date.between(startDate, endDate))
                         .and(categoryId != null ? expense.category.id.eq(categoryId) : null))
-                .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1);
 
-        for (Sort.Order order : pageable.getSort()) {
-            query.orderBy(new OrderSpecifier<>(order.isAscending() ? com.querydsl.core.types.Order.ASC : com.querydsl.core.types.Order.DESC, expense.date));
+
+        // 정렬 조건 확인 및 마지막 조회 조건 적용
+        Sort.Order dateOrder = pageable.getSort().getOrderFor("date");
+        if (dateOrder != null) {
+            boolean isAscending = dateOrder.getDirection().isAscending();
+            if (lastDate != null && lastExpenseId != null) {
+                if (isAscending) {
+                    query.where(expense.date.gt(lastDate)
+                            .or(expense.date.eq(lastDate).and(expense.id.lt(lastExpenseId))));
+                } else {
+                    query.where(expense.date.lt(lastDate)
+                            .or(expense.date.eq(lastDate).and(expense.id.lt(lastExpenseId))));
+                }
+            }
+            // 정렬 조건 적용
+            query.orderBy(new OrderSpecifier<>(isAscending ? Order.ASC : Order.DESC, expense.date));
         }
 
-        OrderSpecifier<?> createdAtOrder = new OrderSpecifier<>(com.querydsl.core.types.Order.DESC, expense.createdAt);
-        query.orderBy(createdAtOrder);
+        // createdAt 기준 내림차순 정렬 추가
+        query.orderBy(expense.id.desc());
         List<Expense> results = query.fetch();
 
         boolean hasNext = false;

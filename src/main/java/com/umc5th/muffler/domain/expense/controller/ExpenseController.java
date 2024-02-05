@@ -60,12 +60,13 @@ public class ExpenseController {
             Authentication authentication,
             @RequestParam(name = "goalId") Long goalId,
             @Valid WeekRequestParam weekRequestParam,
+            @RequestParam(name = "lastDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastDate,
+            @RequestParam(name = "lastExpenseId", required = false) Long lastExpenseId,
             @PageableDefault(size = 20) @SortDefault.SortDefaults({
                     @SortDefault(sort = "date", direction = Sort.Direction.DESC),
-                    @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC)
-            }) Pageable pageable){
+            }) Pageable pageable) {
 
-        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(authentication.getName(), goalId, weekRequestParam.getStartDate(), weekRequestParam.getEndDate(), pageable);
+        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(authentication.getName(), goalId, weekRequestParam.getStartDate(), weekRequestParam.getEndDate(), lastDate, lastExpenseId, pageable);
         return Response.success(response);
     }
 
@@ -75,19 +76,20 @@ public class ExpenseController {
             @RequestParam(name = "yearMonth") @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth,
             @RequestParam(name = "goalId", required = false) Long goalId,
             @RequestParam(name = "order", defaultValue = "DESC") @ValidOrder String order,
-            @RequestParam(name = "page", defaultValue = "0") @Min(value = 0) int page,
+            @RequestParam(name = "lastDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastDate,
+            @RequestParam(name = "lastExpenseId", required = false) Long lastExpenseId,
             @RequestParam(name = "size", defaultValue = "20") @Positive int size,
             @RequestParam(name = "categoryId", required = false) Long categoryId)
     {
         Sort.Direction direction = order.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, "date");
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = PageRequest.of(0, size, sort);
 
         MonthlyExpenseResponse response;
         if (categoryId != null) {
-            response = expenseViewService.getMonthlyExpensesWithCategory(authentication.getName(), yearMonth, goalId, categoryId, order, pageable);
+            response = expenseViewService.getMonthlyExpensesWithCategory(authentication.getName(), yearMonth, goalId, categoryId, order, lastDate, lastExpenseId, pageable);
         } else {
-            response = expenseViewService.getMonthlyExpenses(authentication.getName(), yearMonth, goalId, order, pageable);
+            response = expenseViewService.getMonthlyExpenses(authentication.getName(), yearMonth, goalId, order, lastDate, lastExpenseId, pageable);
         }
         return Response.success(response);
     }
