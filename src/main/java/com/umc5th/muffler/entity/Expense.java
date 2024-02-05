@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Getter
+@Table(indexes = {@Index(name = "expense_index", columnList = "created_at")})
 public class Expense extends BaseTimeEntity {
 
     @Id
