@@ -6,12 +6,17 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.QCategory;
 import com.umc5th.muffler.entity.QExpense;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.domain.Sort;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
 
 @RequiredArgsConstructor
 public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
@@ -47,6 +52,31 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
 
         return expenses.stream()
                 .collect(Collectors.groupingBy(Expense::getDate));
+    }
+
+
+    public Slice<Expense> findAllByMemberAndDate(String memberId, LocalDate date, LocalDateTime lastCreatedAt, Pageable pageable) {
+        QExpense expense = QExpense.expense;
+        QCategory category = QCategory.category;
+
+        JPAQuery<Expense> query = queryFactory
+                .selectFrom(expense)
+                .leftJoin(expense.category, category).fetchJoin()
+                .where(expense.member.id.eq(memberId),
+                        expense.date.eq(date),
+                        lastCreatedAt == null ? null : expense.createdAt.lt(lastCreatedAt))
+                .orderBy(expense.createdAt.desc())
+                .limit(pageable.getPageSize() + 1);
+
+        List<Expense> expenses = query.fetch();
+
+        boolean hasNext = false;
+        if (expenses.size() > pageable.getPageSize()) {
+            expenses.remove(expenses.size() - 1);
+            hasNext = true;
+        }
+
+        return new SliceImpl<>(expenses, pageable, hasNext);
     }
 
     @Override

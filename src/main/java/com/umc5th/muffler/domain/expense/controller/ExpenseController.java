@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.expense.controller;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
 import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
@@ -20,6 +21,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 
 @RestController
@@ -46,9 +48,10 @@ public class ExpenseController {
     public Response<DailyExpenseResponse> getDailyExpenseDetails(
             Authentication authentication,
             @RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
-            @PageableDefault(size = 20, sort = "createdAt",  direction = Sort.Direction.DESC) Pageable pageable){
+            @RequestParam(name = "lastCreatedAt", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS") LocalDateTime lastCreatedAt,
+            @PageableDefault(size = 20) Pageable pageable){
 
-        DailyExpenseResponse response = expenseViewService.getDailyExpenseDetails(authentication.getName(), date, pageable);
+        DailyExpenseResponse response = expenseViewService.getDailyExpenseDetails(authentication.getName(), date, lastCreatedAt, pageable);
         return Response.success(response);
     }
 

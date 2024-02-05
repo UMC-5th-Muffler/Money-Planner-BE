@@ -1,36 +1,11 @@
 package com.umc5th.muffler.domain.expense.controller;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.umc5th.muffler.config.TestSecurityConfig;
-import com.umc5th.muffler.domain.expense.dto.DailyExpenseResponse;
-import com.umc5th.muffler.domain.expense.dto.DailyExpensesDto;
-import com.umc5th.muffler.domain.expense.dto.ExpenseConverter;
-import com.umc5th.muffler.domain.expense.dto.ExpenseDetailDto;
-import com.umc5th.muffler.domain.expense.dto.ExpenseDto;
-import com.umc5th.muffler.domain.expense.dto.MonthlyExpenseResponse;
-import com.umc5th.muffler.domain.expense.dto.SearchResponse;
-import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseResponse;
+import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
 import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.fixture.ExpenseFixture;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.temporal.TemporalAdjusters;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -41,6 +16,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.temporal.TemporalAdjusters;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -62,15 +52,14 @@ class ExpenseControllerTest {
         LocalDate testDate = LocalDate.of(2024, 1, 1);
         List<Expense> expenses = ExpenseFixture.createList(10, testDate);
         List<ExpenseDetailDto> expenseDetailDtos = expenses.stream()
-                .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getMemo(), expense.getCategory().getId(), expense.getCategory().getIcon()))
+                .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getMemo(), expense.getCategory().getId(), expense.getCategory().getIcon(), expense.getCreatedAt()))
                 .collect(Collectors.toList());
-        long expDailyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
 
         DailyExpenseResponse mockResponse = DailyExpenseResponse.builder()
                 .expenseDetailList(expenseDetailDtos)
                 .build();
 
-        when(expenseViewService.getDailyExpenseDetails(any(), eq(testDate), any(Pageable.class)))
+        when(expenseViewService.getDailyExpenseDetails(any(), eq(testDate), any(), any(Pageable.class)))
                 .thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/expense/daily")
@@ -100,7 +89,7 @@ class ExpenseControllerTest {
                     LocalDate dailyDate = entry.getKey();
                     List<Expense> dailyExpenses = entry.getValue();
                     List<ExpenseDetailDto> expenseDetailDtos = dailyExpenses.stream()
-                            .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getMemo(), expense.getCategory().getId(), expense.getCategory().getIcon()))
+                            .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getMemo(), expense.getCategory().getId(), expense.getCategory().getIcon(), expense.getCreatedAt()))
                             .collect(Collectors.toList());
 
                     Long dailyTotalCost = dailyExpenses.stream().mapToLong(Expense::getCost).sum();

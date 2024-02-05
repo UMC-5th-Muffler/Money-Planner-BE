@@ -1,6 +1,5 @@
 package com.umc5th.muffler.domain.expense.service;
 
-import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
 import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
@@ -21,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.*;
-import org.springframework.data.jpa.domain.Specification;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -32,7 +30,6 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -58,7 +55,6 @@ class ExpenseViewServiceTest {
         Pageable pageable = PageRequest.of(0, pageSize, sort);
 
         Member mockMember = MemberFixture.create();
-        DailyPlan dailyPlan = DailyPlanFixture.DAILY_PLAN_ONE;
         String memberId = mockMember.getId();
 
         List<Expense> expenses = ExpenseFixture.createList(10, testDate);
@@ -68,9 +64,9 @@ class ExpenseViewServiceTest {
         Slice<Expense> expenseSlice = new SliceImpl<>(sortedExpenses, pageable, false);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(expenseRepository.findAllByMemberAndDate(mockMember, testDate, pageable)).thenReturn(expenseSlice);
+        when(expenseRepository.findAllByMemberAndDate(mockMember.getId(), testDate, null, pageable)).thenReturn(expenseSlice);
 
-        DailyExpenseResponse response = expenseViewService.getDailyExpenseDetails(memberId, testDate, pageable);
+        DailyExpenseResponse response = expenseViewService.getDailyExpenseDetails(memberId, testDate, null, pageable);
 
         assertNotNull(response);
         assertEquals(pageSize, response.getExpenseDetailList().size());
@@ -82,7 +78,7 @@ class ExpenseViewServiceTest {
                 .collect(Collectors.toList());
         assertTrue(isSortedDescending(expenseIds));
 
-        verify(expenseRepository).findAllByMemberAndDate(mockMember, testDate, pageable);
+        verify(expenseRepository).findAllByMemberAndDate(mockMember.getId(), testDate, null, pageable);
     }
 
     @Test
@@ -95,7 +91,7 @@ class ExpenseViewServiceTest {
         when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
 
         assertThrows(MemberException.class, () -> {
-            expenseViewService.getDailyExpenseDetails(memberId, testDate, pageable);});
+            expenseViewService.getDailyExpenseDetails(memberId, testDate, any(), pageable);});
     }
 
     @Test

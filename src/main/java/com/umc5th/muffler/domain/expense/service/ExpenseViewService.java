@@ -1,6 +1,5 @@
 package com.umc5th.muffler.domain.expense.service;
 
-import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
 import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
@@ -21,6 +20,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,7 +37,6 @@ public class ExpenseViewService {
     private final ExpenseRepository expenseRepository;
     private final MemberRepository memberRepository;
     private final GoalRepository goalRepository;
-    private final DailyPlanRepository dailyPlanRepository;
 
     public ExpenseDto getExpense(String memberId, Long expenseId){
         Member member = memberRepository.findById(memberId)
@@ -48,10 +47,10 @@ public class ExpenseViewService {
         return ExpenseConverter.toExpenseDto(expense);
     }
 
-    public DailyExpenseResponse getDailyExpenseDetails(String memberId, LocalDate date, Pageable pageable){
+    public DailyExpenseResponse getDailyExpenseDetails(String memberId, LocalDate date, LocalDateTime lastCreatedAt, Pageable pageable){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-        Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(member, date, pageable);
+        Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(memberId, date, lastCreatedAt, pageable);
 
         DailyExpenseResponse response = ExpenseConverter.toDailyExpensesList(expenseList);
 
