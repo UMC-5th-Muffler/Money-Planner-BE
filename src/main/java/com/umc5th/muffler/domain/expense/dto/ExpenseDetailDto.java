@@ -20,7 +20,5 @@ public class ExpenseDetailDto {
     private Long cost;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String memo;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long categoryId;
     private String categoryIcon;
 }

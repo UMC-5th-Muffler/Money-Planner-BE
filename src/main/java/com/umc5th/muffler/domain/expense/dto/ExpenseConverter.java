@@ -40,7 +40,7 @@ public class ExpenseConverter {
     }
 
     public static DailyExpenseResponse toDailyExpensesList(Slice<Expense> expenseList) {
-        List<ExpenseDetailDto> expenseDetails = toExpensesDetailsInDaily(expenseList.getContent());
+        List<ExpenseDetailDto> expenseDetails = toExpensesDetails(expenseList.getContent());
 
         return DailyExpenseResponse.builder()
                 .expenseDetailList(expenseDetails)
@@ -62,7 +62,7 @@ public class ExpenseConverter {
             List<Expense> dailyExpenseList = entry.getValue();
             Long dailyTotalCost = dailyTotalCostMap.getOrDefault(dailyDate, 0L);
 
-            List<ExpenseDetailDto> expenseDetails = toExpensesDetailsInWeekly(dailyExpenseList);
+            List<ExpenseDetailDto> expenseDetails = toExpensesDetailsWithoutMemo(dailyExpenseList);
 
             return DailyExpensesDto.builder()
                     .date(dailyDate)
@@ -80,7 +80,7 @@ public class ExpenseConverter {
             List<Expense> dailyExpenseList = entry.getValue();
             Long dailyTotalCost = dailyTotalCostMap.getOrDefault(dailyDate, 0L);
 
-            List<ExpenseDetailDto> expenseDetails = toExpensesDetailsInMonthly(dailyExpenseList);
+            List<ExpenseDetailDto> expenseDetails = toExpensesDetailsWithoutMemo(dailyExpenseList);
 
             return DailyExpensesDto.builder()
                     .date(dailyDate)
@@ -99,7 +99,7 @@ public class ExpenseConverter {
             LocalDate dailyDate = entry.getKey();
             List<Expense> dailyExpenseList = entry.getValue();
 
-            List<ExpenseDetailDto> expenseDetails = toExpensesDetailsInMonthly(dailyExpenseList);
+            List<ExpenseDetailDto> expenseDetails = toExpensesDetailsWithoutMemo(dailyExpenseList);
 
             return DailyExpensesDto.builder()
                     .date(dailyDate)
@@ -115,7 +115,7 @@ public class ExpenseConverter {
                 .build();
     }
 
-    private static List<ExpenseDetailDto> toExpensesDetailsInDaily(List<Expense> expenseList) {
+    private static List<ExpenseDetailDto> toExpensesDetails(List<Expense> expenseList) {
 
         return expenseList.stream()
                 .map(expense -> ExpenseDetailDto.builder()
@@ -128,20 +128,7 @@ public class ExpenseConverter {
                 .collect(Collectors.toList());
     }
 
-    private static List<ExpenseDetailDto> toExpensesDetailsInWeekly(List<Expense> expenseList) {
-
-        return expenseList.stream()
-                .map(expense -> ExpenseDetailDto.builder()
-                        .expenseId(expense.getId())
-                        .title(expense.getTitle())
-                        .categoryId(expense.getCategory().getId())
-                        .categoryIcon(expense.getCategory().getIcon())
-                        .cost(expense.getCost())
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    private static List<ExpenseDetailDto> toExpensesDetailsInMonthly(List<Expense> expenseList) {
+    private static List<ExpenseDetailDto> toExpensesDetailsWithoutMemo(List<Expense> expenseList) {
 
         return expenseList.stream()
                 .map(expense -> ExpenseDetailDto.builder()

@@ -1,6 +1,5 @@
 package com.umc5th.muffler.domain.expense.controller;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
 import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
@@ -21,7 +20,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
 
 @RestController
@@ -59,14 +57,15 @@ public class ExpenseController {
     public Response<WeeklyExpenseResponse> getWeeklyExpenseDetails(
             Authentication authentication,
             @RequestParam(name = "goalId") Long goalId,
-            @Valid WeekRequestParam weekRequestParam,
+            @RequestParam(name = "startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @RequestParam(name = "endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
             @RequestParam(name = "lastDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastDate,
             @RequestParam(name = "lastExpenseId", required = false) Long lastExpenseId,
             @PageableDefault(size = 20) @SortDefault.SortDefaults({
                     @SortDefault(sort = "date", direction = Sort.Direction.DESC),
             }) Pageable pageable) {
 
-        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(authentication.getName(), goalId, weekRequestParam.getStartDate(), weekRequestParam.getEndDate(), lastDate, lastExpenseId, pageable);
+        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(authentication.getName(), goalId, startDate, endDate, lastDate, lastExpenseId, pageable);
         return Response.success(response);
     }
 
