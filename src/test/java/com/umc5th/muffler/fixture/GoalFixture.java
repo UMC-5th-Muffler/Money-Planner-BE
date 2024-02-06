@@ -19,6 +19,20 @@ public class GoalFixture {
                 .build();
     }
 
+    public static Goal create(LocalDate startDate, LocalDate endDate) {
+        return Goal.builder()
+                .id(1L)
+                .startDate(startDate)
+                .endDate(endDate)
+                .title("title")
+                .memo("memo")
+                .icon("icon")
+                .totalBudget(10000L)
+                .categoryGoals(List.of(CategoryGoalFixture.CATEGORY_GOAL_ONE, CategoryGoalFixture.CATEGORY_GOAL_TWO))
+                .dailyPlans(List.of(DailyPlanFixture.DAILY_PLAN_ONE, DailyPlanFixture.DAILY_PLAN_TWO))
+                .build();
+    }
+
     public static Goal createWithoutRate(){
         return Goal.builder()
                 .id(1L)
