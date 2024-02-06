@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping("/dailyPlan")
+@RequestMapping("/api/dailyPlan")
 @RequiredArgsConstructor
 public class DailyPlanController {
     private final DailyPlanService dailyPlanService;
