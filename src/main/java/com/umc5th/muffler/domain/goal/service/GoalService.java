@@ -20,6 +20,7 @@ import com.umc5th.muffler.global.response.exception.MemberException;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -81,15 +82,13 @@ public class GoalService {
         }
 
         Map<Goal, Long> goalAndTotalCost = new LinkedHashMap<>();
-        List<Goal> futureGoals = new ArrayList<>();
 
-        for (Goal goal : goalList) {
-            if (goal.getEndDate().isBefore(today)) {
-                calculateGoalCost(goalAndTotalCost, goal);
-            }  else {
-                futureGoals.add(goal);
-            }
-        }
+        goalList.stream()
+                .filter(goal -> goal.getEndDate().isBefore(today))
+                .forEach(goal -> calculateGoalCost(goalAndTotalCost, goal));
+        List<Goal> futureGoals = goalList.stream()
+                .filter(goal -> goal.getEndDate().isAfter(today))
+                .collect(Collectors.toList());
 
         return GoalConverter.getGoalPreviewResponse(goalAndTotalCost, futureGoals, goalList.hasNext());
     }
