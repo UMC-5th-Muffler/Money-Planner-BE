@@ -132,7 +132,7 @@ class GoalControllerTest {
 
         when(goalService.getGoalPreview(any(), any(Pageable.class), any())).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/api/goal/preview"))
+        mockMvc.perform(get("/api/goal/not-now"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.futureGoal", hasSize(1)))
                 .andExpect(jsonPath("$.result.futureGoal[0].goalId", is(mockResponse.getFutureGoal().get(0).getGoalId().intValue())))
