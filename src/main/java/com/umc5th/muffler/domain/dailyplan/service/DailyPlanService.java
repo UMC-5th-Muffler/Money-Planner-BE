@@ -1,4 +1,4 @@
-package com.umc5th.muffler.domain.goal.service;
+package com.umc5th.muffler.domain.dailyplan.service;
 
 import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;

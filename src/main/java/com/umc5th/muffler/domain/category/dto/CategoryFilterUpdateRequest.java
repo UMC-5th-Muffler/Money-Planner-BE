@@ -1,4 +1,4 @@
-package com.umc5th.muffler.domain.dailyplan.dto;
+package com.umc5th.muffler.domain.category.dto;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -6,11 +6,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Builder
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WholeCalendar {
-    private GoalInfo goalInfo;
-    private List<DailyInfo> dailyList;
+public class CategoryFilterUpdateRequest {
+    private List<CategoryFilterOptions> categories;
 }

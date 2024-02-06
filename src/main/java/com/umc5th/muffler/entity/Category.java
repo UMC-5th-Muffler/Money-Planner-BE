@@ -13,8 +13,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,13 +29,8 @@ import org.hibernate.annotations.DynamicUpdate;
 @Builder
 @Entity
 @Getter
-@Table(uniqueConstraints = {
-        @UniqueConstraint(
-            name = "category_name_member_unique",
-            columnNames = {"member_id", "name"}
-        )
-})
 public class Category extends BaseTimeEntity {
+    public static final String ETC_CATEGORY_NAME = "기타";
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -66,9 +59,40 @@ public class Category extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    public void changeName(String newName) {this.name = newName;}
+    public void changeIcon(String newIcon) {this.icon = newIcon;}
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
     // 연관관계 메서드
     public void setMember(Member member) {
         this.member = member;
     }
 
+    public Boolean isIconChanged(String newIcon) { return !icon.equals(newIcon);}
+    public Boolean isIconUpdatable(String newIcon) {
+        return type == CategoryType.CUSTOM;
+    }
+    public Boolean isOwnMember(String memberId) {
+        return member.getId().equals(memberId);
+    }
+    public Boolean isNameUpdatable() {
+        return !name.equals(ETC_CATEGORY_NAME);
+    }
+    public Boolean isNameChanged(String newName) {
+        return !name.equals(newName);
+    }
+
+    // 생성 메서드
+    public static Category defaultCategory(String name, String icon, Long priority) {
+        return Category.builder()
+                .name(name)
+                .icon(icon)
+                .priority(priority)
+                .isVisible(true)
+                .type(CategoryType.DEFAULT)
+                .status(Status.ACTIVE)
+                .build();
+    }
 }
