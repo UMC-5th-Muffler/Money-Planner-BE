@@ -61,9 +61,6 @@ public class CategoryService {
                 .orElseThrow(() -> new CategoryException(ErrorCode.MEMBER_NOT_FOUND));
         Category category = categoryRepository.findCategoryWithCategoryIdAndMemberId(request.getCategoryId(), memberId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
-        if (!category.isOwnMember(memberId)) {
-            throw new CategoryException(ErrorCode.CATEGORY_NOT_FOUND);
-        }
 
         if (category.isNameChanged(request.getName())) {
             if (!category.isNameUpdatable()) {
