@@ -66,9 +66,8 @@ public class CategoryService {
             if (!category.isNameUpdatable()) {
                 throw new CategoryException(ErrorCode.CANNOT_UPDATE_ETC_CATEGORY_NAME);
             }
-            Optional<Category> duplicatedCategory = categoryRepository.findCategoryWithNameAndMemberId(
-                    request.getName(), memberId);
-            if (duplicatedCategory.isPresent()) {
+            if (categoryRepository
+                    .existsDuplicateName(memberId, Status.ACTIVE, request.getName())) {
                 throw new CategoryException(ErrorCode.DUPLICATED_CATEGORY_NAME);
             }
             category.changeName(request.getName());

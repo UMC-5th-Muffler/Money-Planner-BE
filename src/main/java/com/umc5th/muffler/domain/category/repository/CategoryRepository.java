@@ -13,7 +13,7 @@ import com.umc5th.muffler.entity.Member;
 import java.util.List;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<Category, Long> {
+public interface CategoryRepository extends JpaRepository<Category, Long>, CategoryRepositoryCustom {
     Optional<Category> findByIdAndStatus(Long id, Status status);
     @Query(value = "select c from Category c where c.member.id = :memberId and c.id = :categoryId AND c.status = 'ACTIVE'")
     Optional<Category> findCategoryWithCategoryIdAndMemberId(@Param("categoryId") Long categoryId, @Param("memberId") String memberId);
