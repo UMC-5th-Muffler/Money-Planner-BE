@@ -7,7 +7,6 @@ import com.umc5th.muffler.domain.expense.dto.MonthlyExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.ExpenseCreateRequest;
 import com.umc5th.muffler.domain.expense.dto.SearchResponse;
 import com.umc5th.muffler.domain.expense.dto.ExpenseUpdateRequest;
-import com.umc5th.muffler.domain.expense.dto.WeekRequestParam;
 import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseResponse;
 import com.umc5th.muffler.domain.expense.service.ExpenseSearchService;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
