@@ -53,7 +53,7 @@ public class GoalController {
         return Response.success(response);
     }
 
-    @GetMapping("/preview")
+    @GetMapping("/not-now")
     public Response<GoalPreviewResponse> getGoalPreview(Authentication authentication,
             @RequestParam (name = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
             @PageableDefault(size = 10) Pageable pageable) {
