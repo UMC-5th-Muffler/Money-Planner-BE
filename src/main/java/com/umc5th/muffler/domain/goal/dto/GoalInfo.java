@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GoalInfo {
     private Long goalId;
-    private String title;
+    private String goalTitle;
     private String icon;
     private Long totalBudget;
     private Long totalCost;

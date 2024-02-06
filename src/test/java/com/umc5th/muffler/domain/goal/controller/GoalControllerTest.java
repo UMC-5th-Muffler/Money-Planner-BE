@@ -90,7 +90,7 @@ class GoalControllerTest {
     void 목표_탭_진행중목표_조회() throws Exception {
         GoalInfo mockResponse = GoalInfo.builder()
                 .goalId(1L)
-                .title("progress").icon("icon")
+                .goalTitle("progress").icon("icon")
                 .totalBudget(10000L).totalCost(1000L)
                 .endDate(LocalDate.of(2024, 3, 1))
                 .build();
@@ -100,7 +100,7 @@ class GoalControllerTest {
         mockMvc.perform(get("/api/goal/now"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.goalId", is(mockResponse.getGoalId().intValue())))
-                .andExpect(jsonPath("$.result.title", is(mockResponse.getTitle())))
+                .andExpect(jsonPath("$.result.goalTitle", is(mockResponse.getGoalTitle())))
                 .andExpect(jsonPath("$.result.icon", is(mockResponse.getIcon())))
                 .andExpect(jsonPath("$.result.totalBudget", is(mockResponse.getTotalBudget().intValue())))
                 .andExpect(jsonPath("$.result.totalCost", is(mockResponse.getTotalCost().intValue())))
@@ -113,14 +113,14 @@ class GoalControllerTest {
 
         GoalInfo past = GoalInfo.builder()
                 .goalId(1L)
-                .title("endedGoal").icon("icon")
+                .goalTitle("endedGoal").icon("icon")
                 .totalBudget(10000L).totalCost(1000L)
                 .endDate(LocalDate.of(2024, 3, 1))
                 .build();
 
         GoalInfo future = GoalInfo.builder()
                 .goalId(2L)
-                .title("futureGoal").icon("icon")
+                .goalTitle("futureGoal").icon("icon")
                 .totalBudget(10000L).totalCost(1000L)
                 .endDate(LocalDate.of(2024, 1, 1))
                 .build();
@@ -144,8 +144,8 @@ class GoalControllerTest {
     @WithMockUser
     void 목표_리스트_조회() throws Exception {
 
-        GoalListInfo info1 = GoalListInfo.builder().goalId(1L).title("title1").icon("icon").build();
-        GoalListInfo info2 = GoalListInfo.builder().goalId(2L).title("title2").icon("icon").build();
+        GoalListInfo info1 = GoalListInfo.builder().goalId(1L).goalTitle("title1").icon("icon").build();
+        GoalListInfo info2 = GoalListInfo.builder().goalId(2L).goalTitle("title2").icon("icon").build();
         GoalListResponse mockResponse = GoalListResponse.builder().goalList(List.of(info1, info2)).build();
 
         when(goalService.getGoalList(any())).thenReturn(mockResponse);
