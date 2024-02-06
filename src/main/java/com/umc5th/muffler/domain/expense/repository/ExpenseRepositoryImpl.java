@@ -4,8 +4,10 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.QCategory;
+import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.QExpense;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -55,7 +57,7 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
                 .collect(Collectors.groupingBy(Expense::getDate));
     }
 
-
+    @Override
     public Slice<Expense> findAllByMemberAndDate(String memberId, LocalDate date, Long lastExpenseId, Pageable pageable) {
         QExpense expense = QExpense.expense;
         QCategory category = QCategory.category;
@@ -93,8 +95,6 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
                         .and(categoryId != null ? expense.category.id.eq(categoryId) : null))
                 .limit(pageable.getPageSize() + 1);
 
-
-        // 정렬 조건 확인 및 마지막 조회 조건 적용
         Sort.Order dateOrder = pageable.getSort().getOrderFor("date");
         if (dateOrder != null) {
             boolean isAscending = dateOrder.getDirection().isAscending();
@@ -107,11 +107,9 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
                             .or(expense.date.eq(lastDate).and(expense.id.lt(lastExpenseId))));
                 }
             }
-            // 정렬 조건 적용
             query.orderBy(new OrderSpecifier<>(isAscending ? Order.ASC : Order.DESC, expense.date));
         }
 
-        // createdAt 기준 내림차순 정렬 추가
         query.orderBy(expense.id.desc());
         List<Expense> results = query.fetch();
 
@@ -122,5 +120,32 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
         }
 
         return new SliceImpl<>(results, pageable, hasNext);
+    }
+
+    @Override
+    public Long sumCategoryExpenseWithinGoal(String memberId, Category category, Goal goal) {
+        QExpense expense = QExpense.expense;
+
+        Long sum = queryFactory
+                .select(expense.cost.sum())
+                .from(expense)
+                .where(expense.member.id.eq(memberId)
+                        .and(expense.category.id.eq(category.getId()))
+                        .and(expense.date.between(goal.getStartDate(), goal.getEndDate()))
+                ).fetchOne();
+        return sum == null ? 0L : sum;
+    }
+
+    @Override
+    public Long sumCostByMemberAndDateBetween(String memberId, LocalDate startDate, LocalDate endDate) {
+        QExpense expense = QExpense.expense;
+
+        Long sum = queryFactory
+                .select(expense.cost.sum())
+                .from(expense)
+                .where(expense.member.id.eq(memberId)
+                        .and(expense.date.between(startDate, endDate))
+                ).fetchOne();
+        return sum == null ? 0L : sum;
     }
 }

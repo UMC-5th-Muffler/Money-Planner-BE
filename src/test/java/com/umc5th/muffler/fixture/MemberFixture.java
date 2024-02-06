@@ -13,7 +13,7 @@ public class MemberFixture {
             .socialType(SocialType.KAKAO)
             .build();
     public static final Member MEMBER_TWO = Member.builder()
-            .id("1")
+            .id("2")
             .name("two")
             .socialType(SocialType.KAKAO)
             .build();

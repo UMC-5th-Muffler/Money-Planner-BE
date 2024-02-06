@@ -9,9 +9,10 @@ import com.umc5th.muffler.global.response.exception.RoutineException;
 import java.time.LocalDate;
 
 public class RoutineUtils {
-
     private static final RoutineProcessor weeklyProcessor = new WeeklyRoutineProcessor();
     private static final RoutineProcessor monthlyProcessor = new MonthlyRoutineProcessor();
+
+    private RoutineUtils() {}
 
     public static boolean isRoutineDay(LocalDate date, Routine routine) {
         RoutineProcessor processor = getProcessorForRoutineType(routine);

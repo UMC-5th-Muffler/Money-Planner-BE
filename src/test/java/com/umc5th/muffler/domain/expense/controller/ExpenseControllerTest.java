@@ -3,6 +3,7 @@ package com.umc5th.muffler.domain.expense.controller;
 import com.umc5th.muffler.config.TestSecurityConfig;
 import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
+import com.umc5th.muffler.domain.expense.service.ExpenseSearchService;
 import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.fixture.ExpenseFixture;
@@ -44,7 +45,7 @@ class ExpenseControllerTest {
     private ExpenseViewService expenseViewService;
 
     @MockBean
-    private ExpenseService expenseService;
+    private ExpenseSearchService expenseSearchService;
 
     @Test
     @WithMockUser
@@ -210,7 +211,7 @@ class ExpenseControllerTest {
                 .hasNext(false)
                 .build();
 
-        when(expenseService.searchExpense("user", "title", 0, 2, "ASC")).thenReturn(mockResponse);
+        when(expenseSearchService.searchExpense("user", "title", 0, 2, "ASC")).thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/expense/search")
                         .param("title", "title")

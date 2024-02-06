@@ -23,9 +23,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-class ExpenseServiceTest {
+class ExpenseSearchServiceTest {
     @Autowired
-    private ExpenseService expenseService;
+    private ExpenseSearchService expenseSearchService;
 
     @MockBean
     private ExpenseRepository expenseRepository;
@@ -48,7 +48,7 @@ class ExpenseServiceTest {
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(expenseRepository.findByMemberAndTitleContaining(mockMember, searchKeyword, pageable)).thenReturn(expenseSlice);
 
-        SearchResponse response = expenseService.searchExpense(memberId, searchKeyword, 0, 2, "DESC");
+        SearchResponse response = expenseSearchService.searchExpense(memberId, searchKeyword, 0, 2, "DESC");
 
         assertNotNull(response);
         assertEquals(expenses.get(0).getDate(), response.getDailyExpenseList().get(0).getDate());
@@ -73,7 +73,7 @@ class ExpenseServiceTest {
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(expenseRepository.findByMemberAndTitleContaining(mockMember, searchKeyword, pageable)).thenReturn(expenseSlice);
 
-        SearchResponse response = expenseService.searchExpense(memberId, searchKeyword, 0, 2, "ASC");
+        SearchResponse response = expenseSearchService.searchExpense(memberId, searchKeyword, 0, 2, "ASC");
 
         assertNotNull(response);
         assertEquals(expenses.get(0).getDate(), response.getDailyExpenseList().get(0).getDate());
@@ -96,7 +96,7 @@ class ExpenseServiceTest {
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(expenseRepository.findByMemberAndTitleContaining(mockMember, searchKeyword, pageable)).thenReturn(new SliceImpl<>(Collections.emptyList()));
 
-        SearchResponse response = expenseService.searchExpense(memberId, searchKeyword, 0, 2, "ASC");
+        SearchResponse response = expenseSearchService.searchExpense(memberId, searchKeyword, 0, 2, "ASC");
 
         assertNotNull(response);
         assertTrue(response.getDailyExpenseList().isEmpty());
@@ -111,7 +111,7 @@ class ExpenseServiceTest {
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
 
-        assertThrows(MemberException.class, () -> expenseService.searchExpense(memberId, "", 0, 1, "DESC"));
+        assertThrows(MemberException.class, () -> expenseSearchService.searchExpense(memberId, "", 0, 1, "DESC"));
     }
 
 }

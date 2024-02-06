@@ -14,12 +14,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 @Entity
 @Getter
+@DynamicInsert
 public class CategoryGoal extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,8 +44,11 @@ public class CategoryGoal extends BaseTimeEntity {
                 .category(category)
                 .build();
     }
-
     public void setGoal(Goal goal) {
         this.goal = goal;
+    }
+
+    public Boolean isPossibleToAlarm(Long sum, Long addition) {
+        return sum <= budget && budget < sum + addition;
     }
 }

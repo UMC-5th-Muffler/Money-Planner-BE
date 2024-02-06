@@ -41,7 +41,7 @@ class HomeControllerTest {
 
         mockMvc.perform(get("/api/home/now"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.result").exists());
     }
 
@@ -56,6 +56,7 @@ class HomeControllerTest {
 
         mockMvc.perform(get("/api/home/basic?yearMonth={yearMonth}", yearMonth))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.result").exists());
 
         verify(homeService).getBasicCalendar(memberId, yearMonth);
@@ -71,7 +72,7 @@ class HomeControllerTest {
 
         mockMvc.perform(get("/api/home/goal/{goalId}", goalId))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.result").exists());
     }
 
@@ -86,7 +87,7 @@ class HomeControllerTest {
 
         mockMvc.perform(get("/api/home/goal/{goalId}/{yearMonth}", goalId, yearMonth))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.result").exists());
     }
 
@@ -103,7 +104,7 @@ class HomeControllerTest {
         mockMvc.perform(get("/api/home/goal/{goalId}/category/{categoryId}?yearMonth={yearMonth}",
                         goalId, categoryId, yearMonth))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.result").exists());
     }
 }

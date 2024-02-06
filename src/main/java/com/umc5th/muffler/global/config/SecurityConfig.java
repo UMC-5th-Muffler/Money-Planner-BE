@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@Profile("!test")
+@Profile({"local", "prod"})
 public class SecurityConfig {
 
     private final OAuthService oAuthService;

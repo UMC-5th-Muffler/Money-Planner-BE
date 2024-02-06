@@ -2,6 +2,7 @@ package com.umc5th.muffler.domain.expense.repository;
 
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Member;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,9 +16,11 @@ import java.util.Optional;
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, Long>, ExpenseRepositoryCustom {
 
-    @Query("SELECT SUM(e.cost) FROM Expense e WHERE e.member = :member AND e.date BETWEEN :startDate AND :endDate")
-    Long calculateTotalCostByMemberAndDateBetween(@Param("member")Member member, @Param("startDate")LocalDate startDate, @Param("endDate")LocalDate endDate);
+    Optional<Expense> findByIdAndMemberId(Long id, String memberId);
 
+    @Query("SELECT e FROM Expense e JOIN FETCH e.category WHERE e.id = :id")
+    Optional<Expense> findById(@Param("id") Long id);
+  
     @Query("SELECT e FROM Expense e JOIN FETCH e.category WHERE e.id = :id")
     Optional<Expense> findByIdJoin(@Param("id") Long id);
 
