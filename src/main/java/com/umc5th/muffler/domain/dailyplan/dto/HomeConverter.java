@@ -1,0 +1,79 @@
+package com.umc5th.muffler.domain.dailyplan.dto;
+
+import com.umc5th.muffler.entity.Category;
+import com.umc5th.muffler.entity.DailyPlan;
+import com.umc5th.muffler.entity.Expense;
+import com.umc5th.muffler.entity.Goal;
+import com.umc5th.muffler.global.util.ExpenseUtils;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class HomeConverter {
+    public static WholeCalendar toBasicCalendar(List<DailyInfo> inactiveDailies) {
+        return WholeCalendar.builder()
+                .dailyList(inactiveDailies)
+                .build();
+    }
+
+    public static CategoryCalendar toCategoryCalendar(Category category, LocalDate startDate, LocalDate endDate, Long categoryTotalCost, List<Long> categoryDailyCost, Long categoryBudget) {
+        return CategoryCalendar.builder()
+                .categoryId(category.getId())
+                .categoryName(category.getName())
+                .categoryTotalCost(categoryTotalCost)
+                .startDate(startDate)
+                .endDate(endDate)
+                .categoryDailyCost(categoryDailyCost)
+                .categoryBudget(categoryBudget)
+                .build();
+    }
+
+    public static WholeCalendar toGoalCalendar(GoalInfo goalInfo, List<DailyInfo> activeDailies, List<DailyInfo> inactiveDailies) {
+        List<DailyInfo> dailyList = new ArrayList<>(activeDailies);
+        dailyList.addAll(inactiveDailies);
+        dailyList.sort(Comparator.comparing(DailyInfo::getDate));
+
+        return WholeCalendar.builder()
+                .goalInfo(goalInfo)
+                .dailyList(dailyList)
+                .build();
+    }
+
+    public static GoalInfo toGoalInfo(Goal goal, LocalDate startDate, LocalDate endDate, Long totalCost) {
+        return GoalInfo.builder()
+                .goalId(goal.getId())
+                .goalTitle(goal.getTitle())
+                .goalBudget(goal.getTotalBudget())
+                .startDate(startDate)
+                .endDate(endDate)
+                .totalCost(totalCost)
+                .build();
+    }
+
+    public static List<DailyInfo> toDailyList(List<DailyPlan> dailyPlans) {
+        return dailyPlans.stream()
+                .map(HomeConverter::createActiveDaily)
+                .collect(Collectors.toList());
+    }
+
+    private static DailyInfo createActiveDaily(DailyPlan dailyPlan) {
+        return (DailyInfo) ActiveDaily.builder()
+                .date(dailyPlan.getDate())
+                .dailyBudget(dailyPlan.getBudget())
+                .dailyTotalCost(dailyPlan.getTotalCost())
+                .dailyRate(dailyPlan.getRate())
+                .isZeroDay(dailyPlan.getIsZeroDay())
+                .build();
+    }
+
+    public static List<Long> toCategoryDailyCost(Map<LocalDate, List<Expense>> expenses, LocalDate startDate, LocalDate endDate) {
+        return startDate.datesUntil(endDate.plusDays(1))
+                .map(date -> {
+                    return ExpenseUtils.sumExpenseCosts(expenses.getOrDefault(date, Collections.emptyList()));
+                }).collect(Collectors.toList());
+    }
+}

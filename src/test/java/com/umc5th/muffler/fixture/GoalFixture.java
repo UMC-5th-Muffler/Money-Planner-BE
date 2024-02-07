@@ -19,6 +19,20 @@ public class GoalFixture {
                 .build();
     }
 
+    public static Goal create(LocalDate startDate, LocalDate endDate) {
+        return Goal.builder()
+                .id(1L)
+                .startDate(startDate)
+                .endDate(endDate)
+                .title("title")
+                .memo("memo")
+                .icon("icon")
+                .totalBudget(10000L)
+                .categoryGoals(List.of(CategoryGoalFixture.CATEGORY_GOAL_ONE, CategoryGoalFixture.CATEGORY_GOAL_TWO))
+                .dailyPlans(List.of(DailyPlanFixture.DAILY_PLAN_ONE, DailyPlanFixture.DAILY_PLAN_TWO))
+                .build();
+    }
+
     public static Goal createWithoutRate(){
         return Goal.builder()
                 .id(1L)
@@ -57,6 +71,34 @@ public class GoalFixture {
                 .icon("icon")
                 .totalBudget(10000L)
                 .dailyPlans(List.of(DailyPlanFixture.DAILY_PLAN_NO_RATE, DailyPlanFixture.DAILY_PLAN_TWO))
+                .build();
+    }
+
+    public static Goal createToday() {
+        return Goal.builder()
+                .id(2L)
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now().plusDays(1))
+                .title("title")
+                .memo("memo")
+                .icon("icon")
+                .totalBudget(10000L)
+                .categoryGoals(List.of(CategoryGoalFixture.CATEGORY_GOAL_ONE, CategoryGoalFixture.CATEGORY_GOAL_TWO))
+                .dailyPlans(List.of(DailyPlanFixture.DAILY_PLAN_THREE, DailyPlanFixture.DAILY_PLAN_FOUR))
+                .build();
+    }
+
+    public static Goal createMonth() {
+        return Goal.builder()
+                .id(3L)
+                .startDate(LocalDate.of(2024, 1, 31))
+                .endDate(LocalDate.of(2024, 2, 1))
+                .title("title")
+                .memo("memo")
+                .icon("icon")
+                .totalBudget(10000L)
+                .categoryGoals(List.of(CategoryGoalFixture.CATEGORY_GOAL_ONE, CategoryGoalFixture.CATEGORY_GOAL_TWO))
+                .dailyPlans(List.of(DailyPlanFixture.DAILY_PLAN_FIVE, DailyPlanFixture.DAILY_PLAN_SIX))
                 .build();
     }
 }

@@ -10,10 +10,8 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class NewCategoryRequest {
-    @NotNull
-    private String memberId;
     @NotBlank
-    private String categoryName;
+    private String name;
     @NotBlank
     private String icon;
 }

@@ -7,16 +7,20 @@ import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.global.response.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/goal")
+@RequestMapping("/api/goal")
 public class GoalController {
 
     private final GoalService goalService;
@@ -49,6 +53,26 @@ public class GoalController {
     @GetMapping("/{goalId}")
     public Response<GoalGetResponse> getGoal(@PathVariable Long goalId, Authentication authentication){
         GoalGetResponse response = goalService.getGoalWithTotalCost(goalId);
+        return Response.success(response);
+    }
+
+    @GetMapping("/now")
+    public Response<GoalInfo> getNowGoal(Authentication authentication) {
+        GoalInfo response = goalService.getGoalNow(authentication.getName());
+        return Response.success(response);
+    }
+
+    @GetMapping("/not-now")
+    public Response<GoalPreviewResponse> getGoalPreview(Authentication authentication,
+            @RequestParam (name = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+            @PageableDefault(size = 10) Pageable pageable) {
+        GoalPreviewResponse response = goalService.getGoalPreview(authentication.getName(), pageable, endDate);
+        return Response.success(response);
+    }
+
+    @GetMapping("/list")
+    public Response<GoalListResponse> getGoalList(Authentication authentication) {
+        GoalListResponse response = goalService.getGoalList(authentication.getName());
         return Response.success(response);
     }
 }

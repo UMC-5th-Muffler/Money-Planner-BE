@@ -53,10 +53,31 @@ public class Expense extends BaseTimeEntity {
                 .build();
     }
 
+    public void setTitleAndMemo(String title, String memo) {
+        this.title = title;
+        this.memo = memo;
+    }
+    public void setCost(Long cost) {
+        this.cost = cost;
+    }
     public void setMember(Member member) {
         this.member = member;
     }
     public void setCategory(Category category) {
         this.category = category;
+    }
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+    public boolean isOwnMember(String memberId) { return member.getId().equals(memberId);}
+    public boolean isCategoryChanged(Long inputId) {
+        return !category.getId().equals(inputId);
+    }
+    public boolean isDateChanged(LocalDate inputDate) {
+        return !date.isEqual(inputDate);
+    }
+
+    public boolean isCostChanged(Long expenseCost) {
+        return !this.cost.equals(expenseCost);
     }
 }
