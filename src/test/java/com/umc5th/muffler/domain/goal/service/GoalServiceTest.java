@@ -233,7 +233,7 @@ class GoalServiceTest {
         String memberId = mockMember.getId();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByIdWithJoin(goalId)).thenReturn(Optional.of(mockGoal));
+        when(goalRepository.findByIdWithCategoryGoals(goalId)).thenReturn(Optional.of(mockGoal));
 
         GoalReportResponse response = goalService.getReport(goalId, memberId);
 
@@ -241,7 +241,7 @@ class GoalServiceTest {
         assertEquals(response.getCategoryReports().get(0).getCategoryBudget(), categoryGoal.getBudget());
 
         verify(memberRepository).findById(memberId);
-        verify(goalRepository).findByIdWithJoin(goalId);
+        verify(goalRepository).findByIdWithCategoryGoals(goalId);
     }
 
     @Test
@@ -266,14 +266,14 @@ class GoalServiceTest {
         Member mockMember = mock(Member.class);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByIdWithJoin(goalId)).thenReturn(Optional.empty());
+        when(goalRepository.findByIdWithCategoryGoals(goalId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> goalService.getReport(goalId, memberId))
                 .isInstanceOf(GoalException.class)
                 .hasFieldOrPropertyWithValue("errorCode", GOAL_NOT_FOUND);
 
         verify(memberRepository).findById(memberId);
-        verify(goalRepository).findByIdWithJoin(goalId);
+        verify(goalRepository).findByIdWithCategoryGoals(goalId);
     }
 
     @Test
@@ -283,13 +283,13 @@ class GoalServiceTest {
         DailyPlan plan1 = DailyPlanFixture.DAILY_PLAN_ONE;
         DailyPlan plan2 = DailyPlanFixture.DAILY_PLAN_TWO;
 
-        when(goalRepository.findByIdWithJoin(goalId)).thenReturn(Optional.of(mockGoal));
+        when(goalRepository.findByIdWithCategoryGoals(goalId)).thenReturn(Optional.of(mockGoal));
 
         GoalGetResponse response = goalService.getGoalWithTotalCost(goalId);
 
         assertEquals(response.getTotalCost(), plan1.getTotalCost() + plan2.getTotalCost());
         assertEquals(response.getTitle(), mockGoal.getTitle());
 
-        verify(goalRepository).findByIdWithJoin(goalId);
+        verify(goalRepository).findByIdWithCategoryGoals(goalId);
     }
 }
