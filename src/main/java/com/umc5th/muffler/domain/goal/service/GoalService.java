@@ -63,6 +63,8 @@ public class GoalService {
     }
 
     public GoalGetResponse getGoalWithTotalCost(Long goalId, String memberId){
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
         Goal goal = goalRepository.findByIdWithCategoryGoals(goalId, memberId)
                 .orElseThrow(() -> new GoalException(GOAL_NOT_FOUND));
         List<DailyPlan> dailyPlans = goal.getDailyPlans();
