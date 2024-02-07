@@ -1,13 +1,11 @@
 package com.umc5th.muffler.domain.category.dto;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 
-@Builder
 @Getter
 @AllArgsConstructor
-public class CategoryDto {
-    private Long id;
-    private String name;
+public class GetCategoryListResponse {
+    private List<CategoryDTO> categories;
 }
