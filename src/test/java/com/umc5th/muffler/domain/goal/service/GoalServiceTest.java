@@ -233,7 +233,7 @@ class GoalServiceTest {
         String memberId = mockMember.getId();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByIdWithCategoryGoals(goalId)).thenReturn(Optional.of(mockGoal));
+        when(goalRepository.findByIdWithCategoryGoals(goalId, memberId)).thenReturn(Optional.of(mockGoal));
 
         GoalReportResponse response = goalService.getReport(goalId, memberId);
 
@@ -241,7 +241,7 @@ class GoalServiceTest {
         assertEquals(response.getCategoryReports().get(0).getCategoryBudget(), categoryGoal.getBudget());
 
         verify(memberRepository).findById(memberId);
-        verify(goalRepository).findByIdWithCategoryGoals(goalId);
+        verify(goalRepository).findByIdWithCategoryGoals(goalId, memberId);
     }
 
     @Test
@@ -266,30 +266,33 @@ class GoalServiceTest {
         Member mockMember = mock(Member.class);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByIdWithCategoryGoals(goalId)).thenReturn(Optional.empty());
+        when(goalRepository.findByIdWithCategoryGoals(goalId, memberId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> goalService.getReport(goalId, memberId))
                 .isInstanceOf(GoalException.class)
                 .hasFieldOrPropertyWithValue("errorCode", GOAL_NOT_FOUND);
 
         verify(memberRepository).findById(memberId);
-        verify(goalRepository).findByIdWithCategoryGoals(goalId);
+        verify(goalRepository).findByIdWithCategoryGoals(goalId, memberId);
     }
 
     @Test
     void 목표_상세_조회_성공(){
         Goal mockGoal = GoalFixture.create();
         Long goalId = mockGoal.getId();
+        String memberId = "1";
+        Member mockMember = mock(Member.class);
         DailyPlan plan1 = DailyPlanFixture.DAILY_PLAN_ONE;
         DailyPlan plan2 = DailyPlanFixture.DAILY_PLAN_TWO;
 
-        when(goalRepository.findByIdWithCategoryGoals(goalId)).thenReturn(Optional.of(mockGoal));
+        when(goalRepository.findById(goalId)).thenReturn(Optional.of(mockGoal));
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
 
-        GoalGetResponse response = goalService.getGoalWithTotalCost(goalId);
+        GoalGetResponse response = goalService.getGoalWithTotalCost(goalId, memberId);
 
         assertEquals(response.getTotalCost(), plan1.getTotalCost() + plan2.getTotalCost());
         assertEquals(response.getTitle(), mockGoal.getTitle());
 
-        verify(goalRepository).findByIdWithCategoryGoals(goalId);
+        verify(goalRepository).findById(goalId);
     }
 }

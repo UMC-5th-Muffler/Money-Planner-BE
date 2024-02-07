@@ -110,6 +110,8 @@ class GoalControllerTest {
         verify(goalService).getReport(eq(goalId), any());
     }
 
+    @Test
+    @WithMockUser
     void 목표_탭_진행중목표_조회() throws Exception {
         GoalInfo mockResponse = GoalInfo.builder()
                 .goalId(1L)
@@ -143,13 +145,13 @@ class GoalControllerTest {
                 .totalCost(300000)
                 .build();
 
-        when(goalService.getGoalWithTotalCost(eq(goalId))).thenReturn(mockResponse);
+        when(goalService.getGoalWithTotalCost(eq(goalId), any())).thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/goal/{goalId}", goalId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.title").value(mockResponse.getTitle()));
 
-        verify(goalService).getGoalWithTotalCost(eq(goalId));
+        verify(goalService).getGoalWithTotalCost(eq(goalId), any());
     }
 
     void 목표_탭_목표전체조회() throws Exception {
