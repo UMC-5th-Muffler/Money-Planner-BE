@@ -52,7 +52,7 @@ public class GoalController {
 
     @GetMapping("/{goalId}")
     public Response<GoalGetResponse> getGoal(@PathVariable Long goalId, Authentication authentication){
-        GoalGetResponse response = goalService.getGoalWithTotalCost(goalId);
+        GoalGetResponse response = goalService.getGoalWithTotalCost(goalId, authentication.getName());
         return Response.success(response);
     }
 

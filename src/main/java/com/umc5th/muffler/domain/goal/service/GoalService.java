@@ -52,7 +52,7 @@ public class GoalService {
     public GoalReportResponse getReport(Long goalId, String memberId){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
-        Goal goal = goalRepository.findByIdWithCategoryGoals(goalId)
+        Goal goal = goalRepository.findByIdWithCategoryGoals(goalId, memberId)
                 .orElseThrow(() -> new GoalException(GOAL_NOT_FOUND));
 
         List<DailyPlan> dailyPlans = goal.getDailyPlans();
@@ -62,8 +62,8 @@ public class GoalService {
         return GoalConverter.getGoalReportResponse(goal, categoryGoals, dailyPlans, expenses);
     }
 
-    public GoalGetResponse getGoalWithTotalCost(Long goalId){
-        Goal goal = goalRepository.findByIdWithCategoryGoals(goalId)
+    public GoalGetResponse getGoalWithTotalCost(Long goalId, String memberId){
+        Goal goal = goalRepository.findByIdWithCategoryGoals(goalId, memberId)
                 .orElseThrow(() -> new GoalException(GOAL_NOT_FOUND));
         List<DailyPlan> dailyPlans = goal.getDailyPlans();
 
