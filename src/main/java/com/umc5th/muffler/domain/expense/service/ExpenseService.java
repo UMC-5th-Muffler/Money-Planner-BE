@@ -2,7 +2,7 @@ package com.umc5th.muffler.domain.expense.service;
 
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
-import com.umc5th.muffler.domain.expense.dto.AlarmControlDTO;
+import com.umc5th.muffler.domain.expense.dto.ExpenseAlarm;
 import com.umc5th.muffler.domain.expense.dto.ExpenseConverter;
 import com.umc5th.muffler.domain.expense.dto.ExpenseCreateRequest;
 import com.umc5th.muffler.domain.expense.dto.ExpenseResponse;
@@ -49,7 +49,7 @@ public class ExpenseService {
             throw new ExpenseException(ErrorCode.CANNOT_UPDATE_TO_ZERO_DAY);
         }
 
-        List<AlarmControlDTO> alarms = alarmService.getAlarms(dailyPlan, category, request.getExpenseCost());
+        List<ExpenseAlarm> alarms = alarmService.getAlarms(dailyPlan, category, request.getExpenseCost());
         Expense savedExpense = expenseRepository.save(ExpenseConverter.toExpenseEntity(request, member, category));
         dailyPlan.updateTotalCost(savedExpense.getCost());
 
@@ -69,7 +69,7 @@ public class ExpenseService {
                 .orElseThrow(() -> new ExpenseException(ErrorCode.NO_DAILY_PLAN_GIVEN_DATE));
 
         updateTitleAndMemo(expense, request);
-        List<AlarmControlDTO> alarm = updateCostAndDate(expense, dailyPlan, request);
+        List<ExpenseAlarm> alarm = updateCostAndDate(expense, dailyPlan, request);
         updateCategory(expense, request.getCategoryId());
 
         return new ExpenseResponse(expense.getId(), alarm);
@@ -79,7 +79,7 @@ public class ExpenseService {
         expense.setTitleAndMemo(request.getExpenseTitle(), request.getExpenseMemo());
     }
 
-    private List<AlarmControlDTO> updateCostAndDate(Expense expense, DailyPlan dailyPlan, ExpenseUpdateRequest request) {
+    private List<ExpenseAlarm> updateCostAndDate(Expense expense, DailyPlan dailyPlan, ExpenseUpdateRequest request) {
         boolean dateChanged = expense.isDateChanged(request.getExpenseDate());
         boolean costChanged = expense.isCostChanged(request.getExpenseCost());
 
@@ -99,7 +99,7 @@ public class ExpenseService {
         }
     }
 
-    private List<AlarmControlDTO> updateCostAndDateWithAlarm(Expense expense, DailyPlan dailyPlan, ExpenseUpdateRequest request, boolean dateChanged) {
+    private List<ExpenseAlarm> updateCostAndDateWithAlarm(Expense expense, DailyPlan dailyPlan, ExpenseUpdateRequest request, boolean dateChanged) {
         dailyPlan.updateTotalCost(-expense.getCost());
         Long expenditure = request.getExpenseCost();
         expense.setCost(expenditure);
@@ -113,7 +113,7 @@ public class ExpenseService {
             expense.setDate(request.getExpenseDate());
         }
 
-        List<AlarmControlDTO> alarm = alarmService.getDailyAlarm(dailyPlan, expenditure);
+        List<ExpenseAlarm> alarm = alarmService.getDailyAlarm(dailyPlan, expenditure);
         dailyPlan.updateTotalCost(expenditure);
         return alarm;
     }

@@ -2,6 +2,7 @@ package com.umc5th.muffler.entity;
 
 import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ import java.util.List;
 @Builder
 @Entity
 @Getter
+@Table(name = "goal", indexes = {@Index(name = "idx_goal_endDate", columnList = "endDate")})
 public class Goal extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,6 +47,7 @@ public class Goal extends BaseTimeEntity {
 
     @Builder.Default
     @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL)
+    @BatchSize(size = 10)
     private List<DailyPlan> dailyPlans = new ArrayList<>();
 
     public static Goal of(LocalDate startDate, LocalDate endDate, String title, String memo, String icon, Long totalBudget, Member member) {
