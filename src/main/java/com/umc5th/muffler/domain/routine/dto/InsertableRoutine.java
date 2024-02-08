@@ -4,6 +4,7 @@ import com.querydsl.core.annotations.QueryProjection;
 import com.umc5th.muffler.entity.constant.RoutineType;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -63,4 +64,17 @@ public class InsertableRoutine {
         this.dailyPlanId = dailyPlanId;
     }
 
+    private boolean isOutDated(LocalDate date) {
+        return (date.isBefore(routineStartDate)) || (routineEndDate != null && date.isAfter(routineEndDate));
+    }
+    public boolean isValid(LocalDate date) {
+        if (isOutDated(date)) {
+            return false;
+        }
+        if (routineType == RoutineType.WEEKLY) {
+            long between = ChronoUnit.WEEKS.between(routineStartDate, date);
+            return between % routineWeeklyTerm == 0;
+        }
+        return true;
+    }
 }

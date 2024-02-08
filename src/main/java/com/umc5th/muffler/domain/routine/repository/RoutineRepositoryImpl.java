@@ -5,14 +5,12 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.umc5th.muffler.domain.routine.dto.InsertableRoutine;
 import com.umc5th.muffler.entity.QCategory;
 import com.umc5th.muffler.entity.QDailyPlan;
-import com.umc5th.muffler.entity.QGoal;
 import com.umc5th.muffler.entity.QMember;
 import com.umc5th.muffler.entity.QRoutine;
 import com.umc5th.muffler.entity.QWeeklyRepeatDay;
 import com.umc5th.muffler.entity.constant.RoutineType;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +24,6 @@ public class RoutineRepositoryImpl implements RoutineRepositoryCustom{
         QRoutine routine = QRoutine.routine;
         QMember member = QMember.member;
         QCategory category = QCategory.category;
-        QGoal goal = QGoal.goal;
         QDailyPlan dailyPlan = QDailyPlan.dailyPlan;
         QWeeklyRepeatDay weeklyRepeatDay = QWeeklyRepeatDay.weeklyRepeatDay;
 
@@ -55,31 +52,16 @@ public class RoutineRepositoryImpl implements RoutineRepositoryCustom{
                 .from(routine)
                 .join(member).on(member.id.eq(routine.member.id))
                 .join(category).on(category.id.eq(routine.category.id))
-                .join(goal).on(member.id.eq(goal.member.id))
-                .join(dailyPlan).on(dailyPlan.goal.id.eq(goal.id))
+                .join(dailyPlan).on(dailyPlan.date.eq(today))
                 .leftJoin(weeklyRepeatDay).on(weeklyRepeatDay.routine.id.eq(routine.id))
                 .where(
-                        goal.startDate.loe(today),
-                        goal.endDate.goe(today),
                         dailyPlan.date.eq(today),
                         routine.type.eq(RoutineType.MONTHLY).and(routine.monthlyRepeatDay.eq(day))
                                 .or(routine.type.eq(RoutineType.WEEKLY).and(weeklyRepeatDay.dayOfWeek.eq(dayOfWeek)))
                 )
                 .fetch();
         return insertableRoutines.stream()
-                .filter((insertableRoutine) -> {
-                    if (today.isBefore(insertableRoutine.getRoutineStartDate())) {
-                        return false;
-                    }
-                    if (insertableRoutine.getRoutineEndDate() != null && today.isAfter(insertableRoutine.getRoutineEndDate())) {
-                        return false;
-                    }
-                    if (insertableRoutine.getRoutineType() == RoutineType.WEEKLY) {
-                        long between = ChronoUnit.WEEKS.between(insertableRoutine.getRoutineStartDate(), today);
-                        return between % insertableRoutine.getRoutineWeeklyTerm() == 0;
-                    }
-                    return true;
-                })
+                .filter((insertableRoutine) -> insertableRoutine.isValid(today))
                 .collect(Collectors.toList());
     }
 }
