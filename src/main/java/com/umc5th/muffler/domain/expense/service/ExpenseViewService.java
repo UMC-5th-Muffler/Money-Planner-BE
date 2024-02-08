@@ -14,7 +14,6 @@ import com.umc5th.muffler.global.response.exception.ExpenseException;
 import com.umc5th.muffler.global.response.exception.GoalException;
 import com.umc5th.muffler.global.response.exception.MemberException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ExpenseViewService {
 
     private final ExpenseRepository expenseRepository;
@@ -56,7 +54,7 @@ public class ExpenseViewService {
         return response;
     }
 
-    public WeeklyExpenseResponse getWeeklyExpenseDetails(String memberId, Long goalId, LocalDate weeklyStartDate, LocalDate weeklyEndDate, LocalDate lastDate, Long lastExpenseId, Pageable pageable){
+    public WeeklyExpenseResponse getWeeklyExpenseDetails(String memberId, Long goalId, LocalDate weeklyStartDate, LocalDate weeklyEndDate, LocalDate lastDate, Long lastExpenseId, int size){
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
         Goal goal = goalRepository.findById(goalId)
@@ -68,7 +66,7 @@ public class ExpenseViewService {
         LocalDate expenseStartDate = goal.getStartDate().isBefore(weeklyStartDate) ? weeklyStartDate : goal.getStartDate();
         LocalDate expenseEndDate = goal.getEndDate().isAfter(weeklyEndDate) ? weeklyEndDate : goal.getEndDate();
 
-        Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDateAndCategoryId(member.getId(), lastDate, lastExpenseId, expenseStartDate, expenseEndDate, null, pageable);
+        Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDateAndCategoryId(member.getId(), lastDate, lastExpenseId, expenseStartDate, expenseEndDate, null, "DESC" ,size);
 
         // 일별로 그룹화
         Map<LocalDate, List<Expense>> expensesByDate = expenseList.getContent().stream()
@@ -93,7 +91,7 @@ public class ExpenseViewService {
     }
 
 
-    public MonthlyExpenseResponse getMonthlyExpenses(String memberId, YearMonth yearMonth, Long goalId, String order, LocalDate lastDate, Long lastExpenseId, Pageable pageable){
+    public MonthlyExpenseResponse getMonthlyExpenses(String memberId, YearMonth yearMonth, Long goalId, String order, LocalDate lastDate, Long lastExpenseId, int size){
         if (goalId == null){
             return new MonthlyExpenseResponse();
         }
@@ -111,7 +109,7 @@ public class ExpenseViewService {
         List<DailyPlan> dailyPlans = Optional.ofNullable(goal.getDailyPlans())
                 .orElseThrow(() -> new GoalException(ErrorCode.DAILYPLAN_NOT_FOUND));
 
-        Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDateAndCategoryId(member.getId(), lastDate, lastExpenseId, startDate, endDate, null, pageable);
+        Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDateAndCategoryId(member.getId(), lastDate, lastExpenseId, startDate, endDate, null, order, size);
 
         // 일별로 그룹화
         Map<LocalDate, List<Expense>> expensesByDate = expenseList.getContent().stream()
@@ -132,7 +130,7 @@ public class ExpenseViewService {
         return ExpenseConverter.toMonthlyExpensesResponse(dailyExpensesDtos, expenseList);
     }
 
-    public MonthlyExpenseResponse getMonthlyExpensesWithCategory(String memberId, YearMonth yearMonth, Long goalId, Long categoryId, String order, LocalDate lastDate, Long lastExpenseId, Pageable pageable){
+    public MonthlyExpenseResponse getMonthlyExpensesWithCategory(String memberId, YearMonth yearMonth, Long goalId, Long categoryId, String order, LocalDate lastDate, Long lastExpenseId, int size){
         if (goalId == null){
             return new MonthlyExpenseResponse();
         }
@@ -148,7 +146,7 @@ public class ExpenseViewService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDateAndCategoryId(member.getId(), lastDate, lastExpenseId, startDate, endDate, categoryId, pageable);
+        Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDateAndCategoryId(member.getId(), lastDate, lastExpenseId, startDate, endDate, categoryId, order, size);
 
         // 일별로 Expense 그룹화
         Map<LocalDate, List<Expense>> expensesByDate = expenseList.getContent().stream()

@@ -2,7 +2,6 @@ package com.umc5th.muffler.domain.expense.controller;
 
 import com.umc5th.muffler.config.TestSecurityConfig;
 import com.umc5th.muffler.domain.expense.dto.*;
-import com.umc5th.muffler.domain.expense.service.ExpenseService;
 import com.umc5th.muffler.domain.expense.service.ExpenseSearchService;
 import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.entity.Expense;
@@ -76,6 +75,7 @@ class ExpenseControllerTest {
     @WithMockUser
     public void 주간_소비내역_조회() throws Exception{
         LocalDate todayDate = LocalDate.of(2024, 1, 1);
+        int size = 20;
         LocalDate startDate = todayDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate endDate = todayDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
         List<Expense> expenses = ExpenseFixture.createList(10, startDate);
@@ -106,7 +106,7 @@ class ExpenseControllerTest {
                 .dailyExpenseList(dailyExpensesDtos)
                 .build();
 
-        when(expenseViewService.getWeeklyExpenseDetails(any(), any(), eq(startDate), eq(endDate), any(), any(), any(Pageable.class))).thenReturn(mockResponse);
+        when(expenseViewService.getWeeklyExpenseDetails(any(), any(), eq(startDate), eq(endDate), any(), any(), eq(size))).thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/expense/weekly")
                         .param("goalId", "1")
@@ -123,7 +123,6 @@ class ExpenseControllerTest {
         YearMonth yearMonth = YearMonth.of(2024, 1);
         Long goalId = 1L;
         String order = "DESC";
-        int page = 0;
         int size = 20;
 
         List<Expense> expenses = ExpenseFixture.createList(10, LocalDate.of(2024,1,1));
@@ -159,13 +158,12 @@ class ExpenseControllerTest {
                 .dailyExpenseList(dailyExpensesDtos)
                 .build();
 
-        when(expenseViewService.getMonthlyExpenses(any(), eq(yearMonth), eq(goalId), eq(order), any(), any(), any(Pageable.class)))
+        when(expenseViewService.getMonthlyExpenses(any(), eq(yearMonth), eq(goalId), eq(order), any(), any(), eq(size)))
                 .thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/expense/monthly")
                         .param("yearMonth", String.valueOf(yearMonth))
                         .param("order", order)
-                        .param("page", String.valueOf(page))
                         .param("size", String.valueOf(size))
                         .param("goalId", String.valueOf(goalId)))
                 .andExpect(status().isOk())

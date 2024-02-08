@@ -75,7 +75,9 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
     }
 
     @Override
-    public Slice<Expense> findAllByMemberAndDateAndCategoryId(String memberId, LocalDate lastDate, Long lastExpenseId, LocalDate startDate, LocalDate endDate, Long categoryId, Pageable pageable) {
+    public Slice<Expense> findAllByMemberAndDateAndCategoryId(String memberId, LocalDate lastDate, Long lastExpenseId, LocalDate startDate, LocalDate endDate, Long categoryId, String order, int size) {
+        Sort.Direction direction = order.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, "date");
 
         JPAQuery<Expense> query = queryFactory
                 .selectFrom(expense)
@@ -83,32 +85,29 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
                 .where(expense.member.id.eq(memberId)
                         .and(expense.date.between(startDate, endDate))
                         .and(categoryId != null ? expense.category.id.eq(categoryId) : null))
-                .limit(pageable.getPageSize() + 1);
+                .limit(size + 1);
 
-        Sort.Order dateOrder = pageable.getSort().getOrderFor("date");
-        if (dateOrder != null) {
-            boolean isAscending = dateOrder.getDirection().isAscending();
-            if (lastDate != null && lastExpenseId != null) {
-                if (isAscending) {
-                    query.where(expense.date.gt(lastDate)
-                            .or(expense.date.eq(lastDate).and(expense.id.lt(lastExpenseId))));
-                } else {
-                    query.where(expense.date.lt(lastDate)
-                            .or(expense.date.eq(lastDate).and(expense.id.lt(lastExpenseId))));
-                }
+        boolean isAscending = direction.isAscending();
+        if (lastDate != null && lastExpenseId != null) {
+            if (isAscending) {
+                query.where(expense.date.gt(lastDate)
+                        .or(expense.date.eq(lastDate).and(expense.id.lt(lastExpenseId))));
+            } else {
+                query.where(expense.date.lt(lastDate)
+                        .or(expense.date.eq(lastDate).and(expense.id.lt(lastExpenseId))));
             }
-            query.orderBy(new OrderSpecifier<>(isAscending ? Order.ASC : Order.DESC, expense.date));
         }
-
+        query.orderBy(new OrderSpecifier<>(isAscending ? Order.ASC : Order.DESC, expense.date));
         query.orderBy(expense.id.desc());
         List<Expense> results = query.fetch();
 
         boolean hasNext = false;
-        if (results.size() > pageable.getPageSize()) {
-            results.remove(pageable.getPageSize());
+        if (results.size() > size) {
+            results.remove(size);
             hasNext = true;
         }
 
+        Pageable pageable = PageRequest.of(0, size, sort);
         return new SliceImpl<>(results, pageable, hasNext);
     }
 

@@ -7,11 +7,8 @@ import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.global.response.Response;
 import com.umc5th.muffler.global.validation.ValidOrder;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.data.web.SortDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -75,11 +72,9 @@ public class ExpenseController {
             @RequestParam(name = "endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
             @RequestParam(name = "lastDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastDate,
             @RequestParam(name = "lastExpenseId", required = false) Long lastExpenseId,
-            @PageableDefault(size = 20) @SortDefault.SortDefaults({
-                    @SortDefault(sort = "date", direction = Sort.Direction.DESC),
-            }) Pageable pageable) {
+            @RequestParam(name = "size", defaultValue = "20") @Positive int size) {
 
-        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(authentication.getName(), goalId, startDate, endDate, lastDate, lastExpenseId, pageable);
+        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(authentication.getName(), goalId, startDate, endDate, lastDate, lastExpenseId, size);
         return Response.success(response);
     }
 
@@ -93,15 +88,12 @@ public class ExpenseController {
             @RequestParam(name = "lastExpenseId", required = false) Long lastExpenseId,
             @RequestParam(name = "size", defaultValue = "20") @Positive int size,
             @RequestParam(name = "categoryId", required = false) Long categoryId) {
-        Sort.Direction direction = order.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = Sort.by(direction, "date");
-        Pageable pageable = PageRequest.of(0, size, sort);
 
         MonthlyExpenseResponse response;
         if (categoryId != null) {
-            response = expenseViewService.getMonthlyExpensesWithCategory(authentication.getName(), yearMonth, goalId, categoryId, order, lastDate, lastExpenseId, pageable);
+            response = expenseViewService.getMonthlyExpensesWithCategory(authentication.getName(), yearMonth, goalId, categoryId, order, lastDate, lastExpenseId, size);
         } else {
-            response = expenseViewService.getMonthlyExpenses(authentication.getName(), yearMonth, goalId, order, lastDate, lastExpenseId, pageable);
+            response = expenseViewService.getMonthlyExpenses(authentication.getName(), yearMonth, goalId, order, lastDate, lastExpenseId, size);
         }
         return Response.success(response);
     }
