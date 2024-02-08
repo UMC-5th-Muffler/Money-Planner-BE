@@ -1,12 +1,16 @@
 package com.umc5th.muffler.alarm.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
+@AllArgsConstructor
+@NoArgsConstructor
 public class DailyPlanAlarm implements Alarmable{
     private static final String TITLE = "당일 목표 금액 리마인드";
-    private final Long memberName;
-    private final String alarmToken;
-    private final Long dailyBudget;
+    private Long memberName;
+    private String alarmToken;
+    private Long dailyBudget;
 
     @QueryProjection
     public DailyPlanAlarm(Long memberName, Long dailyBudget, String alarmToken) {
