@@ -1,4 +1,4 @@
-package com.umc5th.muffler.domain.expense.service;
+package com.umc5th.muffler.schedule.service;
 
 import com.umc5th.muffler.domain.expense.repository.JDBCExpenseRepository;
 import com.umc5th.muffler.domain.expense.repository.JDBCExpenseRepository.InsertExpenseEntity;
