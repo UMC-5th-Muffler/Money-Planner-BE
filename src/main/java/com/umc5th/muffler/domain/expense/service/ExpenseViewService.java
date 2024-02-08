@@ -20,7 +20,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,7 +51,7 @@ public class ExpenseViewService {
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(memberId, date, lastExpenseId, pageable);
 
-        DailyExpenseResponse response = ExpenseConverter.toDailyExpensesList(expenseList);
+        DailyExpenseResponse response = ExpenseConverter.toDailyExpensesListWithTotalCost(expenseList);
 
         return response;
     }
@@ -87,7 +86,7 @@ public class ExpenseViewService {
                 }));
 
 
-        List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesList(expensesByDate, dailyTotalCostMap);
+        List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesListWithTotalCost(expensesByDate, dailyTotalCostMap);
         WeeklyExpenseResponse response = ExpenseConverter.toWeeklyExpensesResponse(dailyExpensesDtos, expenseList);
 
         return response;
@@ -129,7 +128,7 @@ public class ExpenseViewService {
                     return dailyPlan.getTotalCost();
                 }));
 
-        List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesListWithOrderAndTotalCost(expensesByDate, dailyTotalCostMap, order);
+        List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesListWithTotalCost(expensesByDate, dailyTotalCostMap, order);
         return ExpenseConverter.toMonthlyExpensesResponse(dailyExpensesDtos, expenseList);
     }
 
@@ -155,7 +154,7 @@ public class ExpenseViewService {
         Map<LocalDate, List<Expense>> expensesByDate = expenseList.getContent().stream()
                 .collect(Collectors.groupingBy(Expense::getDate, LinkedHashMap::new, Collectors.toList()));
 
-        List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesListWithOrderAndTotalCost(expensesByDate, order);
+        List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesList(expensesByDate);
         return ExpenseConverter.toMonthlyExpensesResponse(dailyExpensesDtos, expenseList);
     }
 

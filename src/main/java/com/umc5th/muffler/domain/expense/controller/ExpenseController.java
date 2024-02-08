@@ -1,24 +1,11 @@
 package com.umc5th.muffler.domain.expense.controller;
 
-import com.umc5th.muffler.domain.expense.dto.DailyExpenseResponse;
-import com.umc5th.muffler.domain.expense.dto.ExpenseDto;
-import com.umc5th.muffler.domain.expense.dto.ExpenseResponse;
-import com.umc5th.muffler.domain.expense.dto.MonthlyExpenseResponse;
-import com.umc5th.muffler.domain.expense.dto.ExpenseCreateRequest;
-import com.umc5th.muffler.domain.expense.dto.SearchResponse;
-import com.umc5th.muffler.domain.expense.dto.ExpenseUpdateRequest;
-import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseResponse;
+import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.service.ExpenseSearchService;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
 import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.global.response.Response;
 import com.umc5th.muffler.global.validation.ValidOrder;
-import java.security.Principal;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,15 +15,13 @@ import org.springframework.data.web.SortDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import java.security.Principal;
+import java.time.LocalDate;
+import java.time.YearMonth;
 
 @RestController
 @RequiredArgsConstructor
@@ -123,14 +108,14 @@ public class ExpenseController {
 
     @GetMapping("/search")
     public Response<SearchResponse> getSearchExpense(
-            @RequestParam(name = "title") String title,
-            @RequestParam(name = "page", defaultValue = "0") @Min(value = 0) int page,
+            @RequestParam(name = "title", required = false) String title,
             @RequestParam(name = "size", defaultValue = "10") @Positive int size,
-            @RequestParam(name = "sort", defaultValue = "DESC") String sortDirection,
+            @RequestParam(name = "order", defaultValue = "DESC") @ValidOrder String order,
+            @RequestParam(name = "lastDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lastDate,
+            @RequestParam(name = "lastExpenseId", required = false) Long lastExpenseId,
             Authentication authentication) {
 
-        SearchResponse response = expenseSearchService.searchExpense(authentication.getName(), title, page, size,
-                sortDirection);
+        SearchResponse response = expenseSearchService.searchExpense(authentication.getName(), title, size, order, lastDate, lastExpenseId);
         return Response.success(response);
     }
 }

@@ -2,21 +2,15 @@ package com.umc5th.muffler.domain.expense.repository;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.umc5th.muffler.entity.Category;
-import com.umc5th.muffler.entity.Expense;
-import com.umc5th.muffler.entity.QCategory;
-import com.umc5th.muffler.entity.Goal;
-import com.umc5th.muffler.entity.QExpense;
+import com.umc5th.muffler.entity.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -147,5 +141,52 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
                         .and(expense.date.between(startDate, endDate))
                 ).fetchOne();
         return sum == null ? 0L : sum;
+    }
+
+    @Override
+    public Slice<Expense> findByMemberAndTitleContaining(String memberId, String searchKeyword, LocalDate lastDate, Long lastExpenseId, int size, String order){
+        Sort.Direction direction = order.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, "date");
+
+        QExpense expense = QExpense.expense;
+        QCategory category = QCategory.category;
+
+        JPAQuery<Expense> query = queryFactory
+                .selectFrom(expense)
+                .leftJoin(expense.category, category).fetchJoin()
+                .where(expense.member.id.eq(memberId)
+                        .and(searchTitle(searchKeyword)))
+                .limit(size + 1);
+
+        boolean isAscending = direction.isAscending();
+
+        if (lastDate != null && lastExpenseId != null){
+            if(isAscending){
+                query.where(expense.date.gt(lastDate)
+                        .or(expense.date.eq(lastDate).and(expense.id.lt(lastExpenseId))));
+            } else {
+                query.where(expense.date.lt(lastDate)
+                        .or(expense.date.eq(lastDate).and(expense.id.lt(lastExpenseId))));
+            }
+        }
+        query.orderBy(new OrderSpecifier<>(isAscending ? Order.ASC : Order.DESC, expense.date));
+        query.orderBy(expense.id.desc());
+        List<Expense> results = query.fetch();
+
+        boolean hasNext = false;
+        if (results.size() > size) {
+            results.remove(size);
+            hasNext = true;
+        }
+
+        Pageable pageable = PageRequest.of(0, size, sort);
+        return new SliceImpl<>(results, pageable, hasNext);
+    }
+
+    private BooleanExpression searchTitle(String searchKeyword){
+        if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
+            return QExpense.expense.title.containsIgnoreCase(searchKeyword);
+        }
+        return null;
     }
 }

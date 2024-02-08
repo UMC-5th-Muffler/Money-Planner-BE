@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Slf4j
 public class ExpenseConverter {
 
     public static Expense toExpenseEntity(ExpenseCreateRequest request, Member member, Category category) {
@@ -50,7 +49,7 @@ public class ExpenseConverter {
                 .build();
     }
 
-    public static DailyExpenseResponse toDailyExpensesList(Slice<Expense> expenseList) {
+    public static DailyExpenseResponse toDailyExpensesListWithTotalCost(Slice<Expense> expenseList) {
         List<ExpenseDetailDto> expenseDetails = toExpensesDetails(expenseList.getContent());
 
         return DailyExpenseResponse.builder()
@@ -67,7 +66,7 @@ public class ExpenseConverter {
     }
 
 
-    public static List<DailyExpensesDto> toDailyExpensesList(Map<LocalDate, List<Expense>> expensesByDate, Map<LocalDate, Long> dailyTotalCostMap) {
+    public static List<DailyExpensesDto> toDailyExpensesListWithTotalCost(Map<LocalDate, List<Expense>> expensesByDate, Map<LocalDate, Long> dailyTotalCostMap) {
         List<DailyExpensesDto> dailyExpensesList = expensesByDate.entrySet().stream().map(entry -> {
             LocalDate dailyDate = entry.getKey();
             List<Expense> dailyExpenseList = entry.getValue();
@@ -85,7 +84,7 @@ public class ExpenseConverter {
         return dailyExpensesList;
     }
 
-    public static List<DailyExpensesDto> toDailyExpensesListWithOrderAndTotalCost(Map<LocalDate, List<Expense>> expensesByDate, Map<LocalDate, Long> dailyTotalCostMap, String order) {
+    public static List<DailyExpensesDto> toDailyExpensesListWithTotalCost(Map<LocalDate, List<Expense>> expensesByDate, Map<LocalDate, Long> dailyTotalCostMap, String order) {
         List<DailyExpensesDto> dailyExpensesList = expensesByDate.entrySet().stream().map(entry -> {
             LocalDate dailyDate = entry.getKey();
             List<Expense> dailyExpenseList = entry.getValue();
@@ -103,7 +102,7 @@ public class ExpenseConverter {
         return dailyExpensesList;
     }
 
-    public static List<DailyExpensesDto> toDailyExpensesListWithOrderAndTotalCost(Map<LocalDate, List<Expense>> expensesByDate, String order) {
+    public static List<DailyExpensesDto> toDailyExpensesList(Map<LocalDate, List<Expense>> expensesByDate) {
         Stream<Map.Entry<LocalDate, List<Expense>>> stream = expensesByDate.entrySet().stream();
 
         return stream.map(entry -> {
@@ -125,6 +124,14 @@ public class ExpenseConverter {
                 .dailyExpenseList(dailyExpensesDtos)
                 .build();
     }
+
+    public static SearchResponse toSearchResponse(List<DailyExpensesDto> expenses, boolean hasNext) {
+        return SearchResponse.builder()
+                .dailyExpenseList(expenses)
+                .hasNext(hasNext)
+                .build();
+    }
+
 
     private static List<ExpenseDetailDto> toExpensesDetails(List<Expense> expenseList) {
 
@@ -149,36 +156,6 @@ public class ExpenseConverter {
                         .cost(expense.getCost())
                         .build())
                 .collect(Collectors.toList());
-    }
-
-    public static List<DailyExpensesDto> toSearch(Map<LocalDate, List<Expense>> expensesByDate) {
-
-        return expensesByDate.entrySet().stream().map(entry -> {
-            LocalDate date = entry.getKey();
-            List<Expense> expenseList = entry.getValue();
-
-            List<ExpenseDetailDto> expenseDetailDtos = expenseList.stream()
-                    .map(expense -> ExpenseDetailDto.builder()
-                            .expenseId(expense.getId())
-                            .title(expense.getTitle())
-                            .cost(expense.getCost())
-                            .categoryIcon(expense.getCategory().getIcon())
-                            .build())
-                    .collect(Collectors.toList());
-
-            return DailyExpensesDto.builder()
-                    .date(date)
-                    .expenseDetailList(expenseDetailDtos)
-                    .build();
-        }).collect(Collectors.toList());
-    }
-
-    public static SearchResponse toSearchResponse(List<DailyExpensesDto> expenses, boolean hasNext) {
-
-        return SearchResponse.builder()
-                .dailyExpenseList(expenses)
-                .hasNext(hasNext)
-                .build();
     }
 
 }
