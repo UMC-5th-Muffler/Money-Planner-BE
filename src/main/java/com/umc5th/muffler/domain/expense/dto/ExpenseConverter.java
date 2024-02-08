@@ -84,28 +84,8 @@ public class ExpenseConverter {
         return dailyExpensesList;
     }
 
-    public static List<DailyExpensesDto> toDailyExpensesListWithTotalCost(Map<LocalDate, List<Expense>> expensesByDate, Map<LocalDate, Long> dailyTotalCostMap, String order) {
-        List<DailyExpensesDto> dailyExpensesList = expensesByDate.entrySet().stream().map(entry -> {
-            LocalDate dailyDate = entry.getKey();
-            List<Expense> dailyExpenseList = entry.getValue();
-            Long dailyTotalCost = dailyTotalCostMap.getOrDefault(dailyDate, 0L);
-
-            List<ExpenseDetailDto> expenseDetails = toExpensesDetailsWithoutMemo(dailyExpenseList);
-
-            return DailyExpensesDto.builder()
-                    .date(dailyDate)
-                    .dailyTotalCost(dailyTotalCost)
-                    .expenseDetailList(expenseDetails)
-                    .build();
-        }).collect(Collectors.toList());
-
-        return dailyExpensesList;
-    }
-
     public static List<DailyExpensesDto> toDailyExpensesList(Map<LocalDate, List<Expense>> expensesByDate) {
-        Stream<Map.Entry<LocalDate, List<Expense>>> stream = expensesByDate.entrySet().stream();
-
-        return stream.map(entry -> {
+        return expensesByDate.entrySet().stream().map(entry -> {
             LocalDate dailyDate = entry.getKey();
             List<Expense> dailyExpenseList = entry.getValue();
 
@@ -132,9 +112,7 @@ public class ExpenseConverter {
                 .build();
     }
 
-
     private static List<ExpenseDetailDto> toExpensesDetails(List<Expense> expenseList) {
-
         return expenseList.stream()
                 .map(expense -> ExpenseDetailDto.builder()
                         .expenseId(expense.getId())
@@ -147,7 +125,6 @@ public class ExpenseConverter {
     }
 
     private static List<ExpenseDetailDto> toExpensesDetailsWithoutMemo(List<Expense> expenseList) {
-
         return expenseList.stream()
                 .map(expense -> ExpenseDetailDto.builder()
                         .expenseId(expense.getId())

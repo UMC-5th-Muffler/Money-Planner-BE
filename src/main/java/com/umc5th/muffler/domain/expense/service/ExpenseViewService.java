@@ -128,7 +128,7 @@ public class ExpenseViewService {
                     return dailyPlan.getTotalCost();
                 }));
 
-        List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesListWithTotalCost(expensesByDate, dailyTotalCostMap, order);
+        List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesListWithTotalCost(expensesByDate, dailyTotalCostMap);
         return ExpenseConverter.toMonthlyExpensesResponse(dailyExpensesDtos, expenseList);
     }
 

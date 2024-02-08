@@ -17,6 +17,5 @@ public interface ExpenseRepositoryCustom {
     Slice<Expense> findAllByMemberAndDate(String memberId, LocalDate date, Long lastExpenseId, Pageable pageable);
     Long sumCategoryExpenseWithinGoal(String memberId, Category category, Goal goal);
     Long sumCostByMemberAndDateBetween(String memberId, LocalDate startDate, LocalDate endDate);
-
     Slice<Expense> findByMemberAndTitleContaining(String memberId, String searchKeyword, LocalDate lastDate, Long lastExpenseId, int size, String order);
 }
