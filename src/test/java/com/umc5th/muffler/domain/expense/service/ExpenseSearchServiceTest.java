@@ -46,16 +46,16 @@ class ExpenseSearchServiceTest {
         Slice<Expense> expenseSlice = new SliceImpl<>(expenses, pageable, true);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(expenseRepository.findByMemberAndTitleContaining(mockMember, searchKeyword, pageable)).thenReturn(expenseSlice);
+        when(expenseRepository.findByMemberAndTitleContaining(memberId, searchKeyword, null, null, 10, "DESC")).thenReturn(expenseSlice);
 
-        SearchResponse response = expenseSearchService.searchExpense(memberId, searchKeyword, 0, 2, "DESC");
+        SearchResponse response = expenseSearchService.searchExpense(memberId, searchKeyword, 10, "DESC", null, null);
 
         assertNotNull(response);
         assertEquals(expenses.get(0).getDate(), response.getDailyExpenseList().get(0).getDate());
         assertEquals(expenses.get(1).getDate(), response.getDailyExpenseList().get(1).getDate());
         assertEquals(expenseSlice.hasNext(), response.isHasNext());
 
-        verify(expenseRepository).findByMemberAndTitleContaining(mockMember, searchKeyword, pageable);
+        verify(expenseRepository).findByMemberAndTitleContaining(memberId, searchKeyword, null, null, 10, "DESC");
     }
 
     @Test
@@ -71,16 +71,16 @@ class ExpenseSearchServiceTest {
         Slice<Expense> expenseSlice = new SliceImpl<>(expenses, pageable, true);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(expenseRepository.findByMemberAndTitleContaining(mockMember, searchKeyword, pageable)).thenReturn(expenseSlice);
+        when(expenseRepository.findByMemberAndTitleContaining(memberId, searchKeyword, null, null, 10, "ASC")).thenReturn(expenseSlice);
 
-        SearchResponse response = expenseSearchService.searchExpense(memberId, searchKeyword, 0, 2, "ASC");
+        SearchResponse response = expenseSearchService.searchExpense(memberId, searchKeyword, 10, "ASC", null, null);
 
         assertNotNull(response);
         assertEquals(expenses.get(0).getDate(), response.getDailyExpenseList().get(0).getDate());
         assertEquals(expenses.get(1).getDate(), response.getDailyExpenseList().get(1).getDate());
         assertEquals(expenseSlice.hasNext(), response.isHasNext());
 
-        verify(expenseRepository).findByMemberAndTitleContaining(mockMember, searchKeyword, pageable);
+        verify(expenseRepository).findByMemberAndTitleContaining(memberId, searchKeyword, null, null, 10, "ASC");
     }
 
     @Test
@@ -94,15 +94,15 @@ class ExpenseSearchServiceTest {
         Member mockMember = MemberFixture.create();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(expenseRepository.findByMemberAndTitleContaining(mockMember, searchKeyword, pageable)).thenReturn(new SliceImpl<>(Collections.emptyList()));
+        when(expenseRepository.findByMemberAndTitleContaining(memberId, searchKeyword, null, null, 10, "ASC")).thenReturn(new SliceImpl<>(Collections.emptyList()));
 
-        SearchResponse response = expenseSearchService.searchExpense(memberId, searchKeyword, 0, 2, "ASC");
+        SearchResponse response = expenseSearchService.searchExpense(memberId, searchKeyword, 10, "ASC", null, null);
 
         assertNotNull(response);
         assertTrue(response.getDailyExpenseList().isEmpty());
         assertEquals(false, response.isHasNext());
 
-        verify(expenseRepository).findByMemberAndTitleContaining(mockMember, searchKeyword, pageable);
+        verify(expenseRepository).findByMemberAndTitleContaining(memberId, searchKeyword, null, null, 10, "ASC");
     }
 
     @Test
@@ -111,7 +111,7 @@ class ExpenseSearchServiceTest {
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
 
-        assertThrows(MemberException.class, () -> expenseSearchService.searchExpense(memberId, "", 0, 1, "DESC"));
+        assertThrows(MemberException.class, () -> expenseSearchService.searchExpense(memberId, "", 10, "DESC", null, null));
     }
 
 }

@@ -1,10 +1,13 @@
 package com.umc5th.muffler.domain.expense.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Builder
 @Getter
@@ -17,7 +20,5 @@ public class ExpenseDetailDto {
     private Long cost;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String memo;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long categoryId;
     private String categoryIcon;
 }

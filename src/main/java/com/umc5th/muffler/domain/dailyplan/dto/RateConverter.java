@@ -10,7 +10,7 @@ public class RateConverter {
                 .dailyPlanBudget(dailyPlan.getBudget())
                 .dailyTotalCost(dailyPlan.getTotalCost())
                 .rate(dailyPlan.getRate())
-                .memo(dailyPlan.getRateMemo())
+                .rateMemo(dailyPlan.getRateMemo())
                 .isZeroDay(dailyPlan.getIsZeroDay())
                 .build();
     }
