@@ -3,7 +3,6 @@ package com.umc5th.muffler.domain.expense.repository;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.umc5th.muffler.entity.*;
@@ -15,13 +14,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.umc5th.muffler.entity.QCategory.category;
+import static com.umc5th.muffler.entity.QExpense.expense;
+
 @RequiredArgsConstructor
 public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
     public Map<LocalDate, List<Expense>> findByMemberAndDateRangeGroupedByDate(String memberId, LocalDate startDate, LocalDate endDate) {
-        QExpense expense = QExpense.expense;
 
         List<Expense> expenses = queryFactory
                 .selectFrom(expense)
@@ -37,7 +38,6 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
     @Override
     public Map<LocalDate, List<Expense>> findByMemberAndCategoryAndDateRangeGroupedByDate(String memberId, Long categoryId,
                                                                                           LocalDate startDate, LocalDate endDate) {
-        QExpense expense = QExpense.expense;
 
         List<Expense> expenses = queryFactory
                 .selectFrom(expense)
@@ -53,8 +53,6 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
 
     @Override
     public Slice<Expense> findAllByMemberAndDate(String memberId, LocalDate date, Long lastExpenseId, Pageable pageable) {
-        QExpense expense = QExpense.expense;
-        QCategory category = QCategory.category;
 
         JPAQuery<Expense> query = queryFactory
                 .selectFrom(expense)
@@ -78,8 +76,6 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
 
     @Override
     public Slice<Expense> findAllByMemberAndDateAndCategoryId(String memberId, LocalDate lastDate, Long lastExpenseId, LocalDate startDate, LocalDate endDate, Long categoryId, Pageable pageable) {
-        QExpense expense = QExpense.expense;
-        QCategory category = QCategory.category;
 
         JPAQuery<Expense> query = queryFactory
                 .selectFrom(expense)
@@ -118,8 +114,6 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
 
     @Override
     public Long sumCategoryExpenseWithinGoal(String memberId, Category category, Goal goal) {
-        QExpense expense = QExpense.expense;
-
         Long sum = queryFactory
                 .select(expense.cost.sum())
                 .from(expense)
@@ -132,8 +126,6 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
 
     @Override
     public Long sumCostByMemberAndDateBetween(String memberId, LocalDate startDate, LocalDate endDate) {
-        QExpense expense = QExpense.expense;
-
         Long sum = queryFactory
                 .select(expense.cost.sum())
                 .from(expense)
@@ -147,9 +139,6 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
     public Slice<Expense> findByMemberAndTitleContaining(String memberId, String searchKeyword, LocalDate lastDate, Long lastExpenseId, int size, String order){
         Sort.Direction direction = order.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, "date");
-
-        QExpense expense = QExpense.expense;
-        QCategory category = QCategory.category;
 
         JPAQuery<Expense> query = queryFactory
                 .selectFrom(expense)
@@ -185,7 +174,7 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
 
     private BooleanExpression searchTitle(String searchKeyword){
         if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
-            return QExpense.expense.title.containsIgnoreCase(searchKeyword);
+            return expense.title.containsIgnoreCase(searchKeyword);
         }
         return null;
     }
