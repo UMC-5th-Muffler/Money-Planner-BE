@@ -58,10 +58,10 @@ public class ExpenseConverter {
                 .build();
     }
 
-    public static WeeklyExpenseResponse toWeeklyExpensesResponse(List<DailyExpensesDto> dailyExpensesDtos, Slice<Expense> expenseList){
+    public static WeeklyExpenseResponse toWeeklyExpensesResponse(List<DailyExpensesDto> dailyExpensesDtos, boolean hasNext){
         return WeeklyExpenseResponse.builder()
                 .dailyExpenseList(dailyExpensesDtos)
-                .hasNext(expenseList.hasNext())
+                .hasNext(hasNext)
                 .build();
     }
 
@@ -98,16 +98,16 @@ public class ExpenseConverter {
         }).collect(Collectors.toList());
     }
 
-    public static MonthlyExpenseResponse toMonthlyExpensesResponse(List<DailyExpensesDto> dailyExpensesDtos, Slice<Expense> expenseList) {
+    public static MonthlyExpenseResponse toMonthlyExpensesResponse(List<DailyExpensesDto> dailyExpensesDtos, boolean hasNext) {
         return MonthlyExpenseResponse.builder()
-                .hasNext(expenseList.hasNext())
+                .hasNext(hasNext)
                 .dailyExpenseList(dailyExpensesDtos)
                 .build();
     }
 
-    public static SearchResponse toSearchResponse(List<DailyExpensesDto> expenses, boolean hasNext) {
+    public static SearchResponse toSearchResponse(List<DailyExpensesDto> dailyExpensesDtos, boolean hasNext) {
         return SearchResponse.builder()
-                .dailyExpenseList(expenses)
+                .dailyExpenseList(dailyExpensesDtos)
                 .hasNext(hasNext)
                 .build();
     }

@@ -50,7 +50,6 @@ public class ExpenseViewService {
         Slice<Expense> expenseList = expenseRepository.findAllByMemberAndDate(memberId, date, lastExpenseId, pageable);
 
         DailyExpenseResponse response = ExpenseConverter.toDailyExpensesListWithTotalCost(expenseList);
-
         return response;
     }
 
@@ -83,9 +82,8 @@ public class ExpenseViewService {
                     return dailyPlan.getTotalCost();
                 }));
 
-
         List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesListWithTotalCost(expensesByDate, dailyTotalCostMap);
-        WeeklyExpenseResponse response = ExpenseConverter.toWeeklyExpensesResponse(dailyExpensesDtos, expenseList);
+        WeeklyExpenseResponse response = ExpenseConverter.toWeeklyExpensesResponse(dailyExpensesDtos, expenseList.hasNext());
 
         return response;
     }
@@ -127,7 +125,7 @@ public class ExpenseViewService {
                 }));
 
         List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesListWithTotalCost(expensesByDate, dailyTotalCostMap);
-        return ExpenseConverter.toMonthlyExpensesResponse(dailyExpensesDtos, expenseList);
+        return ExpenseConverter.toMonthlyExpensesResponse(dailyExpensesDtos, expenseList.hasNext());
     }
 
     public MonthlyExpenseResponse getMonthlyExpensesWithCategory(String memberId, YearMonth yearMonth, Long goalId, Long categoryId, String order, LocalDate lastDate, Long lastExpenseId, int size){
@@ -153,7 +151,7 @@ public class ExpenseViewService {
                 .collect(Collectors.groupingBy(Expense::getDate, LinkedHashMap::new, Collectors.toList()));
 
         List<DailyExpensesDto> dailyExpensesDtos = ExpenseConverter.toDailyExpensesList(expensesByDate);
-        return ExpenseConverter.toMonthlyExpensesResponse(dailyExpensesDtos, expenseList);
+        return ExpenseConverter.toMonthlyExpensesResponse(dailyExpensesDtos, expenseList.hasNext());
     }
 
     private LocalDate getStartDate(Goal goal, YearMonth yearMonth) {
