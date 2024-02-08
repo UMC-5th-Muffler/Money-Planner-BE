@@ -211,13 +211,12 @@ class ExpenseControllerTest {
                 .hasNext(false)
                 .build();
 
-        when(expenseSearchService.searchExpense("user", "title", 0, 2, "ASC")).thenReturn(mockResponse);
+        when(expenseSearchService.searchExpense("user", "title", 2, "ASC", null, null)).thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/expense/search")
                         .param("title", "title")
-                        .param("page", "0")
                         .param("size", "2")
-                        .param("sort", "ASC"))
+                        .param("order", "ASC"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.dailyExpenseList", hasSize(1)))
                 .andExpect(jsonPath("$.result.hasNext", is(mockResponse.isHasNext())));
