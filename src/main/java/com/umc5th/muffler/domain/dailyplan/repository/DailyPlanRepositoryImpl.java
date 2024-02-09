@@ -44,6 +44,7 @@ public class DailyPlanRepositoryImpl implements DailyPlanRepositoryCustom {
                 .join(dailyPlan).on(dailyPlan.goal.member.id.eq(member.id))
                 .where(
                         dailyPlan.date.eq(date),
+                        memberAlarm.token.isNotNull(),
                         memberAlarm.isDailyPlanRemindAgree.eq(true)
                 )
                 .fetch();
