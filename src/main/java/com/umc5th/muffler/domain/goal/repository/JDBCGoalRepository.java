@@ -2,6 +2,7 @@ package com.umc5th.muffler.domain.goal.repository;
 
 import static java.sql.Statement.CLOSE_CURRENT_RESULT;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +22,7 @@ public class JDBCGoalRepository {
     public static class UpdateTotalCost {
         private Long dailyPlanId;
         private Long totalCost;
+        private LocalDateTime now;
 
         public void addCost(Long cost) {
             this.totalCost += cost;
@@ -49,7 +51,8 @@ public class JDBCGoalRepository {
     }
 
     private int[] saveBatchTotalCosts(List<UpdateTotalCost> batchTotalCost) {
-        String sql = "UPDATE daily_plan SET total_cost = :totalCost WHERE id = :dailyPlanId";
+        String sql = "UPDATE daily_plan SET total_cost = :totalCost, is_zero_day = false, "
+                + "last_modified_at = :now WHERE id = :dailyPlanId";
         return namedParameterJdbcTemplate.batchUpdate(sql, SqlParameterSourceUtils.createBatch(batchTotalCost));
     }
 }

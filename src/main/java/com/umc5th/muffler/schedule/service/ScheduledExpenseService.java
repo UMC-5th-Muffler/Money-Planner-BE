@@ -42,13 +42,15 @@ public class ScheduledExpenseService {
 
     private List<UpdateTotalCost> toUpdateTotalCostList(List<InsertableRoutine> routines) {
         Map<Long, UpdateTotalCost> updateMap = new HashMap<>();
+        LocalDateTime now = LocalDateTime.now();
 
         for (InsertableRoutine routine : routines) {
             if (updateMap.containsKey(routine.getDailyPlanId())) {
                 UpdateTotalCost updateTotalCost = updateMap.get(routine.getDailyPlanId());
                 updateTotalCost.addCost(routine.getRoutineCost());
             } else {
-                updateMap.put(routine.getDailyPlanId(), new UpdateTotalCost(routine.getDailyPlanId(), routine.getRoutineCost()));
+                updateMap.put(routine.getDailyPlanId(),
+                        new UpdateTotalCost(routine.getDailyPlanId(), routine.getRoutineCost() + routine.getDailyPlanTotalCost(), now));
             }
         }
         return updateMap.values().stream().collect(Collectors.toList());
@@ -62,8 +64,7 @@ public class ScheduledExpenseService {
                 .memo(insertableRoutine.getRoutineMemo())
                 .memberId(insertableRoutine.getMemberId())
                 .categoryId(insertableRoutine.getCategoryId())
-                .createAt(LocalDateTime.now())
-                .updateAt(LocalDateTime.now())
+                .now(LocalDateTime.now())
                 .build();
     }
 }

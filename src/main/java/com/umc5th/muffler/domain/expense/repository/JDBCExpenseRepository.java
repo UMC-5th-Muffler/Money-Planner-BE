@@ -32,8 +32,7 @@ public class JDBCExpenseRepository {
         private String memberId;
         private Long categoryId;
 
-        private LocalDateTime createAt;
-        private LocalDateTime updateAt;
+        private LocalDateTime now;
     }
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -61,8 +60,8 @@ public class JDBCExpenseRepository {
 
 
     private int[] saveBatch(List<InsertExpenseEntity> expenses) {
-        String sql = "INSERT INTO expense (title, memo, cost, member_id, category_id, date) "
-                + " VALUES (:title, :memo, :cost, :memberId, :categoryId, :date)";
+        String sql = "INSERT INTO expense (title, memo, cost, member_id, category_id, date, created_at, last_modified_at) "
+                + " VALUES (:title, :memo, :cost, :memberId, :categoryId, :date, :now ,:now)";
         return this.namedParameterJdbcTemplate.batchUpdate(sql,
                 SqlParameterSourceUtils.createBatch(expenses));
     }

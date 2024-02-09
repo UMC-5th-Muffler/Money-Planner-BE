@@ -13,6 +13,7 @@ import com.umc5th.muffler.fixture.CategoryFixture;
 import com.umc5th.muffler.fixture.GoalFixture;
 import com.umc5th.muffler.fixture.MemberFixture;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -42,7 +43,7 @@ class JDBCGoalRepositoryBatchGoalInsertTest {
         List<UpdateTotalCost> updateTotalCosts = new ArrayList<>();
         List<DailyPlan> dailyPlans = goal.getDailyPlans();
         for (DailyPlan dailyPlan : dailyPlans){
-            updateTotalCosts.add(new UpdateTotalCost(dailyPlan.getId(), 100L));
+            updateTotalCosts.add(new UpdateTotalCost(dailyPlan.getId(), 100L, LocalDateTime.now()));
         }
         int errorCount = jdbcGoalRepository.saveTotalCosts(updateTotalCosts);
         assertEquals(0, errorCount);
