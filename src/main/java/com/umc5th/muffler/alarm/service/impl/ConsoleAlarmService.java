@@ -1,6 +1,6 @@
 package com.umc5th.muffler.alarm.service.impl;
 
-import com.umc5th.muffler.alarm.dto.Alarmable;
+import com.umc5th.muffler.alarm.service.Alarmable;
 import com.umc5th.muffler.alarm.service.AlarmService;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -18,8 +18,8 @@ public class ConsoleAlarmService implements AlarmService {
     }
 
     @Override
-    public <T extends Alarmable> void sendAlarms(List<T> alarmables) {
-        alarmables.forEach(alarmable -> {
+    public <T extends Alarmable> void sendAlarms(List<T> alarms) {
+        alarms.forEach(alarmable -> {
             System.out.printf("send to : %s\n", alarmable.getToken());
             System.out.printf("title : %s\nbody : %s\n", alarmable.getTitle(), alarmable.getBody());
         });

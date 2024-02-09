@@ -1,4 +1,4 @@
-package com.umc5th.muffler.alarm.dto;
+package com.umc5th.muffler.alarm.service;
 
 
 public interface Alarmable {
