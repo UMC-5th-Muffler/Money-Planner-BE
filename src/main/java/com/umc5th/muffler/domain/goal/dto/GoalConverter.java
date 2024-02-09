@@ -5,10 +5,7 @@ import com.umc5th.muffler.entity.DailyPlan;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Goal;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class GoalConverter {
@@ -59,16 +56,29 @@ public class GoalConverter {
         List<CategoryGoalReportDto> sortedCategoryReports = new ArrayList<>(categoryReportsMap.values());
         sortedCategoryReports.sort(Comparator.comparingLong(CategoryGoalReportDto::getTotalCost).reversed());
 
-        String mostUsedCategory = sortedCategoryReports.isEmpty() ? null : sortedCategoryReports.get(0).getCategoryName();
+        // expenses에 대한 카테고리별 총 비용 계산
+        List<CategoryTotalCostDto> categoryTotalCosts = getCategoryTotalCosts(expenses);
+        String mostUsedCategory = categoryTotalCosts.isEmpty() ? null : categoryTotalCosts.get(0).getCategoryName();
 
         return GoalReportResponse.builder()
                 .goalBudget(goal.getTotalBudget())
                 .totalCost(totalCost)
                 .dailyAvgCost(dailyAvgCost)
                 .mostUsedCategory(mostUsedCategory)
-                .categoryReports(sortedCategoryReports)
+                .categoryTotalCosts(categoryTotalCosts)
+                .categoryGoalReports(sortedCategoryReports)
                 .zeroDayCount(zeroDayCount)
                 .build();
+    }
+
+    private static List<CategoryTotalCostDto> getCategoryTotalCosts(List<Expense> expenses) {
+        return expenses.stream()
+                .collect(Collectors.groupingBy(expense -> expense.getCategory().getName(),
+                        Collectors.summingLong(Expense::getCost)))
+                .entrySet().stream()
+                .map(entry -> new CategoryTotalCostDto(entry.getKey(), entry.getValue()))
+                .sorted(Comparator.comparingLong(CategoryTotalCostDto::getTotalCost).reversed())
+                .collect(Collectors.toList());
     }
 
     private static Map<Long, CategoryGoalReportDto> initCtegoryReportsMap(List<CategoryGoal> categoryGoals) {
@@ -84,12 +94,10 @@ public class GoalConverter {
     }
 
     private static void updateCategoryReports(Map<Long, CategoryGoalReportDto> categoryReportsMap, List<Expense> expenses) {
-        if (expenses != null) {
-            for (Expense expense : expenses) {
-                CategoryGoalReportDto report = categoryReportsMap.get(expense.getCategory().getId());
-                if (report != null) {
-                    report.addExpense(expense.getCost());
-                }
+        for (Expense expense : expenses) {
+            CategoryGoalReportDto report = categoryReportsMap.get(expense.getCategory().getId());
+            if (report != null) {
+                report.addExpense(expense.getCost());
             }
         }
     }

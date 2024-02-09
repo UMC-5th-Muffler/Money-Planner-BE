@@ -17,5 +17,6 @@ public class GoalReportResponse {
     private long dailyAvgCost;
     private String mostUsedCategory;
     private long zeroDayCount;
-    private List<CategoryGoalReportDto> categoryReports;
+    private List<CategoryTotalCostDto> categoryTotalCosts;
+    private List<CategoryGoalReportDto> categoryGoalReports;
 }

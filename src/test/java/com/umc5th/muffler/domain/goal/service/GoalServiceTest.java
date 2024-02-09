@@ -238,7 +238,7 @@ class GoalServiceTest {
         GoalReportResponse response = goalService.getReport(goalId, memberId);
 
         assertEquals(response.getTotalCost(), plan1.getTotalCost() + plan2.getTotalCost());
-        assertEquals(response.getCategoryReports().get(0).getCategoryBudget(), categoryGoal.getBudget());
+        assertEquals(response.getCategoryGoalReports().get(0).getCategoryBudget(), categoryGoal.getBudget());
 
         verify(memberRepository).findById(memberId);
         verify(goalRepository).findByIdWithCategoryGoals(goalId, memberId);
