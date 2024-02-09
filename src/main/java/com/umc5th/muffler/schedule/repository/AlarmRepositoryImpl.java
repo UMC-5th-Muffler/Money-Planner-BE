@@ -29,7 +29,10 @@ public class AlarmRepositoryImpl implements AlarmRepository {
                 .from(member)
                 .join(memberAlarm).on(memberAlarm.member.id.eq(member.id))
                 .join(dailyPlan).on(dailyPlan.goal.member.id.eq(member.id))
-                .where(dailyPlan.date.eq(date))
+                .where(
+                        dailyPlan.date.eq(date),
+                        memberAlarm.isDailyPlanRemindAgree.eq(true)
+                )
                 .fetch();
     }
 }

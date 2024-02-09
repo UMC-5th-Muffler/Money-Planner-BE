@@ -33,7 +33,19 @@ public class MemberAlarm extends BaseTimeEntity {
 
     @Column(nullable = false)
     @ColumnDefault("true")
-    private Boolean isAgree;
+    private Boolean isDailyPlanRemindAgree;
+
+    @Column(nullable = false)
+    @ColumnDefault("true")
+    private Boolean isTodayEnrollRemindAgree;
+
+    @Column(nullable = false)
+    @ColumnDefault("true")
+    private Boolean isYesterdayEnrollRemindAgree;
+
+    @Column(nullable = false)
+    @ColumnDefault("true")
+    private Boolean isGoalEndReportRemindAgree;
 
     @OneToOne
     private Member member;
