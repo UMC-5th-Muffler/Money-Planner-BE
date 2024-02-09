@@ -43,21 +43,31 @@ public class GoalConverter {
         }
         long dailyAvgCost = dailyPlans.isEmpty() ? 0 : totalCost / dailyPlans.size();
 
-        // CategoryGoalReportDto를 카테고리 ID별로 그룹화하여 초기화
         Map<Long, CategoryGoalReportDto> categoryReportsMap = initCtegoryReportsMap(categoryGoals);
-        // expenses 순회하면서 categoryReportsMap 업데이트
-        updateCategoryReports(categoryReportsMap, expenses);
-        // 카테고리별 avgCost 계산
-        for (CategoryGoalReportDto report : categoryReportsMap.values()) {
-            report.calculateAvgCost();
+        Map<String, Long> categoryTotalCostsMap = new HashMap<>();
+
+        for (Expense expense : expenses) {
+            String categoryName = expense.getCategory().getName();
+            Long categoryId = expense.getCategory().getId();
+
+            // 카테고리별 총 비용 업데이트
+            categoryTotalCostsMap.put(categoryName, categoryTotalCostsMap.getOrDefault(categoryName, 0L) + expense.getCost());
+
+            // 해당 카테고리에 대한 리포트가 존재하는 경우(목표를 세운 카테고리의 경우) 업데이트
+            CategoryGoalReportDto report = categoryReportsMap.get(categoryId);
+            if (report != null) {
+                report.addExpense(expense.getCost());
+            }
         }
 
-        // totalCost가 높은 순서로 카테고리 리포트 정렬
-        List<CategoryGoalReportDto> sortedCategoryReports = new ArrayList<>(categoryReportsMap.values());
-        sortedCategoryReports.sort(Comparator.comparingLong(CategoryGoalReportDto::getTotalCost).reversed());
+        List<CategoryTotalCostDto> categoryTotalCosts = categoryTotalCostsMap.entrySet().stream()
+                .map(entry -> new CategoryTotalCostDto(entry.getKey(), entry.getValue()))
+                .sorted(Comparator.comparingLong(CategoryTotalCostDto::getTotalCost).reversed())
+                .collect(Collectors.toList());
 
-        // expenses에 대한 카테고리별 총 비용 계산
-        List<CategoryTotalCostDto> categoryTotalCosts = getCategoryTotalCosts(expenses);
+        List<CategoryGoalReportDto> categoryGoalReports = new ArrayList<>(categoryReportsMap.values());
+        categoryGoalReports.sort(Comparator.comparingLong(CategoryGoalReportDto::getTotalCost).reversed());
+
         String mostUsedCategory = categoryTotalCosts.isEmpty() ? null : categoryTotalCosts.get(0).getCategoryName();
 
         return GoalReportResponse.builder()
@@ -66,19 +76,9 @@ public class GoalConverter {
                 .dailyAvgCost(dailyAvgCost)
                 .mostUsedCategory(mostUsedCategory)
                 .categoryTotalCosts(categoryTotalCosts)
-                .categoryGoalReports(sortedCategoryReports)
+                .categoryGoalReports(categoryGoalReports)
                 .zeroDayCount(zeroDayCount)
                 .build();
-    }
-
-    private static List<CategoryTotalCostDto> getCategoryTotalCosts(List<Expense> expenses) {
-        return expenses.stream()
-                .collect(Collectors.groupingBy(expense -> expense.getCategory().getName(),
-                        Collectors.summingLong(Expense::getCost)))
-                .entrySet().stream()
-                .map(entry -> new CategoryTotalCostDto(entry.getKey(), entry.getValue()))
-                .sorted(Comparator.comparingLong(CategoryTotalCostDto::getTotalCost).reversed())
-                .collect(Collectors.toList());
     }
 
     private static Map<Long, CategoryGoalReportDto> initCtegoryReportsMap(List<CategoryGoal> categoryGoals) {
@@ -91,15 +91,6 @@ public class GoalConverter {
                                 categoryGoal.getBudget(),
                                 0L, 0L, 0L, 0)
                 ));
-    }
-
-    private static void updateCategoryReports(Map<Long, CategoryGoalReportDto> categoryReportsMap, List<Expense> expenses) {
-        for (Expense expense : expenses) {
-            CategoryGoalReportDto report = categoryReportsMap.get(expense.getCategory().getId());
-            if (report != null) {
-                report.addExpense(expense.getCost());
-            }
-        }
     }
 
     public static GoalInfo getNowGoalResponse(Goal goal, Long totalCost) {
