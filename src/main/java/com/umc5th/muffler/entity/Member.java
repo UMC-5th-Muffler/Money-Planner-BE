@@ -6,7 +6,8 @@ import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import com.umc5th.muffler.entity.constant.Role;
 import com.umc5th.muffler.entity.constant.SocialType;
 import com.umc5th.muffler.entity.constant.Status;
-import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,6 +37,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Getter
+@DynamicInsert
+@DynamicUpdate
 @Table(name = "members")
 public class Member extends BaseTimeEntity implements Persistable<String>, UserDetails {
 
@@ -65,6 +68,9 @@ public class Member extends BaseTimeEntity implements Persistable<String>, UserD
     @Builder.Default
     private List<Category> categories = new ArrayList<>();
 
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.ALL)
+    private MemberAlarm memberAlarm;
+
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
@@ -80,6 +86,10 @@ public class Member extends BaseTimeEntity implements Persistable<String>, UserD
     public void addCategory(Category category) {
         category.setMember(this);
         this.categories.add(category);
+    }
+    public void setMemberAlarm(MemberAlarm memberAlarm) {
+        memberAlarm.setMember(this);
+        this.memberAlarm = memberAlarm;
     }
 
     @Override
