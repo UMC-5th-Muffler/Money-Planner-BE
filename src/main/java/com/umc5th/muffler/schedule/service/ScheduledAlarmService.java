@@ -1,9 +1,9 @@
 package com.umc5th.muffler.schedule.service;
 
-import com.umc5th.muffler.alarm.service.AlarmService;
 import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
 import com.umc5th.muffler.global.util.DateTimeProvider;
 import com.umc5th.muffler.domain.dailyplan.dto.DailyPlanAlarm;
+import com.umc5th.muffler.message.service.AlarmService;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class ScheduledAlarmService {
     @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul")
     public void alarmTodayPlan() {
         LocalDate today = dateTimeProvider.nowDate();
-        List<DailyPlanAlarm> alarms = dailyPlanRepository.findDailyPlanAlarms(today);
-        alarmService.sendAlarms(alarms);
+        List<DailyPlanAlarm> data = dailyPlanRepository.findDailyPlanAlarms(today);
+        alarmService.sendDailyAlarms(data);
     }
 }
