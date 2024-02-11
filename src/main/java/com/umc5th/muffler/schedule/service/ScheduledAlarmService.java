@@ -1,8 +1,7 @@
 package com.umc5th.muffler.schedule.service;
 
 import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
-import com.umc5th.muffler.domain.member.dto.TodayNotEnrolledMember;
-import com.umc5th.muffler.domain.member.dto.YesterdayNotEnrolledMember;
+import com.umc5th.muffler.domain.member.dto.NotEnrolledMember;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.global.util.DateTimeProvider;
 import com.umc5th.muffler.domain.dailyplan.dto.DailyPlanAlarm;
@@ -34,7 +33,7 @@ public class ScheduledAlarmService {
     @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul")
     public void alarmYesterdayNotEnrolled() {
         LocalDate yesterday = dateTimeProvider.nowDate().minusDays(1);
-        List<YesterdayNotEnrolledMember> data = memberRepository.findYesterdayNotEnrolledMember(yesterday);
+        List<NotEnrolledMember> data = memberRepository.findYesterdayNotEnrolledMember(yesterday);
         alarmService.sendYesterdayNotEnrolled(data);
     }
 
@@ -42,7 +41,7 @@ public class ScheduledAlarmService {
     @Scheduled(cron = "0 0 21 * * *", zone = "Asia/Seoul")
     public void alarmTodayNotEnrolled() {
         LocalDate today = dateTimeProvider.nowDate();
-        List<TodayNotEnrolledMember> data = memberRepository.findTodayNotEnrolledMember(today);
+        List<NotEnrolledMember> data = memberRepository.findTodayNotEnrolledMember(today);
         alarmService.sendTodayNotEnrolled(data);
     }
 }

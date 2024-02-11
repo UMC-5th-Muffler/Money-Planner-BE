@@ -5,7 +5,7 @@ import com.umc5th.muffler.message.dto.Alarmable;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class TodayNotEnrolledMember implements Alarmable {
+public class NotEnrolledMember implements Alarmable {
     private String alarmToken;
 
     @Override
