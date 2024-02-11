@@ -21,7 +21,7 @@ public class InternalAlarmService implements AlarmService {
     @Override
     public List<String> sendDailyAlarms(List<DailyPlanAlarm> dailyPlanAlarms) {
         List<Message> messages = dailyPlanAlarms.stream()
-                .map(MessageFormatter::from)
+                .map(MessageFormatter::toDailyPlanRemind)
                 .collect(Collectors.toList());
         return sender.send(messages);
     }
