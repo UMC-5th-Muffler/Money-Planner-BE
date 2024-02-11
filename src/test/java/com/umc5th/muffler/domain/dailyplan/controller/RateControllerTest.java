@@ -49,7 +49,7 @@ class RateControllerTest {
                 .dailyTotalCost(1000L)
                 .dailyPlanBudget(5000L)
                 .rate(Rate.HIGH)
-                .memo("memo")
+                .rateMemo("memo")
                 .build();
 
         when(rateService.getRateInfo(any(), eq(date))).thenReturn(mockResponse);
