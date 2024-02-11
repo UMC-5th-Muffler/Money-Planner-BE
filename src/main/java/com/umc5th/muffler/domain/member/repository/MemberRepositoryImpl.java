@@ -9,20 +9,16 @@ import com.umc5th.muffler.entity.QDailyPlan;
 import com.umc5th.muffler.entity.QExpense;
 import com.umc5th.muffler.entity.QGoal;
 import com.umc5th.muffler.entity.QMemberAlarm;
-import com.umc5th.muffler.global.util.DefaultDateTimeProvider;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class MemberRepositoryImpl implements MemberRepositoryCustom{
-    private final DefaultDateTimeProvider dateTimeProvider;
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<TodayNotEnrolledMember> findTodayNotEnrolledMember() {
-        LocalDate today = dateTimeProvider.nowDate();
-
+    public List<TodayNotEnrolledMember> findTodayNotEnrolledMember(LocalDate today) {
         QMemberAlarm memberAlarm = QMemberAlarm.memberAlarm;
         QExpense expense = QExpense.expense;
         QGoal goal = QGoal.goal;
@@ -47,9 +43,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom{
     }
 
     @Override
-    public List<YesterdayNotEnrolledMember> findYesterdayNotEnrolledMember() {
-        LocalDate yesterday = dateTimeProvider.nowDate();
-
+    public List<YesterdayNotEnrolledMember> findYesterdayNotEnrolledMember(LocalDate yesterday) {
         QMemberAlarm memberAlarm = QMemberAlarm.memberAlarm;
         QExpense expense = QExpense.expense;
         QGoal goal = QGoal.goal;
