@@ -2,6 +2,7 @@ package com.umc5th.muffler.message.service.internal;
 
 import com.umc5th.muffler.domain.dailyplan.dto.DailyPlanAlarm;
 import com.umc5th.muffler.domain.member.dto.TodayNotEnrolledMember;
+import com.umc5th.muffler.domain.member.dto.YesterdayNotEnrolledMember;
 import com.umc5th.muffler.message.dto.Message;
 import com.umc5th.muffler.message.service.internal.sender.InternalAlarmSender;
 import com.umc5th.muffler.message.service.internal.sender.impl.ConsoleInternalAlarmSender;
@@ -36,7 +37,7 @@ public class InternalAlarmService implements AlarmService {
     }
 
     @Override
-    public List<String> sendYesterdayNotEnrolled(List<TodayNotEnrolledMember> notEnrolledMembers) {
+    public List<String> sendYesterdayNotEnrolled(List<YesterdayNotEnrolledMember> notEnrolledMembers) {
         List<Message> messages = notEnrolledMembers.stream()
                 .map((member) -> MessageFormatter.toYesterdayNotEnrollRemind())
                 .collect(Collectors.toList());

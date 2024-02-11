@@ -1,6 +1,9 @@
 package com.umc5th.muffler.schedule.service;
 
 import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
+import com.umc5th.muffler.domain.member.dto.TodayNotEnrolledMember;
+import com.umc5th.muffler.domain.member.dto.YesterdayNotEnrolledMember;
+import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.global.util.DateTimeProvider;
 import com.umc5th.muffler.domain.dailyplan.dto.DailyPlanAlarm;
 import com.umc5th.muffler.message.service.AlarmService;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ScheduledAlarmService {
     private final DateTimeProvider dateTimeProvider;
     private final DailyPlanRepository dailyPlanRepository;
+    private final MemberRepository memberRepository;
     private final AlarmService alarmService;
 
     @Transactional(readOnly = true)
@@ -24,5 +28,21 @@ public class ScheduledAlarmService {
         LocalDate today = dateTimeProvider.nowDate();
         List<DailyPlanAlarm> data = dailyPlanRepository.findDailyPlanAlarms(today);
         alarmService.sendDailyAlarms(data);
+    }
+
+    @Transactional(readOnly = true)
+    @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul")
+    public void alarmYesterdayNotEnrolled() {
+        LocalDate yesterday = dateTimeProvider.nowDate().minusDays(1);
+        List<YesterdayNotEnrolledMember> data = memberRepository.findYesterdayNotEnrolledMember(yesterday);
+        alarmService.sendYesterdayNotEnrolled(data);
+    }
+
+    @Transactional(readOnly = true)
+    @Scheduled(cron = "0 0 21 * * *", zone = "Asia/Seoul")
+    public void alarmTodayNotEnrolled() {
+        LocalDate today = dateTimeProvider.nowDate();
+        List<TodayNotEnrolledMember> data = memberRepository.findTodayNotEnrolledMember(today);
+        alarmService.sendTodayNotEnrolled(data);
     }
 }
