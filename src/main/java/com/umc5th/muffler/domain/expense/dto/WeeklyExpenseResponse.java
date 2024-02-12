@@ -14,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 public class WeeklyExpenseResponse {
 
-    private List<CategoryDetailDto> categoryList;
     private List<DailyExpensesDto> dailyExpenseList;
     private boolean hasNext;
 }
