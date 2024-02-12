@@ -12,10 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GoalReportResponse {
-    private long goalBudget;
-    private long totalCost;
-    private long dailyAvgCost;
-    private String mostUsedCategory;
     private long zeroDayCount;
     private List<CategoryTotalCostDto> categoryTotalCosts;
     private List<CategoryGoalReportDto> categoryGoalReports;

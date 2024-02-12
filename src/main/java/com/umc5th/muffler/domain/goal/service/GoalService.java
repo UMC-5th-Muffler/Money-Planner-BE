@@ -59,7 +59,7 @@ public class GoalService {
         List<CategoryGoal> categoryGoals = goal.getCategoryGoals();
         List<Expense> expenses = expenseRepository.findAllByMemberAndDateBetween(member, goal.getStartDate(), goal.getEndDate());
 
-        return GoalConverter.getGoalReportResponse(goal, categoryGoals, dailyPlans, expenses);
+        return GoalConverter.getGoalReportResponse(categoryGoals, dailyPlans, expenses);
     }
 
     public GoalGetResponse getGoalWithTotalCost(Long goalId, String memberId){

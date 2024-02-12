@@ -31,17 +31,8 @@ public class GoalConverter {
                 .build();
     }
 
-    public static GoalReportResponse getGoalReportResponse(Goal goal, List<CategoryGoal> categoryGoals, List<DailyPlan> dailyPlans, List<Expense> expenses) {
-        // zeroDayCount와 totalCost 계산
-        long zeroDayCount = 0;
-        long totalCost = 0;
-        for (DailyPlan dailyPlan : dailyPlans) {
-            if (dailyPlan.getIsZeroDay()) {
-                zeroDayCount++;
-            }
-            totalCost += dailyPlan.getTotalCost();
-        }
-        long dailyAvgCost = dailyPlans.isEmpty() ? 0 : totalCost / dailyPlans.size();
+    public static GoalReportResponse getGoalReportResponse(List<CategoryGoal> categoryGoals, List<DailyPlan> dailyPlans, List<Expense> expenses) {
+        long zeroDayCount = dailyPlans.stream().filter(DailyPlan::getIsZeroDay).count();
 
         Map<Long, CategoryGoalReportDto> categoryReportsMap = initCategoryReportsMap(categoryGoals);
         Map<String, Long> categoryTotalCostsMap = new HashMap<>();
@@ -71,13 +62,7 @@ public class GoalConverter {
             categoryGoalReport.calculateAvgCost();
         }
 
-        String mostUsedCategory = categoryTotalCosts.isEmpty() ? null : categoryTotalCosts.get(0).getCategoryName();
-
         return GoalReportResponse.builder()
-                .goalBudget(goal.getTotalBudget())
-                .totalCost(totalCost)
-                .dailyAvgCost(dailyAvgCost)
-                .mostUsedCategory(mostUsedCategory)
                 .categoryTotalCosts(categoryTotalCosts)
                 .categoryGoalReports(categoryGoalReports)
                 .zeroDayCount(zeroDayCount)
