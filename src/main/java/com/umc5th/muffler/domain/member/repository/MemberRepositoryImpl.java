@@ -23,7 +23,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom{
         QDailyPlan dailyPlan = QDailyPlan.dailyPlan;
 
         return queryFactory.select(
-                        Projections.fields(NotEnrolledMember.class,
+                        Projections.constructor(NotEnrolledMember.class,
                                 memberAlarm.token.as("alarmToken")))
                 .from(memberAlarm)
                 .join(goal).on(goal.member.id.eq(memberAlarm.member.id))

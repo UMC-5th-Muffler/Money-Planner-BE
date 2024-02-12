@@ -37,7 +37,7 @@ public class DailyPlanRepositoryImpl implements DailyPlanRepositoryCustom {
         QDailyPlan dailyPlan = QDailyPlan.dailyPlan;
 
         return queryFactory
-                .select(Projections.fields(DailyPlanAlarm.class,
+                .select(Projections.constructor(DailyPlanAlarm.class,
                         member.name.as("memberName"),
                         dailyPlan.budget.as("dailyBudget"),
                         memberAlarm.token.as("alarmToken")))
