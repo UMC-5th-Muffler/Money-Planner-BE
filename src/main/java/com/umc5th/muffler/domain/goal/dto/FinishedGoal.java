@@ -8,5 +8,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class FinishedGoal implements Alarmable {
     private String goalTitle;
+    private String goalIcon;
     private String token;
 }
