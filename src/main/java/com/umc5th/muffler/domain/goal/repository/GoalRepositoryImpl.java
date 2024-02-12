@@ -1,10 +1,13 @@
 package com.umc5th.muffler.domain.goal.repository;
 
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.DatePath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.umc5th.muffler.domain.goal.dto.FinishedGoal;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.QGoal;
+import com.umc5th.muffler.entity.QMemberAlarm;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
@@ -55,6 +58,24 @@ public class GoalRepositoryImpl implements GoalRepositoryCustom {
         }
 
         return new SliceImpl<>(goals, pageable, hasNext);
+    }
+
+    @Override
+    public List<FinishedGoal> findFinishedGoals(LocalDate date) {
+        QGoal goal = QGoal.goal;
+        QMemberAlarm memberAlarm = QMemberAlarm.memberAlarm;
+
+        return queryFactory.select(
+                    Projections.fields(FinishedGoal.class,
+                        goal.title.as("goalTitle"),
+                        memberAlarm.token.as("token")
+                    ))
+                .from(goal)
+                .join(memberAlarm).on(memberAlarm.member.id.eq(goal.member.id))
+                .where(
+                    goal.endDate.eq(date),
+                    memberAlarm.isGoalEndReportRemindAgree.eq(true)
+                ).fetch();
     }
 
     private BooleanExpression dateNotBetween(LocalDate date, DatePath<LocalDate> startDate, DatePath<LocalDate> endDate) {
