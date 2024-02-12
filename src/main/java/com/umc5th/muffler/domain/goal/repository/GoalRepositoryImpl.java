@@ -66,14 +66,16 @@ public class GoalRepositoryImpl implements GoalRepositoryCustom {
         QMemberAlarm memberAlarm = QMemberAlarm.memberAlarm;
 
         return queryFactory.select(
-                    Projections.fields(FinishedGoal.class,
+                    Projections.constructor(FinishedGoal.class,
                         goal.title.as("goalTitle"),
+                        goal.icon.as("goalIcon"),
                         memberAlarm.token.as("token")
                     ))
                 .from(goal)
                 .join(memberAlarm).on(memberAlarm.member.id.eq(goal.member.id))
                 .where(
                     goal.endDate.eq(date),
+                    memberAlarm.token.isNotNull(),
                     memberAlarm.isGoalEndReportRemindAgree.eq(true)
                 ).fetch();
     }
