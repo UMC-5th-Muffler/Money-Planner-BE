@@ -10,17 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DailyPlanAlarm implements Alarmable {
-    private static final String TITLE = "당일 목표 금액 리마인드";
-    private Long memberName;
-    private String alarmToken;
+    private String memberName;
     private Long dailyBudget;
-
-    @QueryProjection
-    public DailyPlanAlarm(Long memberName, Long dailyBudget, String alarmToken) {
-        this.memberName = memberName;
-        this.dailyBudget = dailyBudget;
-        this.alarmToken = alarmToken;
-    }
+    private String alarmToken;
 
     @Override
     public String getToken() {

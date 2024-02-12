@@ -5,6 +5,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.umc5th.muffler.domain.dailyplan.dto.DailyPlanAlarm;
 import com.umc5th.muffler.entity.QDailyPlan;
+import com.umc5th.muffler.entity.QGoal;
 import com.umc5th.muffler.entity.QMember;
 import com.umc5th.muffler.entity.QMemberAlarm;
 import java.time.LocalDate;
@@ -32,6 +33,7 @@ public class DailyPlanRepositoryImpl implements DailyPlanRepositoryCustom {
     public List<DailyPlanAlarm> findDailyPlanAlarms(LocalDate date) {
         QMemberAlarm memberAlarm =  QMemberAlarm.memberAlarm;
         QMember member = QMember.member;
+        QGoal goal = QGoal.goal;
         QDailyPlan dailyPlan = QDailyPlan.dailyPlan;
 
         return queryFactory
@@ -41,7 +43,8 @@ public class DailyPlanRepositoryImpl implements DailyPlanRepositoryCustom {
                         memberAlarm.token.as("alarmToken")))
                 .from(member)
                 .join(memberAlarm).on(memberAlarm.member.id.eq(member.id))
-                .join(dailyPlan).on(dailyPlan.goal.member.id.eq(member.id))
+                .join(goal).on(goal.member.id.eq(member.id))
+                .join(dailyPlan).on(dailyPlan.goal.id.eq(goal.id))
                 .where(
                         dailyPlan.date.eq(date),
                         memberAlarm.token.isNotNull(),
