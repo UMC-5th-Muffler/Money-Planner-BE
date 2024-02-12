@@ -94,10 +94,6 @@ class GoalControllerTest {
     void 목표_리포트_조회() throws Exception {
         Long goalId = 1L;
         GoalReportResponse mockResponse = GoalReportResponse.builder()
-                .goalBudget(100000L)
-                .totalCost(75000L)
-                .dailyAvgCost(5000L)
-                .mostUsedCategory("Food")
                 .zeroDayCount(2L)
                 .build();
 
@@ -105,7 +101,7 @@ class GoalControllerTest {
 
         mockMvc.perform(get("/api/goal/report/" + goalId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result.goalBudget").value(mockResponse.getGoalBudget()));
+                .andExpect(jsonPath("$.result.zeroDayCount").value(mockResponse.getZeroDayCount()));
 
         verify(goalService).getReport(eq(goalId), any());
     }
