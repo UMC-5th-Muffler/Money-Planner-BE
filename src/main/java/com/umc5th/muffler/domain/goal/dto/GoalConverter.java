@@ -43,7 +43,7 @@ public class GoalConverter {
         }
         long dailyAvgCost = dailyPlans.isEmpty() ? 0 : totalCost / dailyPlans.size();
 
-        Map<Long, CategoryGoalReportDto> categoryReportsMap = initCtegoryReportsMap(categoryGoals);
+        Map<Long, CategoryGoalReportDto> categoryReportsMap = initCategoryReportsMap(categoryGoals);
         Map<String, Long> categoryTotalCostsMap = new HashMap<>();
 
         for (Expense expense : expenses) {
@@ -53,7 +53,7 @@ public class GoalConverter {
             // 카테고리별 총 비용 업데이트
             categoryTotalCostsMap.put(categoryName, categoryTotalCostsMap.getOrDefault(categoryName, 0L) + expense.getCost());
 
-            // 해당 카테고리에 대한 리포트가 존재하는 경우(목표를 세운 카테고리의 경우) 업데이트
+            // 해당 카테고리에 대한 리포트가 존재하는 경우(목표를 세운 카테고리의 경우) 리포트 업데이트
             CategoryGoalReportDto report = categoryReportsMap.get(categoryId);
             if (report != null) {
                 report.addExpense(expense.getCost());
@@ -67,6 +67,9 @@ public class GoalConverter {
 
         List<CategoryGoalReportDto> categoryGoalReports = new ArrayList<>(categoryReportsMap.values());
         categoryGoalReports.sort(Comparator.comparingLong(CategoryGoalReportDto::getTotalCost).reversed());
+        for (CategoryGoalReportDto categoryGoalReport : categoryGoalReports) {
+            categoryGoalReport.calculateAvgCost();
+        }
 
         String mostUsedCategory = categoryTotalCosts.isEmpty() ? null : categoryTotalCosts.get(0).getCategoryName();
 
@@ -81,15 +84,15 @@ public class GoalConverter {
                 .build();
     }
 
-    private static Map<Long, CategoryGoalReportDto> initCtegoryReportsMap(List<CategoryGoal> categoryGoals) {
+    private static Map<Long, CategoryGoalReportDto> initCategoryReportsMap(List<CategoryGoal> categoryGoals) {
         return categoryGoals.stream()
                 .collect(Collectors.toMap(
                         categoryGoal -> categoryGoal.getCategory().getId(),
-                        categoryGoal -> new CategoryGoalReportDto(
-                                categoryGoal.getCategory().getName(),
-                                categoryGoal.getCategory().getIcon(),
-                                categoryGoal.getBudget(),
-                                0L, 0L, 0L, 0)
+                        categoryGoal -> CategoryGoalReportDto.builder()
+                                .categoryName(categoryGoal.getCategory().getName())
+                                .categoryIcon(categoryGoal.getCategory().getIcon())
+                                .categoryBudget(categoryGoal.getBudget())
+                                .build()
                 ));
     }
 

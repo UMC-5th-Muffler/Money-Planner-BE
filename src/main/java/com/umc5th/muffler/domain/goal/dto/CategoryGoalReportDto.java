@@ -13,10 +13,14 @@ public class CategoryGoalReportDto {
     private String categoryName;
     private String categoryIcon;
     private Long categoryBudget;
-    private Long totalCost;
-    private Long avgCost;
-    private Long maxCost;
-    private int expenseCount;
+    @Builder.Default
+    private Long totalCost = 0L;
+    @Builder.Default
+    private Long avgCost = 0L;
+    @Builder.Default
+    private Long maxCost = 0L;
+    @Builder.Default
+    private int expenseCount = 0;
 
     public void addExpense(long cost) {
         this.totalCost += cost;
