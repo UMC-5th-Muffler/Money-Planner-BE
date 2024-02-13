@@ -2,6 +2,7 @@ package com.umc5th.muffler.message.util;
 
 import com.umc5th.muffler.domain.dailyplan.dto.DailyPlanAlarm;
 import com.umc5th.muffler.domain.goal.dto.FinishedGoal;
+import com.umc5th.muffler.domain.member.dto.NotEnrolledMember;
 import com.umc5th.muffler.message.dto.Message;
 import java.text.DecimalFormat;
 
@@ -15,13 +16,13 @@ public class MessageFormatter {
         return new Message(title, body);
     }
 
-    public static Message toTodayNotEnrollRemind() {
+    public static Message toTodayNotEnrollRemind(NotEnrolledMember notEnrolledMembers) {
         String title = "소비 내역 기록";
         String body = "오늘 등록된 소비내역이 없어요. 0원 소비를 하셨더라도 체크해주세요!";
         return new Message(title, body);
     }
     
-    public static Message toYesterdayNotEnrollRemind() {
+    public static Message toYesterdayNotEnrollRemind(NotEnrolledMember notEnrolledMember) {
         String title = "소비 내역 기록";
         String body = "어제 등록된 소비내역이 없어요. 0원 소비를 하셨더라도 체크해주세요!";
         return new Message(title, body);

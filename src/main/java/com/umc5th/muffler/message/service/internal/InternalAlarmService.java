@@ -9,6 +9,7 @@ import com.umc5th.muffler.message.service.internal.sender.impl.ConsoleInternalAl
 import com.umc5th.muffler.message.service.AlarmService;
 import com.umc5th.muffler.message.util.MessageFormatter;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
@@ -22,32 +23,27 @@ public class InternalAlarmService implements AlarmService {
 
     @Override
     public List<String> sendDailyAlarms(List<DailyPlanAlarm> dailyPlanAlarms) {
-        List<Message> messages = dailyPlanAlarms.stream()
-                .map(MessageFormatter::toDailyPlanRemind)
-                .collect(Collectors.toList());
-        return sender.send(messages);
+        return send(dailyPlanAlarms, MessageFormatter::toDailyPlanRemind);
     }
 
     @Override
     public List<String> sendTodayNotEnrolled(List<NotEnrolledMember> notEnrolledMembers) {
-        List<Message> messages = notEnrolledMembers.stream()
-                .map((member) -> MessageFormatter.toTodayNotEnrollRemind())
-                .collect(Collectors.toList());
-        return sender.send(messages);
+        return send(notEnrolledMembers, MessageFormatter::toTodayNotEnrollRemind);
     }
 
     @Override
     public List<String> sendYesterdayNotEnrolled(List<NotEnrolledMember> notEnrolledMembers) {
-        List<Message> messages = notEnrolledMembers.stream()
-                .map((member) -> MessageFormatter.toYesterdayNotEnrollRemind())
-                .collect(Collectors.toList());
-        return sender.send(messages);
+        return send(notEnrolledMembers, MessageFormatter::toYesterdayNotEnrollRemind);
     }
 
     @Override
     public List<String> sendEndGoals(List<FinishedGoal> finishedGoals) {
-        List<Message> messages = finishedGoals.stream()
-                .map(MessageFormatter::toFinishedGoalRemind)
+        return send(finishedGoals, MessageFormatter::toFinishedGoalRemind);
+    }
+
+    private <T> List<String> send(List<T> data, Function<T, Message> formatter) {
+        List<Message> messages = data.stream()
+                .map(formatter)
                 .collect(Collectors.toList());
         return sender.send(messages);
     }
