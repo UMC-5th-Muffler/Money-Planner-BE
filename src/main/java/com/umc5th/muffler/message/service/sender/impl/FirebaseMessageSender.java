@@ -1,4 +1,4 @@
-package com.umc5th.muffler.message.service.pushAlarm;
+package com.umc5th.muffler.message.service.sender.impl;
 
 import com.google.firebase.messaging.BatchResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -6,45 +6,20 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import com.google.firebase.messaging.SendResponse;
-import com.umc5th.muffler.domain.dailyplan.dto.DailyPlanAlarm;
-import com.umc5th.muffler.domain.goal.dto.FinishedGoal;
-import com.umc5th.muffler.domain.member.dto.NotEnrolledMember;
 import com.umc5th.muffler.message.dto.Alarmable;
 import com.umc5th.muffler.message.dto.MessageDTO;
-import com.umc5th.muffler.message.service.AlarmService;
-import com.umc5th.muffler.message.util.MessageFormatter;
+import com.umc5th.muffler.message.service.sender.Sender;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
-@Service
 @Slf4j
-public class FirebaseMessagingService implements AlarmService {
+public class FirebaseMessageSender implements Sender {
     private static final int MAX_BATCH_SIZE = 500;
     @Override
-    public int sendDailyAlarms(List<DailyPlanAlarm> dailyPlanAlarms) {
-        return sendPushAlarms(dailyPlanAlarms, MessageFormatter::toDailyPlanRemind);
-    }
-
-    @Override
-    public int sendTodayNotEnrolled(List<NotEnrolledMember> notEnrolledMembers) {
-        return sendPushAlarms(notEnrolledMembers, MessageFormatter::toTodayNotEnrollRemind);
-    }
-
-    @Override
-    public int sendYesterdayNotEnrolled(List<NotEnrolledMember> notEnrolledMembers) {
-        return sendPushAlarms(notEnrolledMembers, MessageFormatter::toYesterdayNotEnrollRemind);
-    }
-
-    @Override
-    public int sendEndGoals(List<FinishedGoal> finishedGoals) {
-        return sendPushAlarms(finishedGoals, MessageFormatter::toFinishedGoalRemind);
-    }
-
-    private  <T extends Alarmable> int sendPushAlarms(List<T> data, Function<T, MessageDTO> formatter) {
+    public <T extends Alarmable> int send(List<T> data, Function<T, MessageDTO> formatter) {
         List<Message> pushAlarms = data.stream().map(datum -> {
             MessageDTO message = formatter.apply(datum);
             return Message.builder()
