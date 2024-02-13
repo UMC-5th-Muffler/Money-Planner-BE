@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import com.umc5th.muffler.domain.dailyplan.repository.JDBCDailyPlanRepository;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.domain.routine.dto.RoutineAll;
@@ -55,6 +56,8 @@ class RoutineServiceTest {
     private DateTimeProvider dateTimeProvider;
     @MockBean
     private MemberRepository memberRepository;
+    @MockBean
+    private JDBCDailyPlanRepository jdbcDailyPlanRepository;
     @Captor
     private ArgumentCaptor<Routine> routineCaptor;
 
@@ -95,6 +98,7 @@ class RoutineServiceTest {
 
         verify(routineRepository).save(routineCaptor.capture());
         verify(expenseRepository, times(1)).save(any());
+        verify(jdbcDailyPlanRepository).updateTotalCostForDailyPlans(anyString(), anyList(), anyLong());
 
         Routine saved = routineCaptor.getValue();
         assertThat(saved.getEndDate()).isEqualTo(request.getEndDate());
@@ -137,6 +141,7 @@ class RoutineServiceTest {
 
         verify(routineRepository).save(routineCaptor.capture());
         verify(expenseRepository, times(1)).save(any());
+        verify(jdbcDailyPlanRepository).updateTotalCostForDailyPlans(anyString(), anyList(), anyLong());
 
         Routine saved = routineCaptor.getValue();
         assertThat(saved.getEndDate()).isEqualTo(request.getEndDate());
