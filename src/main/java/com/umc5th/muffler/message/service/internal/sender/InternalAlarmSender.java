@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface InternalAlarmSender {
     String send(MessageDTO message);
-    List<String> send(List<MessageDTO> alarms);
+    int send(List<MessageDTO> alarms);
 }

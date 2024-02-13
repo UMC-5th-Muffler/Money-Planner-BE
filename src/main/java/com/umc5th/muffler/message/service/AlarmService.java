@@ -6,8 +6,8 @@ import com.umc5th.muffler.domain.member.dto.NotEnrolledMember;
 import java.util.List;
 
 public interface AlarmService {
-    List<String> sendDailyAlarms(List<DailyPlanAlarm> dailyPlanAlarms);
-    List<String> sendTodayNotEnrolled(List<NotEnrolledMember> notEnrolledMembers);
-    List<String> sendYesterdayNotEnrolled(List<NotEnrolledMember> notEnrolledMembers);
-    List<String> sendEndGoals(List<FinishedGoal> finishedGoals);
+    int sendDailyAlarms(List<DailyPlanAlarm> dailyPlanAlarms);
+    int sendTodayNotEnrolled(List<NotEnrolledMember> notEnrolledMembers);
+    int sendYesterdayNotEnrolled(List<NotEnrolledMember> notEnrolledMembers);
+    int sendEndGoals(List<FinishedGoal> finishedGoals);
 }

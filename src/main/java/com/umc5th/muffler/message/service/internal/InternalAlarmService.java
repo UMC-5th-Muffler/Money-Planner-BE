@@ -22,26 +22,26 @@ public class InternalAlarmService implements AlarmService {
     }
 
     @Override
-    public List<String> sendDailyAlarms(List<DailyPlanAlarm> dailyPlanAlarms) {
+    public int sendDailyAlarms(List<DailyPlanAlarm> dailyPlanAlarms) {
         return send(dailyPlanAlarms, MessageFormatter::toDailyPlanRemind);
     }
 
     @Override
-    public List<String> sendTodayNotEnrolled(List<NotEnrolledMember> notEnrolledMembers) {
+    public int sendTodayNotEnrolled(List<NotEnrolledMember> notEnrolledMembers) {
         return send(notEnrolledMembers, MessageFormatter::toTodayNotEnrollRemind);
     }
 
     @Override
-    public List<String> sendYesterdayNotEnrolled(List<NotEnrolledMember> notEnrolledMembers) {
+    public int sendYesterdayNotEnrolled(List<NotEnrolledMember> notEnrolledMembers) {
         return send(notEnrolledMembers, MessageFormatter::toYesterdayNotEnrollRemind);
     }
 
     @Override
-    public List<String> sendEndGoals(List<FinishedGoal> finishedGoals) {
+    public int sendEndGoals(List<FinishedGoal> finishedGoals) {
         return send(finishedGoals, MessageFormatter::toFinishedGoalRemind);
     }
 
-    private <T> List<String> send(List<T> data, Function<T, MessageDTO> formatter) {
+    private <T> int send(List<T> data, Function<T, MessageDTO> formatter) {
         List<MessageDTO> messages = data.stream()
                 .map(formatter)
                 .collect(Collectors.toList());

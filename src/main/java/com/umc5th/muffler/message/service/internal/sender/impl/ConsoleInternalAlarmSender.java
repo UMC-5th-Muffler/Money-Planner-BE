@@ -19,13 +19,13 @@ public class ConsoleInternalAlarmSender implements InternalAlarmSender {
     }
 
     @Override
-    public List<String> send(List<MessageDTO> messages) {
+    public int send(List<MessageDTO> messages) {
         List<String> results = new ArrayList<>();
 
         messages.forEach(message -> {
             System.out.printf("title : %s\nbody : %s\n", message.getTitle(), message.getBody());
             results.add(message.toString());
         });
-        return results;
+        return results.size();
     }
 }
