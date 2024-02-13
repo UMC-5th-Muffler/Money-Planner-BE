@@ -89,3 +89,9 @@ firebase:
   key:
     path: "firebase-private-key.json"
     scope: "https://www.googleapis.com/auth/firebase.messaging"
+
+alarm:
+  image-url:
+    daily-plan-remind: "daily-plan-remind"
+    expense-enroll-remind: "expense-enroll-remind"
+    goal-end-remind: "goal-end-remind"

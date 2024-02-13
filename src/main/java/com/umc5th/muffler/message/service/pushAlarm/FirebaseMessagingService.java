@@ -17,10 +17,10 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PushAlarmService implements AlarmService {
+public class FirebaseMessagingService implements AlarmService {
     private final PushAlarmSender sender;
 
-    public PushAlarmService() {
+    public FirebaseMessagingService() {
         sender = new FCMSender();
     }
 

@@ -8,9 +8,5 @@ import lombok.Getter;
 public class MessageDTO {
     protected String title;
     protected String body;
-
-    public MessageDTO(MessageDTO message) {
-        this.title = message.title;
-        this.body = message.body;
-    }
+    protected String imageUrl;
 }
