@@ -14,7 +14,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -55,5 +54,8 @@ public class MemberAlarm extends BaseTimeEntity {
     private Member member;
     public void setMember(Member member) {
         this.member = member;
+    }
+    public void enrollToken(String token) {
+        this.token = token;
     }
 }

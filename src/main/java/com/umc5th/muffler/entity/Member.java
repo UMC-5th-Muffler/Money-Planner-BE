@@ -6,7 +6,6 @@ import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import com.umc5th.muffler.entity.constant.Role;
 import com.umc5th.muffler.entity.constant.SocialType;
 import com.umc5th.muffler.entity.constant.Status;
-import lombok.*;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
@@ -87,6 +86,9 @@ public class Member extends BaseTimeEntity implements Persistable<String>, UserD
     public void setMemberAlarm(MemberAlarm memberAlarm) {
         memberAlarm.setMember(this);
         this.memberAlarm = memberAlarm;
+    }
+    public void enrollToken(String token) {
+        memberAlarm.enrollToken(token);
     }
     @Override
     public boolean isNew() {
