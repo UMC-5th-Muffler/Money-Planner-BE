@@ -1,37 +1,11 @@
 package com.umc5th.muffler.domain.expense.controller;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.umc5th.muffler.config.TestSecurityConfig;
-import com.umc5th.muffler.domain.expense.dto.CategoryDetailDto;
-import com.umc5th.muffler.domain.expense.dto.DailyExpenseResponse;
-import com.umc5th.muffler.domain.expense.dto.DailyExpensesDto;
-import com.umc5th.muffler.domain.expense.dto.ExpenseConverter;
-import com.umc5th.muffler.domain.expense.dto.ExpenseDetailDto;
-import com.umc5th.muffler.domain.expense.dto.ExpenseDto;
-import com.umc5th.muffler.domain.expense.dto.MonthlyExpenseResponse;
-import com.umc5th.muffler.domain.expense.dto.SearchResponse;
-import com.umc5th.muffler.domain.expense.dto.WeeklyExpenseResponse;
-import com.umc5th.muffler.domain.expense.service.ExpenseService;
+import com.umc5th.muffler.domain.expense.dto.*;
+import com.umc5th.muffler.domain.expense.service.ExpenseSearchService;
 import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.fixture.ExpenseFixture;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.temporal.TemporalAdjusters;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -42,6 +16,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.temporal.TemporalAdjusters;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -55,7 +44,7 @@ class ExpenseControllerTest {
     private ExpenseViewService expenseViewService;
 
     @MockBean
-    private ExpenseService expenseService;
+    private ExpenseSearchService expenseSearchService;
 
     @Test
     @WithMockUser
@@ -63,17 +52,14 @@ class ExpenseControllerTest {
         LocalDate testDate = LocalDate.of(2024, 1, 1);
         List<Expense> expenses = ExpenseFixture.createList(10, testDate);
         List<ExpenseDetailDto> expenseDetailDtos = expenses.stream()
-                .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getMemo(), expense.getCategory().getId(), expense.getCategory().getIcon()))
+                .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getMemo(), expense.getCategory().getIcon()))
                 .collect(Collectors.toList());
-        long expDailyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
 
         DailyExpenseResponse mockResponse = DailyExpenseResponse.builder()
-                .date(testDate)
-                .dailyTotalCost(expDailyTotalCost)
                 .expenseDetailList(expenseDetailDtos)
                 .build();
 
-        when(expenseViewService.getDailyExpenseDetails(any(), eq(testDate), any(Pageable.class)))
+        when(expenseViewService.getDailyExpenseDetails(any(), eq(testDate), any(), any(Pageable.class)))
                 .thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/expense/daily")
@@ -81,9 +67,7 @@ class ExpenseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.result.expenseDetailList", hasSize(10)))
-                .andExpect(jsonPath("$.result.dailyTotalCost", is((int) expDailyTotalCost)))
-                .andExpect(jsonPath("$.result.date", is(testDate.toString())));
+                .andExpect(jsonPath("$.result.expenseDetailList", hasSize(10)));
     }
 
 
@@ -91,6 +75,7 @@ class ExpenseControllerTest {
     @WithMockUser
     public void 주간_소비내역_조회() throws Exception{
         LocalDate todayDate = LocalDate.of(2024, 1, 1);
+        int size = 20;
         LocalDate startDate = todayDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate endDate = todayDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
         List<Expense> expenses = ExpenseFixture.createList(10, startDate);
@@ -105,7 +90,7 @@ class ExpenseControllerTest {
                     LocalDate dailyDate = entry.getKey();
                     List<Expense> dailyExpenses = entry.getValue();
                     List<ExpenseDetailDto> expenseDetailDtos = dailyExpenses.stream()
-                            .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getMemo(), expense.getCategory().getId(), expense.getCategory().getIcon()))
+                            .map(expense -> new ExpenseDetailDto(expense.getId(), expense.getTitle(), expense.getCost(), expense.getMemo(), expense.getCategory().getIcon()))
                             .collect(Collectors.toList());
 
                     Long dailyTotalCost = dailyExpenses.stream().mapToLong(Expense::getCost).sum();
@@ -117,14 +102,11 @@ class ExpenseControllerTest {
                 })
                 .collect(Collectors.toList());
 
-        List<CategoryDetailDto> categoryList = List.of(CategoryDetailDto.builder().id(1L).name("icon").build());
-
         WeeklyExpenseResponse mockResponse = WeeklyExpenseResponse.builder()
-                .categoryList(categoryList)
                 .dailyExpenseList(dailyExpensesDtos)
                 .build();
 
-        when(expenseViewService.getWeeklyExpenseDetails(any(), any(), eq(startDate), eq(endDate), any(Pageable.class))).thenReturn(mockResponse);
+        when(expenseViewService.getWeeklyExpenseDetails(any(), any(), eq(startDate), eq(endDate), any(), any(), eq(size))).thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/expense/weekly")
                         .param("goalId", "1")
@@ -132,8 +114,7 @@ class ExpenseControllerTest {
                         .param("endDate", endDate.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.dailyExpenseList", hasSize(2))) // 이틀에 대한 데이터가 있는지 확인
-                .andExpect(jsonPath("$.result.dailyExpenseList[0].expenseDetailList", hasSize(10))) // 첫 번째 날에 대한 지출이 10개 있는지 확인
-                .andExpect(jsonPath("$.result.categoryList", notNullValue()));
+                .andExpect(jsonPath("$.result.dailyExpenseList[0].expenseDetailList", hasSize(10))); // 첫 번째 날에 대한 지출이 10개 있는지 확인
     }
 
     @Test
@@ -142,7 +123,6 @@ class ExpenseControllerTest {
         YearMonth yearMonth = YearMonth.of(2024, 1);
         Long goalId = 1L;
         String order = "DESC";
-        int page = 0;
         int size = 20;
 
         List<Expense> expenses = ExpenseFixture.createList(10, LocalDate.of(2024,1,1));
@@ -178,13 +158,12 @@ class ExpenseControllerTest {
                 .dailyExpenseList(dailyExpensesDtos)
                 .build();
 
-        when(expenseViewService.getMonthlyExpenses(any(), eq(yearMonth), eq(goalId), eq(order), any(Pageable.class)))
+        when(expenseViewService.getMonthlyExpenses(any(), eq(yearMonth), eq(goalId), eq(order), any(), any(), eq(size)))
                 .thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/expense/monthly")
                         .param("yearMonth", String.valueOf(yearMonth))
                         .param("order", order)
-                        .param("page", String.valueOf(page))
                         .param("size", String.valueOf(size))
                         .param("goalId", String.valueOf(goalId)))
                 .andExpect(status().isOk())
@@ -230,13 +209,12 @@ class ExpenseControllerTest {
                 .hasNext(false)
                 .build();
 
-        when(expenseService.searchExpense("user", "title", 0, 2, "ASC")).thenReturn(mockResponse);
+        when(expenseSearchService.searchExpense("user", "title", 2, "ASC", null, null)).thenReturn(mockResponse);
 
         mockMvc.perform(get("/api/expense/search")
                         .param("title", "title")
-                        .param("page", "0")
                         .param("size", "2")
-                        .param("sort", "ASC"))
+                        .param("order", "ASC"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.dailyExpenseList", hasSize(1)))
                 .andExpect(jsonPath("$.result.hasNext", is(mockResponse.isHasNext())));

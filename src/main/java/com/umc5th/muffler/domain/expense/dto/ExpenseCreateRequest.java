@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.expense.dto;
 
+import com.umc5th.muffler.domain.routine.dto.RoutineRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -10,14 +11,18 @@ import java.time.LocalDate;
 
 @Getter
 @AllArgsConstructor
-public class NewExpenseRequest {
-    @NotBlank
-    private String expenseTitle;
+public class ExpenseCreateRequest {
     @Positive
     private Long expenseCost;
     @NotNull
-    private LocalDate expenseDate;
-    private String expenseMemo;
+    private Long categoryId;
     @NotBlank
-    private String categoryName;
+    private String expenseTitle;
+    private String expenseMemo;
+    @NotNull
+    private LocalDate expenseDate;
+
+    @NotNull
+    private boolean isRoutine;
+    private RoutineRequest routineRequest;
 }

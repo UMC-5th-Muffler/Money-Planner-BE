@@ -1,6 +1,5 @@
 package com.umc5th.muffler.domain.expense.service;
 
-import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
 import com.umc5th.muffler.domain.expense.dto.*;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
@@ -21,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.*;
-import org.springframework.data.jpa.domain.Specification;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -32,7 +30,6 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -49,9 +46,6 @@ class ExpenseViewServiceTest {
     @MockBean
     private GoalRepository goalRepository;
 
-    @MockBean
-    private DailyPlanRepository dailyPlanRepository;
-
     @Test
     public void 일일_소비내역_조회_성공() {
 
@@ -61,7 +55,6 @@ class ExpenseViewServiceTest {
         Pageable pageable = PageRequest.of(0, pageSize, sort);
 
         Member mockMember = MemberFixture.create();
-        DailyPlan dailyPlan = DailyPlanFixture.DAILY_PLAN_ONE;
         String memberId = mockMember.getId();
 
         List<Expense> expenses = ExpenseFixture.createList(10, testDate);
@@ -70,18 +63,13 @@ class ExpenseViewServiceTest {
                 .collect(Collectors.toList());
         Slice<Expense> expenseSlice = new SliceImpl<>(sortedExpenses, pageable, false);
 
-        Long dailyTotalCost = expenses.stream().mapToLong(Expense::getCost).sum();
-
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(dailyPlanRepository.findByMemberIdAndDate(memberId, testDate)).thenReturn(Optional.of(dailyPlan));
-        when(expenseRepository.findAllByMemberAndDate(mockMember, testDate, pageable)).thenReturn(expenseSlice);
+        when(expenseRepository.findAllByMemberAndDate(mockMember.getId(), testDate, null, pageable)).thenReturn(expenseSlice);
 
-        DailyExpenseResponse response = expenseViewService.getDailyExpenseDetails(memberId, testDate, pageable);
+        DailyExpenseResponse response = expenseViewService.getDailyExpenseDetails(memberId, testDate, null, pageable);
 
         assertNotNull(response);
-        assertEquals(testDate, response.getDate());
         assertEquals(pageSize, response.getExpenseDetailList().size());
-        assertEquals(dailyTotalCost, response.getDailyTotalCost());
         assertEquals(expenseSlice.hasNext(), response.isHasNext());
 
         // expenseId 내림차순 정렬 확인(createdAt 내림차순 정렬 확인)
@@ -90,8 +78,7 @@ class ExpenseViewServiceTest {
                 .collect(Collectors.toList());
         assertTrue(isSortedDescending(expenseIds));
 
-        verify(dailyPlanRepository).findByMemberIdAndDate(memberId, testDate);
-        verify(expenseRepository).findAllByMemberAndDate(mockMember, testDate, pageable);
+        verify(expenseRepository).findAllByMemberAndDate(mockMember.getId(), testDate, null, pageable);
     }
 
     @Test
@@ -104,7 +91,7 @@ class ExpenseViewServiceTest {
         when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
 
         assertThrows(MemberException.class, () -> {
-            expenseViewService.getDailyExpenseDetails(memberId, testDate, pageable);});
+            expenseViewService.getDailyExpenseDetails(memberId, testDate, any(), pageable);});
     }
 
     @Test
@@ -113,26 +100,29 @@ class ExpenseViewServiceTest {
         String memberId = "1";
         Pageable pageable = PageRequest.of(0, pageSize);
         LocalDate date = LocalDate.of(2024, 1, 1);
-        LocalDate startDate = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        LocalDate endDate = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+        LocalDate weeklyStartDate = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate weeklyEndDate = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
         Member mockMember = MemberFixture.create();
         Goal mockGoal = GoalFixture.create();
 
-        List<Expense> expenses = ExpenseFixture.createList(20, startDate);
+        LocalDate expenseStartDate = mockGoal.getStartDate().isBefore(weeklyStartDate) ? weeklyStartDate : mockGoal.getStartDate();
+        LocalDate expenseEndDate = mockGoal.getEndDate().isAfter(weeklyEndDate) ? weeklyEndDate : mockGoal.getEndDate();
+
+        List<Expense> expenses = ExpenseFixture.createList(20, weeklyStartDate);
         Page<Expense> expenseSlice = new PageImpl<>(expenses, pageable, expenses.size());
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findById(mockGoal.getId())).thenReturn(Optional.of(mockGoal));
-        when(expenseRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(expenseSlice);
+        when(expenseRepository.findAllByMemberAndDateAndCategoryId(memberId, null, null, expenseStartDate, expenseEndDate, null, "DESC", 20)).thenReturn(expenseSlice);
 
-        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(memberId, mockGoal.getId(), startDate, endDate, pageable);
+        WeeklyExpenseResponse response = expenseViewService.getWeeklyExpenseDetails(memberId, mockGoal.getId(), weeklyStartDate, weeklyEndDate, null, null, 20);
 
         assertNotNull(response);
         assertEquals(expenseSlice.hasNext(), response.isHasNext());
 
         verify(memberRepository).findById(memberId);
         verify(goalRepository).findById(mockGoal.getId());
-        verify(expenseRepository).findAll(any(Specification.class), eq(pageable));
+        verify(expenseRepository).findAllByMemberAndDateAndCategoryId(memberId, null, null, expenseStartDate, expenseEndDate, null, "DESC", 20);
     }
 
     @Test
@@ -161,15 +151,16 @@ class ExpenseViewServiceTest {
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
         when(goalRepository.findById(goalId)).thenReturn(Optional.of(mockGoal));
+
         when(mockGoal.getStartDate()).thenReturn(startDate);
         when(mockGoal.getEndDate()).thenReturn(endDate);
         when(mockGoal.getDailyPlans()).thenReturn(mockDailyPlans);
 
         Page<Expense> expenseSlice = new PageImpl<>(sortedExpenses, pageable, expenses.size());
 
-        when(expenseRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(expenseSlice);
+        when(expenseRepository.findAllByMemberAndDateAndCategoryId(memberId, null, null, startDate, endDate, null, order, 20)).thenReturn(expenseSlice);
 
-        MonthlyExpenseResponse response = expenseViewService.getMonthlyExpenses(memberId, yearMonth, goalId, order, pageable);
+        MonthlyExpenseResponse response = expenseViewService.getMonthlyExpenses(memberId, yearMonth, goalId, order, null, null, 20);
 
         // expenseId 내림차순 정렬 확인(date 오름차순, createdAt 내림차순 정렬 확인)
         List<Long> expenseIds = response.getDailyExpenseList().stream()
@@ -188,7 +179,7 @@ class ExpenseViewServiceTest {
 
         verify(memberRepository).findById(memberId);
         verify(goalRepository).findById(goalId);
-        verify(expenseRepository).findAll(any(Specification.class), eq(pageable));
+        verify(expenseRepository).findAllByMemberAndDateAndCategoryId(memberId, null, null, startDate, endDate, null, order, 20);
     }
 
     @Test
@@ -224,9 +215,9 @@ class ExpenseViewServiceTest {
         when(mockGoal.getDailyPlans()).thenReturn(mockDailyPlans);
 
         Page<Expense> expenseSlice = new PageImpl<>(filteredExpenses, pageable, filteredExpenses.size());
-        when(expenseRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(expenseSlice);
+        when(expenseRepository.findAllByMemberAndDateAndCategoryId(memberId, null, null, startDate, endDate, categoryId, order, pageSize)).thenReturn(expenseSlice);
 
-        MonthlyExpenseResponse response = expenseViewService.getMonthlyExpensesWithCategory(memberId, yearMonth, goalId, categoryId, order, pageable);
+        MonthlyExpenseResponse response = expenseViewService.getMonthlyExpensesWithCategory(memberId, yearMonth, goalId, categoryId, order, null, null, pageSize);
 
         // expenseId 내림차순 정렬 확인(date 오름차순, createdAt 내림차순 정렬 확인)
         List<Long> expenseIds = response.getDailyExpenseList().stream()
@@ -245,7 +236,7 @@ class ExpenseViewServiceTest {
                 .flatMap(dto -> dto.getExpenseDetailList().stream())
                 .allMatch(dto -> dto.getCategoryIcon().equals(String.valueOf(categoryId))));
 
-        verify(expenseRepository).findAll(any(Specification.class), eq(pageable));
+        verify(expenseRepository).findAllByMemberAndDateAndCategoryId(memberId, null, null, startDate, endDate, categoryId, order, pageSize);
     }
 
     @Test
@@ -256,7 +247,7 @@ class ExpenseViewServiceTest {
         Long expenseId = mockExpense.getId();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(expenseRepository.findById(expenseId)).thenReturn(Optional.of(mockExpense));
+        when(expenseRepository.findByIdJoin(expenseId)).thenReturn(Optional.of(mockExpense));
         ExpenseDto result = expenseViewService.getExpense(any(), expenseId);
 
         assertNotNull(result);
@@ -266,7 +257,7 @@ class ExpenseViewServiceTest {
         assertEquals(mockExpense.getCost(), result.getCost());
         assertEquals(mockExpense.getCategory().getName(), result.getCategoryName());
 
-        verify(expenseRepository).findById(expenseId);
+        verify(expenseRepository).findByIdJoin(expenseId);
     }
 
     @Test
@@ -275,13 +266,13 @@ class ExpenseViewServiceTest {
         Member mockMember = MemberFixture.create();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(expenseRepository.findById(any())).thenReturn(Optional.empty());
+        when(expenseRepository.findByIdJoin(any())).thenReturn(Optional.empty());
 
         assertThrows(ExpenseException.class, () -> {
             expenseViewService.getExpense(memberId, any());
         }, ErrorCode.EXPENSE_NOT_FOUND.getMessage());
 
-        verify(expenseRepository).findById(any());
+        verify(expenseRepository).findByIdJoin(any());
     }
 
 

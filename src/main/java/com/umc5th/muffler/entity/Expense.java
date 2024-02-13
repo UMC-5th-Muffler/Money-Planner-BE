@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Getter
+@Table(indexes = {@Index(name = "expense_index", columnList = "date")})
 public class Expense extends BaseTimeEntity {
 
     @Id
@@ -37,7 +38,7 @@ public class Expense extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
   
@@ -53,17 +54,31 @@ public class Expense extends BaseTimeEntity {
                 .build();
     }
 
+    public void setTitleAndMemo(String title, String memo) {
+        this.title = title;
+        this.memo = memo;
+    }
+    public void setCost(Long cost) {
+        this.cost = cost;
+    }
     public void setMember(Member member) {
         this.member = member;
     }
     public void setCategory(Category category) {
         this.category = category;
     }
-    public Boolean isOwnMember(String memberId) { return member.getId().equals(memberId);}
-    public Boolean isCategoryChanged(Long inputId) {
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+    public boolean isOwnMember(String memberId) { return member.getId().equals(memberId);}
+    public boolean isCategoryChanged(Long inputId) {
         return !category.getId().equals(inputId);
     }
-    public Boolean isDateChanged(LocalDate inputDate) {
+    public boolean isDateChanged(LocalDate inputDate) {
         return !date.isEqual(inputDate);
+    }
+
+    public boolean isCostChanged(Long expenseCost) {
+        return !this.cost.equals(expenseCost);
     }
 }

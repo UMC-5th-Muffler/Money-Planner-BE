@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WholeCalendar {
-    private ActiveGoalResponse activeGoalResponse;
-    private List<InactiveGoalInfo> inactiveGoalsResponse;
+    private GoalInfo goalInfo;
+    private List<DailyInfo> dailyList;
 }

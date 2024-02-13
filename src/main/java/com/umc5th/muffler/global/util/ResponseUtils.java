@@ -6,8 +6,9 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 
 public class ResponseUtils {
-
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    private ResponseUtils() {}
 
     public static void sendErrorResponse(HttpServletResponse response, int statusCode, String message) throws IOException {
         response.setStatus(statusCode);
