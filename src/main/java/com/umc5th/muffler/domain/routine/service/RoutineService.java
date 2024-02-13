@@ -4,6 +4,7 @@ import static com.umc5th.muffler.entity.constant.RoutineType.MONTHLY;
 import static com.umc5th.muffler.entity.constant.RoutineType.WEEKLY;
 import static com.umc5th.muffler.global.response.code.ErrorCode.*;
 
+import com.umc5th.muffler.domain.dailyplan.repository.JDBCDailyPlanRepository;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.domain.routine.dto.*;
@@ -20,6 +21,7 @@ import com.umc5th.muffler.global.response.exception.RoutineException;
 import com.umc5th.muffler.global.util.DateTimeProvider;
 import com.umc5th.muffler.global.util.RoutineProcessor;
 import com.umc5th.muffler.global.util.RoutineUtils;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,7 @@ public class RoutineService {
     private final RoutineRepository routineRepository;
     private final ExpenseRepository expenseRepository;
     private final MemberRepository memberRepository;
+    private final JDBCDailyPlanRepository jdbcDailyPlanRepository;
 
     @Transactional
     public void create(Long expenseId, RoutineRequest request) {
@@ -52,7 +55,6 @@ public class RoutineService {
         routineRepository.save(routine);
         if (routine.getStartDate().isBefore(dateTimeProvider.nowDate())) {
             addPastExpenses(routine);
-            // TODO : dailyPlan의 totalCost 수정 추가
         }
     }
 
@@ -91,12 +93,17 @@ public class RoutineService {
 
         routineDates.stream()
                 .forEach(date -> addExpense(date, routine));
+        updateDailyTotalCost(routineDates, routine);
     }
 
     private void addExpense(LocalDate date, Routine routine) {
         expenseRepository.save(
                 Expense.of(date, routine.getTitle(), routine.getMemo(), routine.getCost(), routine.getMember(), routine.getCategory())
         );
+    }
+
+    private void updateDailyTotalCost(List<LocalDate> dates, Routine routine) {
+        jdbcDailyPlanRepository.updateTotalCostForDailyPlans(routine.getMember().getId(), dates, routine.getCost());
     }
 
     @Transactional(readOnly = true)
@@ -114,10 +121,11 @@ public class RoutineService {
     }
 
     private static Map<Long, RoutineWeeklyDetailDto> getWeeklyRoutine(Slice<Routine> routineList) {
+
         return routineList.getContent().stream()
                 .filter(routine -> routine.getType() == RoutineType.WEEKLY)
                 .collect(Collectors.toMap(
-                        Routine::getId,
+                       Routine::getId,
                         routine -> {
                             List<Integer> dayOfWeeks = routine.getWeeklyRepeatDays().stream()
                                     .map(weeklyRepeatDay -> weeklyRepeatDay.getDayOfWeek().getValue())
