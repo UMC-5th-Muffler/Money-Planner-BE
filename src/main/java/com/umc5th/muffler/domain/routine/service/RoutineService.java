@@ -131,7 +131,7 @@ public class RoutineService {
     public RoutineDetail getRoutine(String memberId, Long routineId) {
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-        Routine routine = routineRepository.findByIdAndCategory(routineId).orElseThrow(() -> new RoutineException(ErrorCode.ROUTINE_NOT_FOUND));
+        Routine routine = routineRepository.findByIdWithCategory(routineId).orElseThrow(() -> new RoutineException(ErrorCode.ROUTINE_NOT_FOUND));
 
         return RoutineConverter.toRoutineDetail(routine);
     }

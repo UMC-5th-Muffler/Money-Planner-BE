@@ -15,11 +15,8 @@ import java.util.Optional;
 @Repository
 public interface RoutineRepository extends JpaRepository<Routine, Long>, RoutineRepositoryCustom {
 
-    @EntityGraph(attributePaths = {"category"})
-    Slice<Routine> findAllByMemberId(String memberId, Pageable pageable);
-
     @Query("SELECT r FROM Routine r JOIN FETCH r.category WHERE r.id = :routineId")
-    Optional<Routine> findByIdAndCategory(Long routineId);
+    Optional<Routine> findByIdWithCategory(Long routineId);
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Routine routine set routine.category.id = :etcCategoryId where routine.category.id = :deletedCategoryId")

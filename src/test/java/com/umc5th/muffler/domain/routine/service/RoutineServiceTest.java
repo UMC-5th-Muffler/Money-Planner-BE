@@ -240,7 +240,7 @@ class RoutineServiceTest {
         Routine mockRoutine = RoutineFixture.ROUTINE_ONE;
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(routineRepository.findByIdAndCategory(routineId)).thenReturn(Optional.of(mockRoutine));
+        when(routineRepository.findByIdWithCategory(routineId)).thenReturn(Optional.of(mockRoutine));
 
         RoutineDetail response = routineService.getRoutine(memberId, routineId);
 
@@ -249,7 +249,7 @@ class RoutineServiceTest {
         assertEquals(mockRoutine.getCategory().getName(), response.getCategoryName());
 
         verify(memberRepository).findById(memberId);
-        verify(routineRepository).findByIdAndCategory(routineId);
+        verify(routineRepository).findByIdWithCategory(routineId);
     }
 
     @Test
@@ -259,14 +259,14 @@ class RoutineServiceTest {
         Member mockMember = MemberFixture.MEMBER_ONE;
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(routineRepository.findByIdAndCategory(routineId)).thenReturn(Optional.empty());
+        when(routineRepository.findByIdWithCategory(routineId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> routineService.getRoutine(memberId, routineId))
                 .isInstanceOf(RoutineException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ROUTINE_NOT_FOUND);
 
         verify(memberRepository).findById(memberId);
-        verify(routineRepository).findByIdAndCategory(routineId);
+        verify(routineRepository).findByIdWithCategory(routineId);
     }
 
 
