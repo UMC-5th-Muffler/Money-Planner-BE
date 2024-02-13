@@ -3,15 +3,18 @@ package com.umc5th.muffler.entity;
 import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -33,8 +36,24 @@ public class MemberAlarm extends BaseTimeEntity {
 
     @Column(nullable = false)
     @ColumnDefault("true")
-    private Boolean isAgree;
+    private Boolean isDailyPlanRemindAgree;
 
-    @OneToOne
+    @Column(nullable = false)
+    @ColumnDefault("true")
+    private Boolean isTodayEnrollRemindAgree;
+
+    @Column(nullable = false)
+    @ColumnDefault("true")
+    private Boolean isYesterdayEnrollRemindAgree;
+
+    @Column(nullable = false)
+    @ColumnDefault("true")
+    private Boolean isGoalEndReportRemindAgree;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(unique = true)
     private Member member;
+    public void setMember(Member member) {
+        this.member = member;
+    }
 }

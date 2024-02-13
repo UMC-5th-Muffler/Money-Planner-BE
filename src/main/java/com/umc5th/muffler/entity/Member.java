@@ -65,6 +65,9 @@ public class Member extends BaseTimeEntity implements Persistable<String>, UserD
     @Builder.Default
     private List<Category> categories = new ArrayList<>();
 
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private MemberAlarm memberAlarm;
+
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
@@ -81,7 +84,10 @@ public class Member extends BaseTimeEntity implements Persistable<String>, UserD
         category.setMember(this);
         this.categories.add(category);
     }
-
+    public void setMemberAlarm(MemberAlarm memberAlarm) {
+        memberAlarm.setMember(this);
+        this.memberAlarm = memberAlarm;
+    }
     @Override
     public boolean isNew() {
         return getCreatedAt() == null;
