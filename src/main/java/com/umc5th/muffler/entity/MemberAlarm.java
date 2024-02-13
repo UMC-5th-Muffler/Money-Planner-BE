@@ -16,7 +16,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -24,7 +23,6 @@ import org.hibernate.annotations.DynamicUpdate;
 @Entity
 @Getter
 @DynamicInsert
-@DynamicUpdate
 public class MemberAlarm extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,6 +54,11 @@ public class MemberAlarm extends BaseTimeEntity {
         this.member = member;
     }
     public void enrollToken(String token) {
-        this.token = token;
+        if (token != null) {
+            this.token = token;
+        }
+    }
+    public void deleteToken() {
+        this.token = null;
     }
 }

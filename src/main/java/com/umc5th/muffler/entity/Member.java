@@ -90,6 +90,7 @@ public class Member extends BaseTimeEntity implements Persistable<String>, UserD
     public void enrollToken(String token) {
         memberAlarm.enrollToken(token);
     }
+    public void deleteToken() {memberAlarm.deleteToken();}
     @Override
     public boolean isNew() {
         return getCreatedAt() == null;

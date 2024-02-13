@@ -31,4 +31,9 @@ public class MemberAlarmController {
         return Response.success();
     }
 
+    @DeleteMapping("/token")
+    public Response<Void> deleteAlarm(Principal principal) {
+        memberAlarmService.deleteAlarmToken(principal.getName());
+        return Response.success();
+    }
 }

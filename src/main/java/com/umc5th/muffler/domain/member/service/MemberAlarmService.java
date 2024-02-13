@@ -30,4 +30,10 @@ public class MemberAlarmService {
         member.enrollToken(request.getToken());
     }
 
+    @Transactional
+    public void deleteAlarmToken(String memberId) {
+        Member member = memberRepository.findMemberFetchAlarm(memberId)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+        member.deleteToken();
+    }
 }
