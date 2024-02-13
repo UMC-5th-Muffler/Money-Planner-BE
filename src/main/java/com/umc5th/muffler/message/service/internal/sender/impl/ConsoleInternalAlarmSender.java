@@ -1,6 +1,6 @@
 package com.umc5th.muffler.message.service.internal.sender.impl;
 
-import com.umc5th.muffler.message.dto.Message;
+import com.umc5th.muffler.message.dto.MessageDTO;
 import com.umc5th.muffler.message.service.internal.sender.InternalAlarmSender;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,13 +13,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConsoleInternalAlarmSender implements InternalAlarmSender {
     @Override
-    public String send(Message message) {
+    public String send(MessageDTO message) {
         System.out.printf("title : %s\nbody : %s\n", message.getTitle(), message.getBody());
         return message.toString();
     }
 
     @Override
-    public List<String> send(List<Message> messages) {
+    public List<String> send(List<MessageDTO> messages) {
         List<String> results = new ArrayList<>();
 
         messages.forEach(message -> {

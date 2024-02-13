@@ -5,11 +5,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class Message {
+public class MessageDTO {
     protected String title;
     protected String body;
 
-    public Message(Message message) {
+    public MessageDTO(MessageDTO message) {
         this.title = message.title;
         this.body = message.body;
     }

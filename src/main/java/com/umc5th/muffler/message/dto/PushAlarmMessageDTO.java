@@ -3,10 +3,10 @@ package com.umc5th.muffler.message.dto;
 import lombok.Getter;
 
 @Getter
-public class PushAlarmMessage extends Message{
+public class PushAlarmMessageDTO extends MessageDTO {
     private String token;
 
-    public PushAlarmMessage(Message message, String token) {
+    public PushAlarmMessageDTO(MessageDTO message, String token) {
         super(message);
         this.token = token;
     }

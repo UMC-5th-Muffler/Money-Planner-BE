@@ -3,7 +3,7 @@ package com.umc5th.muffler.message.service.internal;
 import com.umc5th.muffler.domain.dailyplan.dto.DailyPlanAlarm;
 import com.umc5th.muffler.domain.goal.dto.FinishedGoal;
 import com.umc5th.muffler.domain.member.dto.NotEnrolledMember;
-import com.umc5th.muffler.message.dto.Message;
+import com.umc5th.muffler.message.dto.MessageDTO;
 import com.umc5th.muffler.message.service.internal.sender.InternalAlarmSender;
 import com.umc5th.muffler.message.service.internal.sender.impl.ConsoleInternalAlarmSender;
 import com.umc5th.muffler.message.service.AlarmService;
@@ -41,8 +41,8 @@ public class InternalAlarmService implements AlarmService {
         return send(finishedGoals, MessageFormatter::toFinishedGoalRemind);
     }
 
-    private <T> List<String> send(List<T> data, Function<T, Message> formatter) {
-        List<Message> messages = data.stream()
+    private <T> List<String> send(List<T> data, Function<T, MessageDTO> formatter) {
+        List<MessageDTO> messages = data.stream()
                 .map(formatter)
                 .collect(Collectors.toList());
         return sender.send(messages);
