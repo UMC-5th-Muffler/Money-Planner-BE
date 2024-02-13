@@ -84,3 +84,8 @@ logging.level:
 thread:
   pool:
     size: 4
+
+firebase:
+  key:
+    path: "firebase-private-key.json"
+    scope: "https://www.googleapis.com/auth/firebase.messaging"
