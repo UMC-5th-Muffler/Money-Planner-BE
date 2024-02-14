@@ -3,7 +3,6 @@ package com.umc5th.muffler.domain.goal.dto;
 import java.time.LocalDate;
 
 import com.querydsl.core.annotations.QueryProjection;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
