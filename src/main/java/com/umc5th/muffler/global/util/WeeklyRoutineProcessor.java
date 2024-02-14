@@ -18,8 +18,12 @@ public class WeeklyRoutineProcessor implements RoutineProcessor {
             return false;
         }
 
-        long weeksSinceStart = ChronoUnit.WEEKS.between(routine.getStartDate(), date);
-        return weeksSinceStart % routine.getWeeklyTerm() == 0;
+        LocalDate startDate = routine.getStartDate();
+        int term = routine.getWeeklyTerm();
+
+        LocalDate firstRepeatStartDate = startDate.plusWeeks(term).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        long weeksSinceStart = ChronoUnit.WEEKS.between(firstRepeatStartDate, date);
+        return weeksSinceStart % term == 0;
     }
 
     @Override
