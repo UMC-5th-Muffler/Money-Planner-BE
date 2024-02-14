@@ -6,10 +6,12 @@ import static com.umc5th.muffler.global.response.code.ErrorCode.*;
 
 import com.umc5th.muffler.domain.dailyplan.repository.JDBCDailyPlanRepository;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
+import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.domain.routine.dto.*;
 import com.umc5th.muffler.domain.routine.repository.RoutineRepository;
 import com.umc5th.muffler.entity.Expense;
+import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.Routine;
 import com.umc5th.muffler.entity.constant.RoutineType;
@@ -41,6 +43,7 @@ public class RoutineService {
     private final RoutineRepository routineRepository;
     private final ExpenseRepository expenseRepository;
     private final MemberRepository memberRepository;
+    private final GoalRepository goalRepository;
     private final JDBCDailyPlanRepository jdbcDailyPlanRepository;
 
     @Transactional
@@ -90,10 +93,11 @@ public class RoutineService {
 
         RoutineProcessor processor = RoutineUtils.getProcessorForRoutineType(routine);
         List<LocalDate> routineDates = processor.getRoutineDates(startDate, endDate, routine);
+        List<LocalDate> filteredRoutineDates = isInGoalPeriod(routineDates, startDate, endDate);
 
-        routineDates.stream()
+        filteredRoutineDates.stream()
                 .forEach(date -> addExpense(date, routine));
-        updateDailyTotalCost(routineDates, routine);
+        updateDailyTotalCost(filteredRoutineDates, routine);
     }
 
     private void addExpense(LocalDate date, Routine routine) {
@@ -104,6 +108,18 @@ public class RoutineService {
 
     private void updateDailyTotalCost(List<LocalDate> dates, Routine routine) {
         jdbcDailyPlanRepository.updateTotalCostForDailyPlans(routine.getMember().getId(), dates, routine.getCost());
+    }
+
+    private List<LocalDate> isInGoalPeriod(List<LocalDate> routineDates, LocalDate startDate, LocalDate endDate) {
+        List<Goal> goalList = goalRepository.findGoalsWithinDateRange(startDate, endDate);
+
+        return routineDates.stream()
+                .filter(date -> goalList.stream()
+                        .anyMatch(goal ->
+                                !date.isBefore(goal.getStartDate()) && !date.isAfter(goal.getEndDate())
+                        )
+                )
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
