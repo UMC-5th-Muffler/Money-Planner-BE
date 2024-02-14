@@ -93,11 +93,16 @@ public class RoutineService {
 
         RoutineProcessor processor = RoutineUtils.getProcessorForRoutineType(routine);
         List<LocalDate> routineDates = processor.getRoutineDates(startDate, endDate, routine);
-        List<LocalDate> filteredRoutineDates = isInGoalPeriod(routineDates, startDate, endDate);
 
-        filteredRoutineDates.stream()
-                .forEach(date -> addExpense(date, routine));
-        updateDailyTotalCost(filteredRoutineDates, routine);
+        if (!routineDates.isEmpty()) {
+            List<LocalDate> filteredRoutineDates = isInGoalPeriod(routineDates, startDate, endDate);
+
+            if(!filteredRoutineDates.isEmpty()) {
+                filteredRoutineDates.stream()
+                        .forEach(date -> addExpense(date, routine));
+                updateDailyTotalCost(filteredRoutineDates, routine);
+            }
+        }
     }
 
     private void addExpense(LocalDate date, Routine routine) {
