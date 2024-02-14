@@ -10,6 +10,7 @@ import static org.mockito.Mockito.*;
 
 import com.umc5th.muffler.domain.dailyplan.repository.JDBCDailyPlanRepository;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
+import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.domain.routine.dto.RoutineAll;
 import com.umc5th.muffler.domain.routine.dto.RoutineDetail;
@@ -17,12 +18,10 @@ import com.umc5th.muffler.domain.routine.dto.RoutineRequest;
 import com.umc5th.muffler.domain.routine.dto.RoutineResponse;
 import com.umc5th.muffler.domain.routine.repository.RoutineRepository;
 import com.umc5th.muffler.entity.Expense;
+import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.Routine;
-import com.umc5th.muffler.fixture.ExpenseFixture;
-import com.umc5th.muffler.fixture.MemberFixture;
-import com.umc5th.muffler.fixture.RoutineFixture;
-import com.umc5th.muffler.fixture.RoutineRequestFixture;
+import com.umc5th.muffler.fixture.*;
 import com.umc5th.muffler.global.response.exception.CommonException;
 import com.umc5th.muffler.global.response.exception.MemberException;
 import com.umc5th.muffler.global.response.exception.RoutineException;
@@ -57,6 +56,8 @@ class RoutineServiceTest {
     @MockBean
     private MemberRepository memberRepository;
     @MockBean
+    private GoalRepository goalRepository;
+    @MockBean
     private JDBCDailyPlanRepository jdbcDailyPlanRepository;
     @Captor
     private ArgumentCaptor<Routine> routineCaptor;
@@ -90,14 +91,17 @@ class RoutineServiceTest {
         Expense expense = ExpenseFixture.create(LocalDate.of(2024, 1, 1));
         RoutineRequest request = RoutineRequestFixture.createWeekly();
         Long expenseId = expense.getId();
+        List<Goal> mockGoals = List.of(GoalFixture.create(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 8)));
 
         when(expenseRepository.findById(expenseId)).thenReturn(Optional.of(expense));
         when(dateTimeProvider.nowDate()).thenReturn(LocalDate.of(2024, 1, 8));
+        when(goalRepository.findGoalsWithinDateRange(any(LocalDate.class), any(LocalDate.class))).thenReturn(mockGoals);
 
         routineService.create(expenseId, request);
 
         verify(routineRepository).save(routineCaptor.capture());
         verify(expenseRepository, times(1)).save(any());
+        verify(goalRepository).findGoalsWithinDateRange(any(), any());
         verify(jdbcDailyPlanRepository).updateTotalCostForDailyPlans(anyString(), anyList(), anyLong());
 
         Routine saved = routineCaptor.getValue();
@@ -133,14 +137,17 @@ class RoutineServiceTest {
         Expense expense = ExpenseFixture.create(LocalDate.of(2023, 12, 1));
         RoutineRequest request = RoutineRequestFixture.createMonthly();
         Long expenseId = expense.getId();
+        List<Goal> mockGoals = List.of(GoalFixture.create(LocalDate.of(2023, 12, 1), LocalDate.of(2024, 1, 1)));
 
         when(expenseRepository.findById(expenseId)).thenReturn(Optional.of(expense));
         when(dateTimeProvider.nowDate()).thenReturn(LocalDate.of(2024, 1, 1));
+        when(goalRepository.findGoalsWithinDateRange(any(LocalDate.class), any(LocalDate.class))).thenReturn(mockGoals);
 
         routineService.create(expenseId, request);
 
         verify(routineRepository).save(routineCaptor.capture());
         verify(expenseRepository, times(1)).save(any());
+        verify(goalRepository).findGoalsWithinDateRange(any(), any());
         verify(jdbcDailyPlanRepository).updateTotalCostForDailyPlans(anyString(), anyList(), anyLong());
 
         Routine saved = routineCaptor.getValue();
