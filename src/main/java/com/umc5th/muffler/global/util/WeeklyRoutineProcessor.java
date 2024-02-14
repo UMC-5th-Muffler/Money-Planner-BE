@@ -5,6 +5,7 @@ import com.umc5th.muffler.entity.WeeklyRepeatDay;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,14 +25,16 @@ public class WeeklyRoutineProcessor implements RoutineProcessor {
     @Override
     public List<LocalDate> getRoutineDates(LocalDate startDate, LocalDate endDate, Routine routine) {
         List<LocalDate> result = new ArrayList<>();
-        long numberOfDays = ChronoUnit.DAYS.between(startDate, endDate);
         int weeklyTerm = routine.getWeeklyTerm();
         List<DayOfWeek> routineDayOfWeeks = getDayOfWeeks(routine);
 
-        Stream.iterate(startDate.plusDays(1), date -> date.plusDays(1))
-                .limit(numberOfDays + 1)
+        LocalDate firstRepeatStartDate = startDate.plusWeeks(weeklyTerm).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        long numberOfDays = ChronoUnit.DAYS.between(firstRepeatStartDate, endDate) + 1;
+
+        Stream.iterate(firstRepeatStartDate, date -> date.plusDays(1))
+                .limit(numberOfDays)
                 .forEach(date -> {
-                    if (isRoutineDay(startDate, weeklyTerm, date, routineDayOfWeeks)) {
+                    if (isRoutineDay(firstRepeatStartDate, weeklyTerm, date, routineDayOfWeeks)) {
                         result.add(date);
                     }
                 });
