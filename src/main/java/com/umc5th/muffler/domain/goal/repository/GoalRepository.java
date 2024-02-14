@@ -2,7 +2,6 @@ package com.umc5th.muffler.domain.goal.repository;
 
 import com.umc5th.muffler.entity.Goal;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +14,4 @@ public interface GoalRepository extends JpaRepository<Goal, Long>, GoalRepositor
 
     @Query("SELECT goal from Goal goal join fetch goal.dailyPlans where :date BETWEEN goal.startDate and goal.endDate AND goal.member.id = :memberId")
     Optional<Goal> findByDateBetweenAndDailyPlans(LocalDate date, String memberId);
-
-    @Query("SELECT g FROM Goal g WHERE g.startDate <= :endDate AND g.endDate >= :startDate")
-    List<Goal> findGoalsWithinDateRange(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }

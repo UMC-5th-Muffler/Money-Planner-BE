@@ -6,12 +6,12 @@ import static com.umc5th.muffler.global.response.code.ErrorCode.*;
 
 import com.umc5th.muffler.domain.dailyplan.repository.JDBCDailyPlanRepository;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
+import com.umc5th.muffler.domain.goal.dto.GoalTerm;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.domain.routine.dto.*;
 import com.umc5th.muffler.domain.routine.repository.RoutineRepository;
 import com.umc5th.muffler.entity.Expense;
-import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.Routine;
 import com.umc5th.muffler.entity.constant.RoutineType;
@@ -116,7 +116,7 @@ public class RoutineService {
     }
 
     private List<LocalDate> isInGoalPeriod(List<LocalDate> routineDates, LocalDate startDate, LocalDate endDate) {
-        List<Goal> goalList = goalRepository.findGoalsWithinDateRange(startDate, endDate);
+        List<GoalTerm> goalList = goalRepository.findGoalsWithinDateRange(startDate, endDate);
 
         return routineDates.stream()
                 .filter(date -> goalList.stream()
