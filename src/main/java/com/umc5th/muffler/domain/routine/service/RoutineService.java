@@ -160,7 +160,7 @@ public class RoutineService {
     public RoutineDetail getRoutine(String memberId, Long routineId) {
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-        Routine routine = routineRepository.findByIdWithCategory(routineId).orElseThrow(() -> new RoutineException(ErrorCode.ROUTINE_NOT_FOUND));
+        Routine routine = routineRepository.findByIdAndMemberIdWithCategory(routineId, memberId).orElseThrow(() -> new RoutineException(ErrorCode.ROUTINE_NOT_FOUND));
 
         return RoutineConverter.toRoutineDetail(routine);
     }
@@ -169,11 +169,7 @@ public class RoutineService {
     public void delete(Long routineId, String memberId) {
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
-        Routine routine = routineRepository.findById(routineId).orElseThrow(() -> new RoutineException(ROUTINE_NOT_FOUND));
-
-        if(!Objects.equals(member.getId(), routine.getMember().getId())) {
-            throw new CommonException(INVALID_PERMISSION);
-        }
+        Routine routine = routineRepository.findByIdAndMemberId(routineId, memberId).orElseThrow(() -> new RoutineException(ROUTINE_NOT_FOUND));
 
         routineRepository.delete(routine);
     }

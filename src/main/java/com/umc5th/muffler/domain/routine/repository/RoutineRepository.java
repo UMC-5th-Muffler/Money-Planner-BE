@@ -12,8 +12,10 @@ import java.util.Optional;
 @Repository
 public interface RoutineRepository extends JpaRepository<Routine, Long>, RoutineRepositoryCustom {
 
-    @Query("SELECT r FROM Routine r JOIN FETCH r.category WHERE r.id = :routineId")
-    Optional<Routine> findByIdWithCategory(Long routineId);
+    @Query("SELECT r FROM Routine r JOIN FETCH r.category WHERE r.id = :routineId AND r.member.id = :memberId")
+    Optional<Routine> findByIdAndMemberIdWithCategory(Long routineId, String memberId);
+
+    Optional<Routine> findByIdAndMemberId(Long routineId, String memberId);
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Routine routine set routine.category.id = :etcCategoryId where routine.category.id = :deletedCategoryId")

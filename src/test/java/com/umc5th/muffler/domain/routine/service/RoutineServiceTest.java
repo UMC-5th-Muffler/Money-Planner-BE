@@ -22,7 +22,6 @@ import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.Routine;
 import com.umc5th.muffler.fixture.*;
-import com.umc5th.muffler.global.response.exception.CommonException;
 import com.umc5th.muffler.global.response.exception.MemberException;
 import com.umc5th.muffler.global.response.exception.RoutineException;
 import com.umc5th.muffler.global.util.DateTimeProvider;
@@ -252,7 +251,7 @@ class RoutineServiceTest {
         Routine mockRoutine = RoutineFixture.ROUTINE_ONE;
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(routineRepository.findByIdWithCategory(routineId)).thenReturn(Optional.of(mockRoutine));
+        when(routineRepository.findByIdAndMemberIdWithCategory(routineId, memberId)).thenReturn(Optional.of(mockRoutine));
 
         RoutineDetail response = routineService.getRoutine(memberId, routineId);
 
@@ -261,7 +260,7 @@ class RoutineServiceTest {
         assertEquals(mockRoutine.getCategory().getName(), response.getCategoryName());
 
         verify(memberRepository).findById(memberId);
-        verify(routineRepository).findByIdWithCategory(routineId);
+        verify(routineRepository).findByIdAndMemberIdWithCategory(routineId, memberId);
     }
 
     @Test
@@ -271,14 +270,14 @@ class RoutineServiceTest {
         Member mockMember = MemberFixture.MEMBER_ONE;
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(routineRepository.findByIdWithCategory(routineId)).thenReturn(Optional.empty());
+        when(routineRepository.findByIdAndMemberIdWithCategory(routineId, memberId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> routineService.getRoutine(memberId, routineId))
                 .isInstanceOf(RoutineException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ROUTINE_NOT_FOUND);
 
         verify(memberRepository).findById(memberId);
-        verify(routineRepository).findByIdWithCategory(routineId);
+        verify(routineRepository).findByIdAndMemberIdWithCategory(routineId, memberId);
     }
 
 
@@ -293,12 +292,12 @@ class RoutineServiceTest {
         when(mockMember.getId()).thenReturn(memberId);
         when(mockRoutine.getMember()).thenReturn(mockMember);
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(routineRepository.findById(routineId)).thenReturn(Optional.of(mockRoutine));
+        when(routineRepository.findByIdAndMemberId(routineId, memberId)).thenReturn(Optional.of(mockRoutine));
 
         routineService.delete(routineId, memberId);
 
         verify(memberRepository).findById(memberId);
-        verify(routineRepository).delete(mockRoutine);
+        verify(routineRepository).findByIdAndMemberId(routineId, memberId);
     }
 
     @Test
@@ -308,14 +307,14 @@ class RoutineServiceTest {
         Member mockMember = MemberFixture.MEMBER_ONE;
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(routineRepository.findById(routineId)).thenReturn(Optional.empty());
+        when(routineRepository.findByIdAndMemberId(routineId, memberId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> routineService.delete(routineId, memberId))
                 .isInstanceOf(RoutineException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ROUTINE_NOT_FOUND);
 
         verify(memberRepository).findById(memberId);
-        verify(routineRepository).findById(routineId);
+        verify(routineRepository).findByIdAndMemberId(routineId, memberId);
     }
 
     @Test
@@ -344,13 +343,13 @@ class RoutineServiceTest {
         when(mockRoutine.getMember()).thenReturn(mock(Member.class));
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(routineRepository.findById(routineId)).thenReturn(Optional.of(mockRoutine));
+        when(routineRepository.findByIdAndMemberId(routineId, mockMember.getId())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> routineService.delete(routineId, memberId))
-                .isInstanceOf(CommonException.class)
-                .hasFieldOrPropertyWithValue("errorCode", INVALID_PERMISSION);
+                .isInstanceOf(RoutineException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ROUTINE_NOT_FOUND);
 
         verify(memberRepository).findById(memberId);
-        verify(routineRepository).findById(routineId);
+        verify(routineRepository).findByIdAndMemberId(routineId, memberId);
     }
 }
