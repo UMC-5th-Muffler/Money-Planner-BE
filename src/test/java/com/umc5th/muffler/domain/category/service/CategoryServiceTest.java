@@ -7,13 +7,16 @@ import static org.mockito.Mockito.verify;
 import com.umc5th.muffler.domain.category.dto.NewCategoryResponse;
 import com.umc5th.muffler.domain.category.dto.NewCategoryRequest;
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
+import com.umc5th.muffler.domain.category.repository.dto.NameProjection;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Member;
 
+import com.umc5th.muffler.entity.constant.Status;
 import com.umc5th.muffler.fixture.CategoryFixture;
 import com.umc5th.muffler.fixture.MemberFixture;
 import com.umc5th.muffler.global.response.exception.CategoryException;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -41,12 +44,12 @@ class CategoryServiceTest {
     @Test
     public void 정상실행() throws CategoryException {
         //given
-        Member member = MemberFixture.MEMBER_ONE;
+        Member member = MemberFixture.create("1");
         Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
         NewCategoryRequest request = new NewCategoryRequest(category.getName(), category.getIcon());
 
-        given(categoryRepository.findCategoryWithNameAndMemberId(request.getName(), member.getId()))
-                .willReturn(Optional.empty());
+        given(categoryRepository.findByMemberAndStatus(any(Member.class), any(Status.class)))
+                .willReturn(List.of(() -> "c1", () -> "c2"));
         given(memberRepository.findById(member.getId()))
                 .willReturn(Optional.ofNullable(member));
         given(categoryRepository.save(any(Category.class))).willReturn(category);
@@ -63,15 +66,15 @@ class CategoryServiceTest {
     @Test
     public void 중복_이름() throws CategoryException {
         // given
-        Member member = MemberFixture.MEMBER_ONE;
+        Member member = MemberFixture.create("1");
         Category haveCategory = CategoryFixture.CUSTOM_CATEGORY_ONE;
         member.addCategory(haveCategory);
 
         NewCategoryRequest request = new NewCategoryRequest(haveCategory.getName(), haveCategory.getIcon());
         // when
         given(memberRepository.findById(member.getId())).willReturn(Optional.ofNullable(member));
-        given(categoryRepository.findCategoryWithNameAndMemberId(request.getName(), member.getId()))
-                .willReturn(Optional.of(haveCategory));
+        given(categoryRepository.findByMemberAndStatus(any(Member.class), any(Status.class)))
+                .willReturn(List.of(haveCategory::getName));
 
         // then
         Assertions.assertThrows(CategoryException.class, () -> categoryService.createNewCategory(member.getId(), request));

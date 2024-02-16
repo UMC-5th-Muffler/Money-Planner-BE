@@ -7,10 +7,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile({"prod", "local"})
 public class FirebaseConfig {
     @Value("${firebase.key.path}")
     private String firebaseKeyPath;
@@ -26,7 +28,9 @@ public class FirebaseConfig {
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(credentials)
                 .build();
-        FirebaseApp.initializeApp(options);
+        if (FirebaseApp.getApps().isEmpty()) {
+           FirebaseApp.initializeApp(options);
+        }
     }
 
 }
