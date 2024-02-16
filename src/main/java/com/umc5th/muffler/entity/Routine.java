@@ -1,5 +1,6 @@
 package com.umc5th.muffler.entity;
 
+import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import com.umc5th.muffler.entity.constant.RoutineType;
 import java.time.LocalDate;
 import java.util.List;
@@ -20,13 +21,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 @Entity
 @Getter
-public class Routine {
+public class Routine extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -59,6 +61,7 @@ public class Routine {
 
     // Weekly Column
     @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL)
+    @BatchSize(size = 10)
     private List<WeeklyRepeatDay> weeklyRepeatDays;
 
     @Column
@@ -91,5 +94,9 @@ public class Routine {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public void setWeeklyRepeatDays(List<WeeklyRepeatDay> weeklyRepeatDays) {
+        this.weeklyRepeatDays = weeklyRepeatDays;
     }
 }

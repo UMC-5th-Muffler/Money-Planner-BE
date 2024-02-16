@@ -3,6 +3,8 @@ package com.umc5th.muffler.domain.goal.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.DatePath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.umc5th.muffler.domain.goal.dto.GoalTerm;
+import com.umc5th.muffler.domain.goal.dto.QGoalTerm;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.QGoal;
 import java.time.LocalDate;
@@ -63,5 +65,19 @@ public class GoalRepositoryImpl implements GoalRepositoryCustom {
 
     private BooleanExpression bfEndDate(LocalDate endDate) {
         return endDate == null ? null : goal.endDate.before(endDate);
+    }
+
+    @Override
+    public List<GoalTerm> findGoalsWithinDateRange(LocalDate startDate, LocalDate endDate) {
+        QGoal goal = QGoal.goal;
+
+        List<GoalTerm> goalTermList = queryFactory
+                .select(new QGoalTerm(goal.startDate, goal.endDate))
+                .from(goal)
+                .where(goal.startDate.loe(endDate)
+                        .and(goal.endDate.goe(startDate)))
+                .fetch();
+
+        return goalTermList;
     }
 }

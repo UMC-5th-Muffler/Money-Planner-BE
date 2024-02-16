@@ -2,23 +2,36 @@ package com.umc5th.muffler.domain.routine.service;
 
 import static com.umc5th.muffler.entity.constant.RoutineType.MONTHLY;
 import static com.umc5th.muffler.entity.constant.RoutineType.WEEKLY;
-import static com.umc5th.muffler.global.response.code.ErrorCode.EXPENSE_NOT_FOUND;
-import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_ROUTINE_INPUT;
+import static com.umc5th.muffler.global.response.code.ErrorCode.*;
 
+import com.umc5th.muffler.domain.dailyplan.repository.JDBCDailyPlanRepository;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
-import com.umc5th.muffler.domain.routine.dto.RoutineConverter;
-import com.umc5th.muffler.domain.routine.dto.RoutineRequest;
+import com.umc5th.muffler.domain.goal.dto.GoalTerm;
+import com.umc5th.muffler.domain.goal.repository.GoalRepository;
+import com.umc5th.muffler.domain.member.repository.MemberRepository;
+import com.umc5th.muffler.domain.routine.dto.*;
 import com.umc5th.muffler.domain.routine.repository.RoutineRepository;
 import com.umc5th.muffler.entity.Expense;
+import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.Routine;
+import com.umc5th.muffler.entity.WeeklyRepeatDay;
+import com.umc5th.muffler.entity.constant.RoutineType;
+import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.ExpenseException;
+import com.umc5th.muffler.global.response.exception.MemberException;
 import com.umc5th.muffler.global.response.exception.RoutineException;
 import com.umc5th.muffler.global.util.DateTimeProvider;
 import com.umc5th.muffler.global.util.RoutineProcessor;
 import com.umc5th.muffler.global.util.RoutineUtils;
+
 import java.time.LocalDate;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +41,9 @@ public class RoutineService {
     private final DateTimeProvider dateTimeProvider;
     private final RoutineRepository routineRepository;
     private final ExpenseRepository expenseRepository;
+    private final MemberRepository memberRepository;
+    private final GoalRepository goalRepository;
+    private final JDBCDailyPlanRepository jdbcDailyPlanRepository;
 
     @Transactional
     public void create(Long expenseId, RoutineRequest request) {
@@ -41,7 +57,6 @@ public class RoutineService {
         routineRepository.save(routine);
         if (routine.getStartDate().isBefore(dateTimeProvider.nowDate())) {
             addPastExpenses(routine);
-            // TODO : dailyPlan의 totalCost 수정 추가
         }
     }
 
@@ -78,13 +93,77 @@ public class RoutineService {
         RoutineProcessor processor = RoutineUtils.getProcessorForRoutineType(routine);
         List<LocalDate> routineDates = processor.getRoutineDates(startDate, endDate, routine);
 
-        routineDates.stream()
-                .forEach(date -> addExpense(date, routine));
+        if (!routineDates.isEmpty()) {
+            List<LocalDate> filteredRoutineDates = filterDatesByGoals(routineDates, startDate, endDate);
+
+            if(!filteredRoutineDates.isEmpty()) {
+                filteredRoutineDates.stream()
+                        .forEach(date -> addExpense(date, routine));
+                updateDailyTotalCost(filteredRoutineDates, routine);
+            }
+        }
     }
 
     private void addExpense(LocalDate date, Routine routine) {
         expenseRepository.save(
                 Expense.of(date, routine.getTitle(), routine.getMemo(), routine.getCost(), routine.getMember(), routine.getCategory())
         );
+    }
+
+    private void updateDailyTotalCost(List<LocalDate> dates, Routine routine) {
+        jdbcDailyPlanRepository.updateTotalCostForDailyPlans(routine.getMember().getId(), dates, routine.getCost());
+    }
+
+    private List<LocalDate> filterDatesByGoals(List<LocalDate> routineDates, LocalDate startDate, LocalDate endDate) {
+        List<GoalTerm> goalList = goalRepository.findGoalsWithinDateRange(startDate, endDate);
+
+        Set<LocalDate> goalPeriodsSet = goalList.stream()
+                .flatMap(goal -> Stream.iterate(goal.getStartDate(), date -> date.plusDays(1))
+                        .limit(goal.getStartDate().until(goal.getEndDate()).getDays() + 1))
+                .collect(Collectors.toSet());
+
+        return routineDates.stream()
+                .filter(goalPeriodsSet::contains)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public RoutineResponse getAllRoutines(Pageable pageable, Long endPointId, String memberId) {
+
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Slice<Routine> routineList = routineRepository.findRoutinesWithCategory(member.getId(), endPointId, pageable);
+
+        List<Long> weeklyRoutineIds = routineList.stream()
+                .filter(r -> r.getType() == RoutineType.WEEKLY)
+                .map(Routine::getId)
+                .collect(Collectors.toList());
+
+        Map<Long, List<WeeklyRepeatDay>> weeklyRepeatDaysMap = Collections.emptyMap();
+        if (!weeklyRoutineIds.isEmpty()) {
+            weeklyRepeatDaysMap = routineRepository.findWeeklyRepeatDays(weeklyRoutineIds);
+        }
+
+        List<RoutineAll> routineAllList  = RoutineConverter.toRoutineInfoList(routineList, weeklyRepeatDaysMap);
+
+        return RoutineConverter.toRoutineResponse(routineAllList, routineList.hasNext());
+    }
+
+    @Transactional(readOnly = true)
+    public RoutineDetail getRoutine(String memberId, Long routineId) {
+
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+        Routine routine = routineRepository.findByIdAndMemberIdWithCategory(routineId, memberId).orElseThrow(() -> new RoutineException(ErrorCode.ROUTINE_NOT_FOUND));
+
+        return RoutineConverter.toRoutineDetail(routine);
+    }
+
+    @Transactional
+    public void delete(Long routineId, String memberId) {
+
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
+        Routine routine = routineRepository.findByIdAndMemberId(routineId, memberId).orElseThrow(() -> new RoutineException(ROUTINE_NOT_FOUND));
+
+        routineRepository.delete(routine);
     }
 }
