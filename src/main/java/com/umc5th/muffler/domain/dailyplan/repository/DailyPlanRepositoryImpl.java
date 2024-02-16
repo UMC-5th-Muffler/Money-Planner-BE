@@ -42,7 +42,7 @@ public class DailyPlanRepositoryImpl implements DailyPlanRepositoryCustom {
                         dailyPlan.budget.as("dailyBudget"),
                         memberAlarm.token.as("alarmToken")))
                 .from(member)
-                .join(memberAlarm).on(memberAlarm.member.id.eq(member.id))
+                .join(memberAlarm).on(memberAlarm.id.eq(member.memberAlarm.id))
                 .join(goal).on(goal.member.id.eq(member.id))
                 .join(dailyPlan).on(dailyPlan.goal.id.eq(goal.id))
                 .where(

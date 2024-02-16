@@ -9,6 +9,7 @@ import com.umc5th.muffler.domain.goal.dto.GoalTerm;
 import com.umc5th.muffler.domain.goal.dto.QGoalTerm;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.QGoal;
+import com.umc5th.muffler.entity.QMember;
 import com.umc5th.muffler.entity.QMemberAlarm;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -64,6 +65,7 @@ public class GoalRepositoryImpl implements GoalRepositoryCustom {
 
     @Override
     public List<FinishedGoal> findFinishedGoals(LocalDate date) {
+        QMember member = QMember.member;
         QGoal goal = QGoal.goal;
         QMemberAlarm memberAlarm = QMemberAlarm.memberAlarm;
 
@@ -74,7 +76,8 @@ public class GoalRepositoryImpl implements GoalRepositoryCustom {
                         memberAlarm.token.as("token")
                     ))
                 .from(goal)
-                .join(memberAlarm).on(memberAlarm.member.id.eq(goal.member.id))
+                .join(member).on(member.id.eq(goal.member.id))
+                .join(memberAlarm).on(memberAlarm.member.id.eq(member.id))
                 .where(
                     goal.endDate.eq(date),
                     memberAlarm.token.isNotNull(),
