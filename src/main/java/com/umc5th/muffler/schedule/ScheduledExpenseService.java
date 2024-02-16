@@ -2,8 +2,8 @@ package com.umc5th.muffler.schedule;
 
 import com.umc5th.muffler.domain.expense.repository.JDBCExpenseRepository;
 import com.umc5th.muffler.domain.expense.repository.JDBCExpenseRepository.InsertExpenseEntity;
-import com.umc5th.muffler.domain.goal.repository.JDBCDailyPlanRepository;
-import com.umc5th.muffler.domain.goal.repository.JDBCDailyPlanRepository.UpdateTotalCost;
+import com.umc5th.muffler.domain.goal.repository.JDBCDailyPlanBatchRepository;
+import com.umc5th.muffler.domain.goal.repository.JDBCDailyPlanBatchRepository.UpdateTotalCost;
 import com.umc5th.muffler.domain.routine.dto.InsertableRoutine;
 import com.umc5th.muffler.domain.routine.repository.RoutineRepository;
 import com.umc5th.muffler.global.util.DateTimeProvider;
@@ -24,7 +24,7 @@ public class ScheduledExpenseService {
     private final DateTimeProvider dateTimeProvider;
     private final RoutineRepository routineRepository;
     private final JDBCExpenseRepository jdbcExpenseRepository;
-    private final JDBCDailyPlanRepository jdbcDailyPlanRepository;
+    private final JDBCDailyPlanBatchRepository jdbcDailyPlanBatchRepository;
 
     @Transactional
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
@@ -37,7 +37,7 @@ public class ScheduledExpenseService {
         List<UpdateTotalCost> updateTotalCosts = toUpdateTotalCostList(insertableRoutines);
 
         jdbcExpenseRepository.saveAllExpense(insertExpenses);
-        jdbcDailyPlanRepository.saveTotalCosts(updateTotalCosts);
+        jdbcDailyPlanBatchRepository.saveTotalCosts(updateTotalCosts);
     }
 
     private List<UpdateTotalCost> toUpdateTotalCostList(List<InsertableRoutine> routines) {

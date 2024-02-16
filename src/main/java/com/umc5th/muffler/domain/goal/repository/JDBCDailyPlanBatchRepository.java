@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class JDBCDailyPlanRepository {
+public class JDBCDailyPlanBatchRepository {
     private static final int BATCH_SIZE = 500;
     @Getter
     @AllArgsConstructor
