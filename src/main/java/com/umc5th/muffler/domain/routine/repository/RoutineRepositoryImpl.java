@@ -6,14 +6,12 @@ import com.umc5th.muffler.entity.QRoutine;
 import com.umc5th.muffler.entity.QWeeklyRepeatDay;
 import com.umc5th.muffler.entity.Routine;
 import com.umc5th.muffler.entity.WeeklyRepeatDay;
-import com.umc5th.muffler.entity.constant.RoutineType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

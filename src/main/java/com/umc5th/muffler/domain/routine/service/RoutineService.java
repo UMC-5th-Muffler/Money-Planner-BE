@@ -17,7 +17,6 @@ import com.umc5th.muffler.entity.Routine;
 import com.umc5th.muffler.entity.WeeklyRepeatDay;
 import com.umc5th.muffler.entity.constant.RoutineType;
 import com.umc5th.muffler.global.response.code.ErrorCode;
-import com.umc5th.muffler.global.response.exception.CommonException;
 import com.umc5th.muffler.global.response.exception.ExpenseException;
 import com.umc5th.muffler.global.response.exception.MemberException;
 import com.umc5th.muffler.global.response.exception.RoutineException;
