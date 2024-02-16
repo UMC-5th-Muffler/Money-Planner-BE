@@ -95,4 +95,8 @@ public class Routine extends BaseTimeEntity {
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
+
+    public void setWeeklyRepeatDays(List<WeeklyRepeatDay> weeklyRepeatDays) {
+        this.weeklyRepeatDays = weeklyRepeatDays;
+    }
 }
