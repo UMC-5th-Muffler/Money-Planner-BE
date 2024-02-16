@@ -3,6 +3,7 @@ package com.umc5th.muffler.domain.goal.controller;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -14,6 +15,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.umc5th.muffler.config.TestSecurityConfig;
+import com.umc5th.muffler.domain.goal.dto.GoalCreateRequest;
+import com.umc5th.muffler.domain.goal.dto.GoalGetResponse;
+import com.umc5th.muffler.domain.goal.dto.GoalReportResponse;
 import com.umc5th.muffler.domain.goal.dto.*;
 import com.umc5th.muffler.domain.goal.service.GoalCreateService;
 import com.umc5th.muffler.domain.goal.service.GoalService;
@@ -87,6 +91,23 @@ class GoalControllerTest {
 
     @Test
     @WithMockUser
+    void 목표_리포트_조회() throws Exception {
+        Long goalId = 1L;
+        GoalReportResponse mockResponse = GoalReportResponse.builder()
+                .zeroDayCount(2L)
+                .build();
+
+        when(goalService.getReport(eq(goalId), any())).thenReturn(mockResponse);
+
+        mockMvc.perform(get("/api/goal/report/" + goalId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.zeroDayCount").value(mockResponse.getZeroDayCount()));
+
+        verify(goalService).getReport(eq(goalId), any());
+    }
+
+    @Test
+    @WithMockUser
     void 목표_탭_진행중목표_조회() throws Exception {
         GoalInfo mockResponse = GoalInfo.builder()
                 .goalId(1L)
@@ -109,6 +130,26 @@ class GoalControllerTest {
 
     @Test
     @WithMockUser
+    void 목표_상세_조회() throws Exception {
+        Long goalId = 1L;
+        GoalGetResponse mockResponse = GoalGetResponse.builder()
+                .title("Vacation")
+                .icon("icon.png")
+                .startDate(LocalDate.of(2024, 1, 1))
+                .endDate(LocalDate.of(2024, 6, 30))
+                .totalBudget(500000)
+                .totalCost(300000)
+                .build();
+
+        when(goalService.getGoalWithTotalCost(eq(goalId), any())).thenReturn(mockResponse);
+
+        mockMvc.perform(get("/api/goal/{goalId}", goalId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.title").value(mockResponse.getTitle()));
+
+        verify(goalService).getGoalWithTotalCost(eq(goalId), any());
+    }
+
     void 목표_탭_목표전체조회() throws Exception {
 
         GoalInfo past = GoalInfo.builder()

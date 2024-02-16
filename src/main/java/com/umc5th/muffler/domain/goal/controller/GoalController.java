@@ -44,6 +44,18 @@ public class GoalController {
         return Response.success();
     }
 
+    @GetMapping("/report/{goalId}")
+    public Response<GoalReportResponse> getReport(@PathVariable Long goalId, Authentication authentication){
+        GoalReportResponse response = goalService.getReport(goalId, authentication.getName());
+        return Response.success(response);
+    }
+
+    @GetMapping("/{goalId}")
+    public Response<GoalGetResponse> getGoal(@PathVariable Long goalId, Authentication authentication){
+        GoalGetResponse response = goalService.getGoalWithTotalCost(goalId, authentication.getName());
+        return Response.success(response);
+    }
+
     @GetMapping("/now")
     public Response<GoalInfo> getNowGoal(Authentication authentication) {
         GoalInfo response = goalService.getGoalNow(authentication.getName());
