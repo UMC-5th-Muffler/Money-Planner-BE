@@ -21,14 +21,17 @@ import com.umc5th.muffler.domain.routine.repository.RoutineRepository;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.Routine;
+import com.umc5th.muffler.entity.WeeklyRepeatDay;
 import com.umc5th.muffler.fixture.*;
 import com.umc5th.muffler.global.response.exception.MemberException;
 import com.umc5th.muffler.global.response.exception.RoutineException;
 import com.umc5th.muffler.global.util.DateTimeProvider;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -156,7 +159,7 @@ class RoutineServiceTest {
     }
 
     @Test
-    void 루틴_전체조회_루틴존재() {
+    void 루틴_전체조회_Monthly_루틴존재() {
 
         String memberId = "1";
         int pageSize = 10;
@@ -168,7 +171,7 @@ class RoutineServiceTest {
         Slice<Routine> routineSlice = new SliceImpl<>(routineList, pageable, false);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(routineRepository.findRoutinesWithWeeklyDetails(memberId, null, pageable)).thenReturn(routineSlice);
+        when(routineRepository.findRoutinesWithCategory(memberId, null, pageable)).thenReturn(routineSlice);
 
         RoutineResponse response = routineService.getAllRoutines(pageable, null, memberId);
 
@@ -182,8 +185,45 @@ class RoutineServiceTest {
         assertEquals(routineSlice.hasNext(), response.isHasNext());
 
         verify(memberRepository).findById(memberId);
-        verify(routineRepository).findRoutinesWithWeeklyDetails(memberId, null, pageable);
+        verify(routineRepository).findRoutinesWithCategory(memberId, null, pageable);
     }
+
+    @Test
+    void 루틴_전체조회_Weekly_루틴존재() {
+        String memberId = "1";
+        Long routineId = 2L;
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(0, pageSize);
+
+        Member mockMember = MemberFixture.MEMBER_ONE;
+        Routine mockRoutine = RoutineFixture.ROUTINE_TWO;
+        List<Routine> routineList = List.of(mockRoutine);
+        Slice<Routine> routineSlice = new SliceImpl<>(routineList, pageable, false);
+
+        List<WeeklyRepeatDay> weeklyRepeatDays = List.of(new WeeklyRepeatDay(1L, DayOfWeek.MONDAY, mockRoutine), new WeeklyRepeatDay(2L, DayOfWeek.WEDNESDAY, mockRoutine));
+        Map<Long, List<WeeklyRepeatDay>> weeklyRepeatDayMap = Map.of(routineId, weeklyRepeatDays);
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
+        when(routineRepository.findRoutinesWithCategory(memberId, null, pageable)).thenReturn(routineSlice);
+        when(routineRepository.findWeeklyRepeatDays(List.of(routineId))).thenReturn(weeklyRepeatDayMap);
+
+        RoutineResponse response = routineService.getAllRoutines(pageable, null, memberId);
+
+        assertNotNull(response);
+        assertEquals(1, response.getRoutineList().size());
+        RoutineAll responseRoutine = response.getRoutineList().get(0);
+        assertEquals(mockRoutine.getId(), responseRoutine.getRoutineId());
+        assertNull(responseRoutine.getMonthlyRepeatDay());
+        assertNotNull(responseRoutine.getWeeklyDetail());
+        assertEquals(weeklyRepeatDays.size(), responseRoutine.getWeeklyDetail().getWeeklyRepeatDays().size());
+        assertTrue(responseRoutine.getWeeklyDetail().getWeeklyRepeatDays().containsAll(List.of(1, 3)));
+        assertEquals(routineSlice.hasNext(), response.isHasNext());
+
+        verify(memberRepository).findById(memberId);
+        verify(routineRepository).findRoutinesWithCategory(memberId, null, pageable);
+        verify(routineRepository).findWeeklyRepeatDays(List.of(routineId));
+    }
+
 
     @Test
     void 루틴_전체조회_루틴존재X() {
@@ -196,7 +236,7 @@ class RoutineServiceTest {
         Slice<Routine> routineSlice = new SliceImpl<>(routineList, pageable, false);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(routineRepository.findRoutinesWithWeeklyDetails(memberId, null, pageable)).thenReturn(routineSlice);
+        when(routineRepository.findRoutinesWithCategory(memberId, null, pageable)).thenReturn(routineSlice);
 
         RoutineResponse response = routineService.getAllRoutines(pageable, null, memberId);
 
@@ -205,7 +245,7 @@ class RoutineServiceTest {
         assertEquals(routineSlice.hasNext(), response.isHasNext());
 
         verify(memberRepository).findById(memberId);
-        verify(routineRepository).findRoutinesWithWeeklyDetails(memberId, null, pageable);
+        verify(routineRepository).findRoutinesWithCategory(memberId, null, pageable);
     }
 
     @Test
@@ -219,7 +259,7 @@ class RoutineServiceTest {
         Slice<Routine> routineSlice = new SliceImpl<>(routineList, pageable, true);
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(routineRepository.findRoutinesWithWeeklyDetails(memberId, null, pageable)).thenReturn(routineSlice);
+        when(routineRepository.findRoutinesWithCategory(memberId, null, pageable)).thenReturn(routineSlice);
 
         RoutineResponse response = routineService.getAllRoutines(pageable, null, memberId);
 
@@ -227,7 +267,7 @@ class RoutineServiceTest {
         assertEquals(routineSlice.hasNext(), response.isHasNext());
 
         verify(memberRepository).findById(memberId);
-        verify(routineRepository).findRoutinesWithWeeklyDetails(memberId, null, pageable);
+        verify(routineRepository).findRoutinesWithCategory(memberId, null, pageable);
     }
 
     @Test

@@ -21,6 +21,15 @@ public class RoutineFixture {
             .monthlyRepeatDay(1)
             .build();
 
+    public static final Routine ROUTINE_TWO = Routine.builder()
+            .id(2L)
+            .type(RoutineType.WEEKLY)
+            .startDate(LocalDate.of(2024, 1, 1))
+            .title("루틴2")
+            .cost(1000L)
+            .category(CategoryFixture.CATEGORY_ONE)
+            .build();
+
     public static List<Routine> createList(int num, LocalDate date) {
 
         return IntStream.rangeClosed(0, num)
