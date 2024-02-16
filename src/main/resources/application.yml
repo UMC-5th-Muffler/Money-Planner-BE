@@ -2,7 +2,6 @@ spring:
   profiles:
     group:
       "local": "local, common"
-      "test": "test, common"
       "prod" : "prod, common"
     active: local # Select profile
 ---
@@ -15,15 +14,6 @@ spring:
   jpa:
     properties:
       dialect: org.hibernate.dialect.MySQL8Dialect
----
-spring:
-  config:
-    activate:
-      on-profile: "test"
-  datasource:
-    driver-class-name: org.h2.Driver
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
 ---
 spring:
   config:

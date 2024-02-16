@@ -45,7 +45,7 @@ class JDBCGoalRepositoryBatchDailyPlanInsertTest {
         for (DailyPlan dailyPlan : dailyPlans){
             updateTotalCosts.add(new UpdateTotalCost(dailyPlan.getId(), 100L, LocalDateTime.now()));
         }
-        int errorCount = jdbcDailyPlanRepository.saveTotalCosts(updateTotalCosts);
-        assertEquals(0, errorCount);
+        int success = jdbcDailyPlanRepository.saveTotalCosts(updateTotalCosts);
+        assertEquals(updateTotalCosts.size(), success);
     }
 }

@@ -25,7 +25,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-@ActiveProfiles("test")
 class FindInsertableRoutineTest {
     @Autowired
     private RoutineRepository routineRepository;

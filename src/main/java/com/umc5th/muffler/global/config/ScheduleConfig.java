@@ -2,11 +2,13 @@ package com.umc5th.muffler.global.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
 @Configuration
+@Profile({"local", "prod"})
 public class ScheduleConfig implements SchedulingConfigurer {
     @Value("${thread.pool.size}")
     private int POOL_SIZE;

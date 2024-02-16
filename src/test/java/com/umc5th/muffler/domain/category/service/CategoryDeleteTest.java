@@ -42,14 +42,15 @@ public class CategoryDeleteTest {
     @Test
     @Transactional
     void 커스텀_카테고리_삭제_성공() {
-        Member member = MemberFixture.MEMBER_ONE;
+        Member member = MemberFixture.create("1");
         Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
         Category etcCategory = CategoryFixture.ETC_CATEGORY;
         member.addCategory(category);
         member.addCategory(etcCategory);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findCategoryWithCategoryIdAndMemberId(any(Long.class), any(String.class)))
+                .willReturn(Optional.of(category));
         given(categoryRepository.findCategoryWithNameAndMemberId(any(String.class), any(String.class)))
                 .willReturn(Optional.of(etcCategory));
         given(routineRepository.updateRoutinesWithDeletedCategory(any(Long.class), any(Long.class))).willReturn(1);
@@ -65,7 +66,7 @@ public class CategoryDeleteTest {
     @Test
     @Transactional
     void 사용자가_없는_경우_삭제_실패() {
-        Member member = MemberFixture.MEMBER_ONE;
+        Member member = MemberFixture.create("1");
         Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
         Category etcCategory = CategoryFixture.ETC_CATEGORY;
         member.addCategory(category);
@@ -81,14 +82,15 @@ public class CategoryDeleteTest {
     @Test
     @Transactional
     void 카테고리가_없는_경우_삭제_실패() {
-        Member member = MemberFixture.MEMBER_ONE;
+        Member member = MemberFixture.create("1");
         Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
         Category etcCategory = CategoryFixture.ETC_CATEGORY;
         member.addCategory(category);
         member.addCategory(etcCategory);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.empty());
+        given(categoryRepository.findCategoryWithCategoryIdAndMemberId(any(Long.class), any(String.class)))
+                .willReturn(Optional.empty());
 
         assertThatThrownBy(() ->categoryService.deactivateCategory(member.getId(), category.getId()))
                 .isInstanceOf(CategoryException.class)
@@ -98,7 +100,7 @@ public class CategoryDeleteTest {
     @Test
     @Transactional
     void 다른_사용자의_카테고리_삭제_실패() {
-        Member member = MemberFixture.MEMBER_ONE;
+        Member member = MemberFixture.create("1");
         Member other = MemberFixture.MEMBER_TWO;
         Category category = CategoryFixture.CUSTOM_CATEGORY_ONE;
         Category etcCategory = CategoryFixture.ETC_CATEGORY;
@@ -106,41 +108,25 @@ public class CategoryDeleteTest {
         member.addCategory(etcCategory);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findCategoryWithCategoryIdAndMemberId(any(Long.class), any(String.class)))
+                .willReturn(Optional.empty());
 
         assertThatThrownBy(() ->categoryService.deactivateCategory(member.getId(), category.getId()))
                 .isInstanceOf(CategoryException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CATEGORY_GOAL_NOT_FOUND);
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CATEGORY_NOT_FOUND);
     }
-
-    @Test
-    @Transactional
-    void 이미_삭제된_카테고리의_경우_삭제_실패() {
-        Member member = MemberFixture.MEMBER_ONE;
-        Category category = CategoryFixture.INACTIVE_CATEGORY_SIX;
-        Category etcCategory = CategoryFixture.ETC_CATEGORY;
-        member.addCategory(category);
-        member.addCategory(etcCategory);
-
-        given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
-
-        assertThatThrownBy(() ->categoryService.deactivateCategory(member.getId(), category.getId()))
-                .isInstanceOf(CategoryException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.ALREADY_INACTIVE_CATEGORY);
-    }
-
     @Test
     @Transactional
     void 기타_카테고리가_삭제된_경우_삭제_실패() {
-        Member member = MemberFixture.MEMBER_ONE;
+        Member member = MemberFixture.create("1");
         Category category = CategoryFixture.ETC_CATEGORY;
         Category etcCategory = CategoryFixture.ETC_CATEGORY;
         member.addCategory(category);
         member.addCategory(etcCategory);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findCategoryWithCategoryIdAndMemberId(any(Long.class), any(String.class)))
+                .willReturn(Optional.of(category));
 
         assertThatThrownBy(() ->categoryService.deactivateCategory(member.getId(), category.getId()))
                 .isInstanceOf(CategoryException.class)
@@ -150,14 +136,15 @@ public class CategoryDeleteTest {
     @Test
     @Transactional
     void 디폴트_카테고리_삭제_실패() {
-        Member member = MemberFixture.MEMBER_ONE;
+        Member member = MemberFixture.create("1");
         Category category = CategoryFixture.DEFAULT_CATEGORY_FOUR;
         Category etcCategory = CategoryFixture.ETC_CATEGORY;
         member.addCategory(category);
         member.addCategory(etcCategory);
 
         given(memberRepository.findById(any(String.class))).willReturn(Optional.of(member));
-        given(categoryRepository.findActiveCategoryById(any(Long.class))).willReturn(Optional.of(category));
+        given(categoryRepository.findCategoryWithCategoryIdAndMemberId(any(Long.class), any(String.class)))
+                .willReturn(Optional.of(category));
 
         assertThatThrownBy(() ->categoryService.deactivateCategory(member.getId(), category.getId()))
                 .isInstanceOf(CategoryException.class)
