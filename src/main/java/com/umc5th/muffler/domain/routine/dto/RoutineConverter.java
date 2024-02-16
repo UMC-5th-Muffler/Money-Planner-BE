@@ -6,6 +6,7 @@ import com.umc5th.muffler.entity.constant.RoutineType;
 import org.springframework.data.domain.Slice;
 
 import java.time.DayOfWeek;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -22,13 +23,12 @@ public class RoutineConverter {
                 .collect(Collectors.toList());
     }
 
-    public static List<RoutineAll> toRoutineInfoList(Slice<Routine> routineList) {
+    public static List<RoutineAll> toRoutineInfoList(Slice<Routine> routineList, Map<Long, List<WeeklyRepeatDay>> weeklyRepeatDaysMap) {
         return routineList.getContent().stream()
                 .map(routine -> {
                     RoutineWeeklyDetailDto weeklyDetail = null;
                     if (routine.getType() == RoutineType.WEEKLY) {
-                        List<Integer> dayOfWeeks = extractDayOfWeeks(routine);
-                        weeklyDetail = new RoutineWeeklyDetailDto(routine.getWeeklyTerm(), dayOfWeeks);
+                        weeklyDetail = getWeeklyDetail(routine, weeklyRepeatDaysMap);
                     }
 
                     return RoutineAll.builder()
@@ -43,10 +43,13 @@ public class RoutineConverter {
                 .collect(Collectors.toList());
     }
 
-    private static List<Integer> extractDayOfWeeks(Routine routine) {
-        return routine.getWeeklyRepeatDays().stream()
-                .map(weeklyRepeatDay -> weeklyRepeatDay.getDayOfWeek().getValue())
+    private static RoutineWeeklyDetailDto getWeeklyDetail(Routine routine, Map<Long, List<WeeklyRepeatDay>> weeklyRepeatDaysMap) {
+        List<Integer> dayOfWeeks = weeklyRepeatDaysMap.getOrDefault(routine.getId(), Collections.emptyList())
+                .stream()
+                .map(wrd -> wrd.getDayOfWeek().getValue())
                 .collect(Collectors.toList());
+
+        return new RoutineWeeklyDetailDto(routine.getWeeklyTerm(), dayOfWeeks);
     }
 
     public static RoutineResponse toRoutineResponse(List<RoutineAll> routineList, Boolean hasNext) {

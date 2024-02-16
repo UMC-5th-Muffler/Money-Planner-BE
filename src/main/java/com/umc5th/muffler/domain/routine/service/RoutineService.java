@@ -14,6 +14,7 @@ import com.umc5th.muffler.domain.routine.repository.RoutineRepository;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.Routine;
+import com.umc5th.muffler.entity.WeeklyRepeatDay;
 import com.umc5th.muffler.entity.constant.RoutineType;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.CommonException;
@@ -130,12 +131,21 @@ public class RoutineService {
 
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Slice<Routine> routineList = routineRepository.findRoutinesWithWeeklyDetails(member.getId(), endPointId, pageable);
+        Slice<Routine> routineList = routineRepository.findRoutinesWithCategory(member.getId(), endPointId, pageable);
 
-        List<RoutineAll> routineAllList  = RoutineConverter.toRoutineInfoList(routineList);
-        RoutineResponse response = RoutineConverter.toRoutineResponse(routineAllList, routineList.hasNext());
+        List<Long> weeklyRoutineIds = routineList.stream()
+                .filter(r -> r.getType() == RoutineType.WEEKLY)
+                .map(Routine::getId)
+                .collect(Collectors.toList());
 
-        return response;
+        Map<Long, List<WeeklyRepeatDay>> weeklyRepeatDaysMap = Collections.emptyMap();
+        if (!weeklyRoutineIds.isEmpty()) {
+            weeklyRepeatDaysMap = routineRepository.findWeeklyRepeatDays(weeklyRoutineIds);
+        }
+
+        List<RoutineAll> routineAllList  = RoutineConverter.toRoutineInfoList(routineList, weeklyRepeatDaysMap);
+
+        return RoutineConverter.toRoutineResponse(routineAllList, routineList.hasNext());
     }
 
     @Transactional(readOnly = true)

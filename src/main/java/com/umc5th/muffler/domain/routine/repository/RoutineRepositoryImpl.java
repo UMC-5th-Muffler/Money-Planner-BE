@@ -26,9 +26,8 @@ public class RoutineRepositoryImpl implements RoutineRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Routine> findRoutinesWithWeeklyDetails(String memberId, Long endPointId, Pageable pageable) {
+    public Slice<Routine> findRoutinesWithCategory(String memberId, Long endPointId, Pageable pageable) {
         QRoutine routine = QRoutine.routine;
-        QWeeklyRepeatDay weeklyRepeatDay = QWeeklyRepeatDay.weeklyRepeatDay;
 
         List<Routine> routineList = queryFactory
                 .selectFrom(routine)
@@ -37,24 +36,6 @@ public class RoutineRepositoryImpl implements RoutineRepositoryCustom {
                 .orderBy(routine.id.desc())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
-
-        List<Long> weeklyRoutineIds = routineList.stream()
-                .filter(r -> r.getType() == RoutineType.WEEKLY)
-                .map(Routine::getId)
-                .collect(Collectors.toList());
-
-        if (!weeklyRoutineIds.isEmpty()) {
-            Map<Long, List<WeeklyRepeatDay>> weeklyRepeatDaysMap = queryFactory
-                    .selectFrom(weeklyRepeatDay)
-                    .where(weeklyRepeatDay.routine.id.in(weeklyRoutineIds))
-                    .fetch()
-                    .stream()
-                    .collect(Collectors.groupingBy(wrd -> wrd.getRoutine().getId()));
-
-            routineList.stream()
-                    .filter(r -> r.getType() == RoutineType.WEEKLY)
-                    .forEach(r -> r.setWeeklyRepeatDays(weeklyRepeatDaysMap.getOrDefault(r.getId(), Collections.emptyList())));
-        }
 
         boolean hasNext = routineList.size() > pageable.getPageSize();
         if (hasNext) {
@@ -67,4 +48,16 @@ public class RoutineRepositoryImpl implements RoutineRepositoryCustom {
     private BooleanExpression ltRoutineId(Long endPointId) {
         return endPointId == null ? null : routine.id.lt(endPointId);
     }
+
+    @Override
+    public Map<Long, List<WeeklyRepeatDay>> findWeeklyRepeatDays(List<Long> weeklyRoutineIds) {
+        QWeeklyRepeatDay weeklyRepeatDay = QWeeklyRepeatDay.weeklyRepeatDay;
+
+        return queryFactory
+                .selectFrom(weeklyRepeatDay)
+                .where(weeklyRepeatDay.routine.id.in(weeklyRoutineIds))
+                .fetch()
+                .stream()
+                .collect(Collectors.groupingBy(wrd -> wrd.getRoutine().getId()));
+    };
 }
