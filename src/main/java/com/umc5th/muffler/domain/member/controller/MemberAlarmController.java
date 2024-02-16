@@ -8,6 +8,7 @@ import java.security.Principal;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +26,7 @@ public class MemberAlarmController {
         return Response.success();
     }
 
-    @PutMapping("/token")
+    @PatchMapping("/token")
     public Response<Void> enrollAlarmToken(Principal principal, @RequestBody @Valid TokenEnrollRequest request) {
         memberAlarmService.enrollAlarmToken(principal.getName(), request);
         return Response.success();
