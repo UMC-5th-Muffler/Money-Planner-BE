@@ -42,22 +42,29 @@ public class FirebaseMessageSender implements Sender {
 
         messages.forEach(message -> {
             batchMessages.add(message);
-            if (batchMessages.size() % MAX_BATCH_SIZE == 0) {
-                try {
-                    BatchResponse batchResponse = FirebaseMessaging.getInstance().sendEach(batchMessages);
-                    List<SendResponse> responses = batchResponse.getResponses();
-                    responses.forEach(sendResponse -> {
-                        if (!sendResponse.isSuccessful()) {
-                            failResponses.add(sendResponse);
-                        }
-                    });
-                    batchMessages.clear();
-                } catch (FirebaseMessagingException e) {
-                    log.error(e.getMessage());
-                }
+            if (batchMessages.size() == MAX_BATCH_SIZE) {
+                trySend(failResponses, batchMessages);
             }
         });
+        if (!batchMessages.isEmpty()) {
+            trySend(failResponses, batchMessages);
+        }
         failResponses.forEach(res -> log.error("{} : {}", res.getMessageId(), res.getException().getMessage()));
         return messages.size() - failResponses.size();
+    }
+
+    private static void trySend(List<SendResponse> failResponses, List<Message> batchMessages) {
+        try {
+            BatchResponse batchResponse = FirebaseMessaging.getInstance().sendEach(batchMessages);
+            List<SendResponse> responses = batchResponse.getResponses();
+            responses.forEach(sendResponse -> {
+                if (!sendResponse.isSuccessful()) {
+                    failResponses.add(sendResponse);
+                }
+            });
+            batchMessages.clear();
+        } catch (FirebaseMessagingException e) {
+            log.error(e.getMessage());
+        }
     }
 }

@@ -85,6 +85,7 @@ public class CategoryFixture {
                 .name("카테고리")
                 .icon("icon")
                 .member(member)
+                .priority(1L)
                 .status(Status.ACTIVE)
                 .build();
     }

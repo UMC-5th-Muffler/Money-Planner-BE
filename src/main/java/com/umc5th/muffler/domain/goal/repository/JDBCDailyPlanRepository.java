@@ -1,11 +1,10 @@
 package com.umc5th.muffler.domain.goal.repository;
 
-import static java.sql.Statement.CLOSE_CURRENT_RESULT;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class JDBCGoalRepository {
+public class JDBCDailyPlanRepository {
     private static final int BATCH_SIZE = 500;
     @Getter
     @AllArgsConstructor
@@ -32,22 +31,26 @@ public class JDBCGoalRepository {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public int saveTotalCosts(List<UpdateTotalCost> updateTotalCosts) {
-        int i = 0, errorCount = 0;
+        int errorCount = 0;
         List<UpdateTotalCost> batchUpdateList = new ArrayList<>();
 
         for (UpdateTotalCost updateItem : updateTotalCosts ) {
             batchUpdateList.add(updateItem);
-            i++;
-            if (i == BATCH_SIZE) {
-                errorCount += Arrays.stream(saveBatchTotalCosts(batchUpdateList))
-                        .filter(result-> result != CLOSE_CURRENT_RESULT).sum();
-                i = 0;
+            if (batchUpdateList.size() == BATCH_SIZE) {
+                errorCount += getErrorRows(batchUpdateList, this::saveBatchTotalCosts);
+                batchUpdateList.clear();
             }
         }
-        if (i != 0)
-            errorCount += Arrays.stream(saveBatchTotalCosts(batchUpdateList))
-                    .filter(result -> result != CLOSE_CURRENT_RESULT).sum();
-        return errorCount;
+        if (batchUpdateList.size() != 0) {
+            errorCount += getErrorRows(batchUpdateList, this::saveBatchTotalCosts);
+        }
+        return updateTotalCosts.size() - errorCount;
+    }
+
+    private <T> int getErrorRows(List<T> data, Function<List<T>, int[]> updateOneFunction) {
+        return Arrays.stream(updateOneFunction.apply(data))
+                .filter(result -> result != 1)
+                .sum();
     }
 
     private int[] saveBatchTotalCosts(List<UpdateTotalCost> batchTotalCost) {

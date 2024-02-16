@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.expense.repository;
 
+import static java.sql.Statement.EXECUTE_FAILED;
 import static java.sql.Statement.SUCCESS_NO_INFO;
 
 import java.time.LocalDate;
@@ -7,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,25 +41,27 @@ public class JDBCExpenseRepository {
 
     public int saveAllExpense(List<InsertExpenseEntity> insertExpenses) {
         List<InsertExpenseEntity> batchExpenses = new ArrayList<>();
-        int i = 0, savedRows = 0;
+        int savedRows = 0;
 
         for (InsertExpenseEntity expense : insertExpenses) {
             batchExpenses.add(expense);
-            i++;
-            if (i == BATCH_SIZE) {
-                int[] results = saveBatch(batchExpenses);
-                savedRows += Arrays.stream(results).filter(result -> result < 0).sum();
+            if (batchExpenses.size() == BATCH_SIZE) {
+                savedRows += getInsertRowCount(batchExpenses, this::saveBatch);
                 batchExpenses.clear();
-                i = 0;
             }
         }
         // batch_size 만큼 넣고 남은 나머지를 저장한다.
-        if (i != 0)
-            savedRows += Arrays.stream(saveBatch(batchExpenses))
-                    .filter(result -> result != SUCCESS_NO_INFO).sum();
+        if (batchExpenses.size() != 0) {
+            savedRows += getInsertRowCount(batchExpenses, this::saveBatch);
+        }
         return savedRows;
     }
 
+    private <T> int getInsertRowCount(List<T> data, Function<List<T>, int[]> batchInsertFunction) {
+        return Arrays.stream(batchInsertFunction.apply(data))
+                .filter(result -> result != EXECUTE_FAILED)
+                .sum();
+    }
 
     private int[] saveBatch(List<InsertExpenseEntity> expenses) {
         String sql = "INSERT INTO expense (title, memo, cost, member_id, category_id, date, created_at, last_modified_at) "
