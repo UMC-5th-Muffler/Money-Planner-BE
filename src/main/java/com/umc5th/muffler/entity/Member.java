@@ -6,7 +6,6 @@ import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import com.umc5th.muffler.entity.constant.Role;
 import com.umc5th.muffler.entity.constant.SocialType;
 import com.umc5th.muffler.entity.constant.Status;
-import lombok.*;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
@@ -65,6 +64,10 @@ public class Member extends BaseTimeEntity implements Persistable<String>, UserD
     @Builder.Default
     private List<Category> categories = new ArrayList<>();
 
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(unique = true)
+    private MemberAlarm memberAlarm;
+
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
@@ -81,7 +84,13 @@ public class Member extends BaseTimeEntity implements Persistable<String>, UserD
         category.setMember(this);
         this.categories.add(category);
     }
-
+    public void setMemberAlarm(MemberAlarm memberAlarm) {
+        this.memberAlarm = memberAlarm;
+    }
+    public void enrollToken(String token) {
+        memberAlarm.enrollToken(token);
+    }
+    public void deleteToken() {memberAlarm.deleteToken();}
     @Override
     public boolean isNew() {
         return getCreatedAt() == null;
