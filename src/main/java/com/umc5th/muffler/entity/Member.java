@@ -64,7 +64,8 @@ public class Member extends BaseTimeEntity implements Persistable<String>, UserD
     @Builder.Default
     private List<Category> categories = new ArrayList<>();
 
-    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(unique = true)
     private MemberAlarm memberAlarm;
 
     public void setRefreshToken(String refreshToken) {
@@ -84,7 +85,6 @@ public class Member extends BaseTimeEntity implements Persistable<String>, UserD
         this.categories.add(category);
     }
     public void setMemberAlarm(MemberAlarm memberAlarm) {
-        memberAlarm.setMember(this);
         this.memberAlarm = memberAlarm;
     }
     public void enrollToken(String token) {

@@ -21,6 +21,7 @@ public class MemberAlarmService {
         Member member = memberRepository.findMemberFetchAlarm(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
         member = MemberConverter.toEntity(member, request);
+        memberRepository.save(member);
     }
 
     @Transactional

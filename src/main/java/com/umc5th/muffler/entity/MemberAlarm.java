@@ -47,12 +47,8 @@ public class MemberAlarm extends BaseTimeEntity {
     @ColumnDefault("true")
     private Boolean isGoalEndReportRemindAgree;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(unique = true)
+    @OneToOne(mappedBy = "memberAlarm")
     private Member member;
-    public void setMember(Member member) {
-        this.member = member;
-    }
     public void enrollToken(String token) {
         if (token != null) {
             this.token = token;
