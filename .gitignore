@@ -202,4 +202,3 @@ application.properties
 # Generated files
 src/main/generated/
 /src/main/resources/firebase-private-key.json
-/src/test/resources/firebase-private-key.json

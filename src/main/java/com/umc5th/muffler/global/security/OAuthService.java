@@ -61,7 +61,7 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
                     .socialType(userProfile.getSocialType())
                     .role(Role.USER)
                     .build();
-            member.setMemberAlarm(new MemberAlarm()); // member에서 memberAlarm과 연관관계 설정을 위해서 -- 리뷰 후 주석 삭제 예정
+            member.setMemberAlarm(MemberAlarm.builder().build()); // member에서 memberAlarm과 연관관계 설정을 위해서 -- 리뷰 후 주석 삭제 예정
             member = memberRepository.save(member);
             entityManager.flush();
             batchUpdateCategoryRepository.insertDefaultCategories(memberId);
