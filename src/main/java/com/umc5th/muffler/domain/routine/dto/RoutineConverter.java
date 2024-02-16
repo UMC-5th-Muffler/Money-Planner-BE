@@ -2,6 +2,7 @@ package com.umc5th.muffler.domain.routine.dto;
 
 import com.umc5th.muffler.entity.Routine;
 import com.umc5th.muffler.entity.WeeklyRepeatDay;
+import com.umc5th.muffler.entity.constant.RoutineType;
 import org.springframework.data.domain.Slice;
 
 import java.time.DayOfWeek;
@@ -21,33 +22,31 @@ public class RoutineConverter {
                 .collect(Collectors.toList());
     }
 
-    public static List<RoutineAll> toRoutineInfo(Slice<Routine> routineList, Map<Long, RoutineWeeklyDetailDto> weeklyDetailDtoList) {
-        return routineList.stream()
+    public static List<RoutineAll> toRoutineInfoList(Slice<Routine> routineList) {
+        return routineList.getContent().stream()
                 .map(routine -> {
-                    RoutineAll routineAll = RoutineAll.builder()
+                    RoutineWeeklyDetailDto weeklyDetail = null;
+                    if (routine.getType() == RoutineType.WEEKLY) {
+                        List<Integer> dayOfWeeks = extractDayOfWeeks(routine);
+                        weeklyDetail = new RoutineWeeklyDetailDto(routine.getWeeklyTerm(), dayOfWeeks);
+                    }
+
+                    return RoutineAll.builder()
                             .routineId(routine.getId())
                             .routineTitle(routine.getTitle())
                             .routineCost(routine.getCost())
                             .categoryIcon(routine.getCategory().getIcon())
+                            .monthlyRepeatDay(routine.getType() == RoutineType.MONTHLY ? routine.getMonthlyRepeatDay() : null)
+                            .weeklyDetail(weeklyDetail)
                             .build();
-
-                    RoutineWeeklyDetailDto weeklyDetail = weeklyDetailDtoList.get(routine.getId());
-                    if (weeklyDetail != null) {
-                        routineAll.setWeeklyDetail(weeklyDetail);
-                    } else {
-                        routineAll.setMonthlyRepeatDay(routine.getMonthlyRepeatDay());
-                    }
-
-                    return routineAll;
                 })
                 .collect(Collectors.toList());
     }
 
-    public static RoutineWeeklyDetailDto getWeeklyDetail(Integer weeklyTerm, List<Integer> dayOfWeeks) {
-        return RoutineWeeklyDetailDto.builder()
-                .weeklyTerm(weeklyTerm)
-                .weeklyRepeatDays(dayOfWeeks)
-                .build();
+    private static List<Integer> extractDayOfWeeks(Routine routine) {
+        return routine.getWeeklyRepeatDays().stream()
+                .map(weeklyRepeatDay -> weeklyRepeatDay.getDayOfWeek().getValue())
+                .collect(Collectors.toList());
     }
 
     public static RoutineResponse toRoutineResponse(List<RoutineAll> routineList, Boolean hasNext) {

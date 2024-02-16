@@ -25,9 +25,7 @@ import com.umc5th.muffler.global.util.RoutineProcessor;
 import com.umc5th.muffler.global.util.RoutineUtils;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -134,26 +132,10 @@ public class RoutineService {
 
         Slice<Routine> routineList = routineRepository.findRoutinesWithWeeklyDetails(member.getId(), endPointId, pageable);
 
-        Map<Long, RoutineWeeklyDetailDto> weeklyDetailDto = getWeeklyRoutine(routineList);
-        List<RoutineAll> routineInfoList  = RoutineConverter.toRoutineInfo(routineList, weeklyDetailDto);
-        RoutineResponse response = RoutineConverter.toRoutineResponse(routineInfoList, routineList.hasNext());
+        List<RoutineAll> routineAllList  = RoutineConverter.toRoutineInfoList(routineList);
+        RoutineResponse response = RoutineConverter.toRoutineResponse(routineAllList, routineList.hasNext());
 
         return response;
-    }
-
-    private static Map<Long, RoutineWeeklyDetailDto> getWeeklyRoutine(Slice<Routine> routineList) {
-
-        return routineList.getContent().stream()
-                .filter(routine -> routine.getType() == RoutineType.WEEKLY)
-                .collect(Collectors.toMap(
-                       Routine::getId,
-                        routine -> {
-                            List<Integer> dayOfWeeks = routine.getWeeklyRepeatDays().stream()
-                                    .map(weeklyRepeatDay -> weeklyRepeatDay.getDayOfWeek().getValue())
-                                    .collect(Collectors.toList());
-                            return RoutineConverter.getWeeklyDetail(routine.getWeeklyTerm(), dayOfWeeks);
-                        }
-                ));
     }
 
     @Transactional(readOnly = true)
