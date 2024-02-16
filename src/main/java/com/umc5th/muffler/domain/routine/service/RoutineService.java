@@ -93,7 +93,7 @@ public class RoutineService {
         List<LocalDate> routineDates = processor.getRoutineDates(startDate, endDate, routine);
 
         if (!routineDates.isEmpty()) {
-            List<LocalDate> filteredRoutineDates = isInGoalPeriod(routineDates, startDate, endDate);
+            List<LocalDate> filteredRoutineDates = filterDatesByGoals(routineDates, startDate, endDate);
 
             if(!filteredRoutineDates.isEmpty()) {
                 filteredRoutineDates.stream()
@@ -113,7 +113,7 @@ public class RoutineService {
         jdbcDailyPlanRepository.updateTotalCostForDailyPlans(routine.getMember().getId(), dates, routine.getCost());
     }
 
-    private List<LocalDate> isInGoalPeriod(List<LocalDate> routineDates, LocalDate startDate, LocalDate endDate) {
+    private List<LocalDate> filterDatesByGoals(List<LocalDate> routineDates, LocalDate startDate, LocalDate endDate) {
         List<GoalTerm> goalList = goalRepository.findGoalsWithinDateRange(startDate, endDate);
 
         return routineDates.stream()
