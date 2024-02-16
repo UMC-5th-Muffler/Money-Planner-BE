@@ -63,6 +63,6 @@ class JDBCExpenseRepositoryBatchSaveTest {
             );
         }
         int result = jdbcExpenseRepository.saveAllExpense(insertableRoutines);
-        assertEquals(result, 0);
+        assertEquals(result, insertableRoutines.size());
     }
 }

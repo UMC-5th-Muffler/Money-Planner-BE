@@ -3,7 +3,7 @@ package com.umc5th.muffler.domain.goal.repository;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
-import com.umc5th.muffler.domain.goal.repository.JDBCGoalRepository.UpdateTotalCost;
+import com.umc5th.muffler.domain.goal.repository.JDBCDailyPlanRepository.UpdateTotalCost;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.DailyPlan;
@@ -21,8 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class JDBCGoalRepositoryBatchGoalInsertTest {
-    @Autowired private JDBCGoalRepository jdbcGoalRepository;
+class JDBCGoalRepositoryBatchDailyPlanInsertTest {
+    @Autowired private JDBCDailyPlanRepository jdbcDailyPlanRepository;
     @Autowired private MemberRepository memberRepository;
     @Autowired private GoalRepository goalRepository;
     @Autowired private CategoryRepository categoryRepository;
@@ -45,7 +45,7 @@ class JDBCGoalRepositoryBatchGoalInsertTest {
         for (DailyPlan dailyPlan : dailyPlans){
             updateTotalCosts.add(new UpdateTotalCost(dailyPlan.getId(), 100L, LocalDateTime.now()));
         }
-        int errorCount = jdbcGoalRepository.saveTotalCosts(updateTotalCosts);
+        int errorCount = jdbcDailyPlanRepository.saveTotalCosts(updateTotalCosts);
         assertEquals(0, errorCount);
     }
 }
