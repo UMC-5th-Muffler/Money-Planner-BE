@@ -27,7 +27,6 @@ import com.umc5th.muffler.global.util.RoutineUtils;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -117,10 +116,14 @@ public class RoutineService {
     private List<LocalDate> filterDatesByGoals(List<LocalDate> routineDates, LocalDate startDate, LocalDate endDate) {
         List<GoalTerm> goalList = goalRepository.findGoalsWithinDateRange(startDate, endDate);
 
-        Set<LocalDate> goalPeriodsSet = goalList.stream()
-                .flatMap(goal -> Stream.iterate(goal.getStartDate(), date -> date.plusDays(1))
-                        .limit(goal.getStartDate().until(goal.getEndDate()).getDays() + 1))
-                .collect(Collectors.toSet());
+        Set<LocalDate> goalPeriodsSet = new HashSet<>();
+        for (GoalTerm goal : goalList) {
+            LocalDate currentDate = goal.getStartDate();
+            while (!currentDate.isAfter(goal.getEndDate())) {
+                goalPeriodsSet.add(currentDate);
+                currentDate = currentDate.plusDays(1);
+            }
+        }
 
         return routineDates.stream()
                 .filter(goalPeriodsSet::contains)
