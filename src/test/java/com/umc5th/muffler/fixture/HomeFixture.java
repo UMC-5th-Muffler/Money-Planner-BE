@@ -1,6 +1,5 @@
 package com.umc5th.muffler.fixture;
 
-import com.umc5th.muffler.domain.dailyplan.dto.CategoryCalendar;
 import com.umc5th.muffler.domain.dailyplan.dto.DailyInfo;
 import com.umc5th.muffler.domain.dailyplan.dto.GoalInfo;
 import com.umc5th.muffler.domain.dailyplan.dto.InactiveDaily;
@@ -33,16 +32,4 @@ public class HomeFixture {
                 new InactiveDaily(LocalDate.of(2024, 1, 1), Rate.HIGH)
         );
     }
-
-    public static CategoryCalendar createCategoryCalendar() {
-        return CategoryCalendar.builder()
-                .startDate(LocalDate.of(2024, 1, 1))
-                .endDate(LocalDate.of(2024, 1, 10))
-                .categoryId(1L)
-                .categoryName("Acategory")
-                .categoryTotalCost(10L)
-                .categoryDailyCost(List.of(1L, 1L))
-                .build();
-    }
-
 }
