@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class GoalInfo {
+public class GoalInfo implements CalendarInfo {
     private Long goalId;
     private String goalTitle;
     private Long goalBudget;

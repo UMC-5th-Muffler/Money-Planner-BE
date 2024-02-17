@@ -20,15 +20,15 @@ public class HomeConverter {
                 .build();
     }
 
-    public static CategoryCalendar toCategoryCalendar(Category category, LocalDate startDate, LocalDate endDate, Long categoryTotalCost, List<Long> categoryDailyCost, Long categoryBudget) {
-        return CategoryCalendar.builder()
-                .categoryId(category.getId())
-                .categoryName(category.getName())
-                .categoryTotalCost(categoryTotalCost)
-                .startDate(startDate)
-                .endDate(endDate)
-                .categoryDailyCost(categoryDailyCost)
-                .categoryBudget(categoryBudget)
+    public static WholeCalendar toCategoryCalendar(Category category, Long categoryTotalCost, Long categoryBudget, List<DailyInfo> categoryDailies, List<DailyInfo> inactiveDailies) {
+        CalendarInfo categoryInfo = new CategoryInfo(category.getId(), category.getName(), categoryTotalCost, categoryBudget);
+        List<DailyInfo> dailyList = new ArrayList<>(categoryDailies);
+        dailyList.addAll(inactiveDailies);
+        dailyList.sort(Comparator.comparing(DailyInfo::getDate));
+
+        return WholeCalendar.builder()
+                .calendarInfo(categoryInfo)
+                .dailyList(dailyList)
                 .build();
     }
 
@@ -38,23 +38,23 @@ public class HomeConverter {
         dailyList.sort(Comparator.comparing(DailyInfo::getDate));
 
         return WholeCalendar.builder()
-                .goalInfo(goalInfo)
+                .calendarInfo(goalInfo)
                 .dailyList(dailyList)
                 .build();
     }
 
-    public static GoalInfo toGoalInfo(Goal goal, LocalDate startDate, LocalDate endDate, Long totalCost) {
+    public static GoalInfo toGoalInfo(Goal goal, Long totalCost) {
         return GoalInfo.builder()
                 .goalId(goal.getId())
                 .goalTitle(goal.getTitle())
                 .goalBudget(goal.getTotalBudget())
-                .startDate(startDate)
-                .endDate(endDate)
+                .startDate(goal.getStartDate())
+                .endDate(goal.getEndDate())
                 .totalCost(totalCost)
                 .build();
     }
 
-    public static List<DailyInfo> toDailyList(List<DailyPlan> dailyPlans) {
+    public static List<DailyInfo> toActiveDailies(List<DailyPlan> dailyPlans) {
         return dailyPlans.stream()
                 .map(HomeConverter::createActiveDaily)
                 .collect(Collectors.toList());
@@ -70,10 +70,13 @@ public class HomeConverter {
                 .build();
     }
 
-    public static List<Long> toCategoryDailyCost(Map<LocalDate, List<Expense>> expenses, LocalDate startDate, LocalDate endDate) {
+    public static List<DailyInfo> toCategoryDaily(Map<LocalDate, List<Expense>> expenses, LocalDate startDate, LocalDate endDate) {
         return startDate.datesUntil(endDate.plusDays(1))
                 .map(date -> {
-                    return ExpenseUtils.sumExpenseCosts(expenses.getOrDefault(date, Collections.emptyList()));
+                    return (DailyInfo) new CategoryDaily(
+                            date,
+                            ExpenseUtils.sumExpenseCosts(expenses.getOrDefault(date, Collections.emptyList()))
+                    );
                 }).collect(Collectors.toList());
     }
 }

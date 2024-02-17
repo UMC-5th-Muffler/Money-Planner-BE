@@ -99,7 +99,7 @@ class HomeControllerTest {
         Long categoryId = 2L;
 
         when(homeService.getCategoryCalendar(anyString(), eq(goalId), eq(yearMonth), eq(categoryId)))
-                .thenReturn(HomeFixture.createCategoryCalendar());
+                .thenReturn(HomeFixture.createWholeCalendar());
 
         mockMvc.perform(get("/api/home/goal/{goalId}/category/{categoryId}?yearMonth={yearMonth}",
                         goalId, categoryId, yearMonth))
