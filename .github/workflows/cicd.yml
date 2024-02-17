@@ -28,6 +28,7 @@ jobs:
           echo "KAKAO_CLIENT_SECRET=$KAKAO_CLIENT_SECRET" >> .env
           echo "KAKAO_CLIENT_ID=$KAKAO_CLIENT_ID" >> .env
           echo "KAKAO_REDIRECT_URI=$KAKAO_REDIRECT_URI" >> .env
+          echo "$FIREBASE_PRIVATE_KEY" >> ./src/main/resources/firebase-private-key.json
 
         env:
           DB_URL: ${{ secrets.DB_URL }}
@@ -38,6 +39,7 @@ jobs:
           KAKAO_CLIENT_SECRET : ${{ secrets.KAKAO_CLIENT_SECRET }}
           KAKAO_CLIENT_ID : ${{ secrets.KAKAO_CLIENT_ID }}
           KAKAO_REDIRECT_URI: ${{ secrets.KAKAO_REDIRECT_URI }}
+          FIREBASE_PRIVATE_KEY : ${{ secrets.FIREBASE_PRIVATE_KEY }}
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
