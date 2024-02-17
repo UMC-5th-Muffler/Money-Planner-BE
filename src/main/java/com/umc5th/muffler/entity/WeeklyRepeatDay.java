@@ -21,8 +21,4 @@ public class WeeklyRepeatDay {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "routine_id")
     private Routine routine;
-
-    public void setRoutine(Routine routine) {
-        this.routine = routine;
-    }
 }

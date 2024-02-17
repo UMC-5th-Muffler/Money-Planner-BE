@@ -75,7 +75,7 @@ class RateServiceTest {
         assertEquals(dailyPlan.getBudget(), response.getDailyPlanBudget());
         assertEquals(dailyPlan.getTotalCost(), response.getDailyTotalCost());
         assertEquals(dailyPlan.getRate(), response.getRate());
-        assertEquals(dailyPlan.getRateMemo(), response.getMemo());
+        assertEquals(dailyPlan.getRateMemo(), response.getRateMemo());
 
         verify(dailyPlanRepository).findByMemberIdAndDate(memberId, date);
     }

@@ -18,6 +18,5 @@ public class RateUpdateRequest {
     @NotNull
     @ValidEnum(enumClass = Rate.class)
     private String rate;
-
-    private String memo;
+    private String rateMemo;
 }

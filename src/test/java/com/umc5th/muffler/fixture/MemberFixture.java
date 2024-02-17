@@ -27,4 +27,11 @@ public class MemberFixture {
                 .build();
     }
 
+    public static Member create(String id) {
+        return Member.builder()
+                .id(id)
+                .name("one")
+                .socialType(SocialType.KAKAO)
+                .build();
+    }
 }

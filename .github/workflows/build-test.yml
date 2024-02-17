@@ -1,11 +1,10 @@
 # 1 워크플로의 이름 지정
-name: CI
+name: build-test
 
 # 2 워크플로가 시작될 조건 지정
 on:
-  push:
-    branches: [ release ]
-
+  pull-request:
+    branches: [ develop ]
 jobs:
   build:
     runs-on: ubuntu-22.04 # 3 실행 환경 지정
@@ -27,6 +26,7 @@ jobs:
           echo "JWT_SECRET=$JWT_SECRET" >> .env
           echo "KAKAO_CLIENT_SECRET=$KAKAO_CLIENT_SECRET" >> .env
           echo "KAKAO_CLIENT_ID=$KAKAO_OAUTH_CLIENT_ID" >> .env
+          echo "$FIREBASE_PRIVATE_KEY" >> ./src/main/resources/firebase-private-key.json
 
         env:
           DB_URL: ${{ secrets.DB_URL }}
@@ -36,6 +36,7 @@ jobs:
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET }}
           KAKAO_CLIENT_SECRET : ${{ secrets.KAKAO_CLIENT_SECRET }}
           KAKAO_OAUTH_CLIENT_ID : ${{ secrets.KAKAO_OAUTH_CLIENT_ID }}
+          FIREBASE_PRIVATE_KEY : ${{ secrets.FIREBASE_PRIVATE_KEY }}
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -63,3 +64,27 @@ jobs:
           aws deploy create-deployment --application-name ${{ secrets.CODE_DEPLOY_APPLICATION_NAME }} --deployment-config-name CodeDeployDefault.AllAtOnce \
             --deployment-group-name ${{ secrets.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} --s3-location bucket=${{secrets.S3_BUCKET_NAME}},key=$GITHUB_SHA.zip,bundleType=zip
 
+      - name : Test
+        run: ./gradlew test
+
+      - name: Discord Test Alarm when fail
+        uses: sarisia/actions-status-discord@v1
+        if: failure()
+        with:
+          webhook: ${{ secrets.DISCORD_BE_WEB_HOOK_URL }}
+          status: ${{ job.status }}
+          title: "test"
+          description: "test fail"
+          color: 0xff0000
+          username: Github Actions
+
+      - name: Discord Test Alarm when success
+        uses: sarisia/actions-status-discord@v1
+        if: success()
+        with:
+          webhook: ${{ secrets.DISCORD_BE_WEB_HOOK_URL }}
+          status: ${{ job.status }}
+          title: "test"
+          description: "test success"
+          color: 0x00ff00
+          username: Github Actions

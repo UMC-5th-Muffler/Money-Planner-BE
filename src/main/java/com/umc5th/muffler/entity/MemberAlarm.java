@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -22,7 +21,6 @@ import org.hibernate.annotations.DynamicUpdate;
 @Entity
 @Getter
 @DynamicInsert
-@DynamicUpdate
 public class MemberAlarm extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,8 +31,28 @@ public class MemberAlarm extends BaseTimeEntity {
 
     @Column(nullable = false)
     @ColumnDefault("true")
-    private Boolean isAgree;
+    private Boolean isDailyPlanRemindAgree;
 
-    @OneToOne
+    @Column(nullable = false)
+    @ColumnDefault("true")
+    private Boolean isTodayEnrollRemindAgree;
+
+    @Column(nullable = false)
+    @ColumnDefault("true")
+    private Boolean isYesterdayEnrollRemindAgree;
+
+    @Column(nullable = false)
+    @ColumnDefault("true")
+    private Boolean isGoalEndReportRemindAgree;
+
+    @OneToOne(mappedBy = "memberAlarm")
     private Member member;
+    public void enrollToken(String token) {
+        if (token != null) {
+            this.token = token;
+        }
+    }
+    public void deleteToken() {
+        this.token = null;
+    }
 }

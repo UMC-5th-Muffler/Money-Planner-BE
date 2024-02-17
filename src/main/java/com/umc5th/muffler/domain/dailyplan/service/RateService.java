@@ -42,7 +42,7 @@ public class RateService {
         DailyPlan dailyPlan = dailyPlanRepository.findByMemberIdAndDate(member.getId(), date)
                 .orElseThrow(() -> new DailyPlanException(ErrorCode.DAILYPLAN_NOT_FOUND));
 
-        dailyPlan.updateRate(request.getMemo(), Rate.valueOf(request.getRate()));
+        dailyPlan.updateRate(request.getRateMemo(), Rate.valueOf(request.getRate()));
     }
 
 }

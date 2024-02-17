@@ -1,6 +1,5 @@
 package com.umc5th.muffler.domain.goal.controller;
 
-import com.umc5th.muffler.domain.expense.dto.WeekRequestParam;
 import com.umc5th.muffler.domain.goal.dto.*;
 import com.umc5th.muffler.domain.goal.service.GoalCreateService;
 import com.umc5th.muffler.domain.goal.service.GoalService;
@@ -9,9 +8,7 @@ import com.umc5th.muffler.global.response.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.data.web.SortDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +42,18 @@ public class GoalController {
     public Response<Void> delete(@PathVariable Long goalId, Authentication authentication) {
         goalService.delete(goalId, authentication.getName());
         return Response.success();
+    }
+
+    @GetMapping("/report/{goalId}")
+    public Response<GoalReportResponse> getReport(@PathVariable Long goalId, Authentication authentication){
+        GoalReportResponse response = goalService.getReport(goalId, authentication.getName());
+        return Response.success(response);
+    }
+
+    @GetMapping("/{goalId}")
+    public Response<GoalGetResponse> getGoal(@PathVariable Long goalId, Authentication authentication){
+        GoalGetResponse response = goalService.getGoalWithTotalCost(goalId, authentication.getName());
+        return Response.success(response);
     }
 
     @GetMapping("/now")

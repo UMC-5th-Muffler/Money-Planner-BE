@@ -2,6 +2,7 @@ package com.umc5th.muffler.fixture;
 
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.constant.CategoryType;
+import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.constant.Status;
 
 public class CategoryFixture {
@@ -77,6 +78,15 @@ public class CategoryFixture {
                 .isVisible(category.getIsVisible())
                 .status(category.getStatus())
                 .member(category.getMember())
+                .build();
+    }
+    public static Category create(Member member) {
+        return Category.builder()
+                .name("카테고리")
+                .icon("icon")
+                .member(member)
+                .priority(1L)
+                .status(Status.ACTIVE)
                 .build();
     }
 }

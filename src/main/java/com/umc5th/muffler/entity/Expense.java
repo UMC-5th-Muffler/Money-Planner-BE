@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Getter
+@Table(indexes = {@Index(name = "expense_index", columnList = "date")})
 public class Expense extends BaseTimeEntity {
 
     @Id
@@ -37,7 +38,7 @@ public class Expense extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
   
