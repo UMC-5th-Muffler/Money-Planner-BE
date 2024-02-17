@@ -1,58 +1,58 @@
 [
   {
     "name" : "식사",
-    "icon" : "식사 아이콘"
+    "icon" : "meal"
   },
   {
     "name" : "카페/간식",
-    "icon" : "카페/간식 아이콘"
+    "icon" : "cafe"
   },
   {
     "name" : "술/유흥",
-    "icon" : "술/유흥 아이콘"
+    "icon" : "beer"
   },
   {
     "name" : "패션/쇼핑",
-    "icon" : "패션/쇼핑 아이콘"
+    "icon" : "shopping"
   },
   {
     "name" : "교통",
-    "icon" : "교통 아이콘"
+    "icon" : "transport"
   },
   {
     "name" : "의료/건강",
-    "icon" : "의료/건강 아이콘"
+    "icon" : "health"
   },
   {
     "name" : "주거/통신",
-    "icon" : "주거/통신 아이콘"
+    "icon" : "housing"
   },
   {
     "name" : "금융",
-    "icon" : "금융 아이콘"
+    "icon" : "finance"
   },
   {
     "name" : "문화/여가",
-    "icon" : "문화/여가 아이콘"
+    "icon" : "culture"
   },
   {
     "name" : "여행/숙박",
-    "icon" : "여행/숙박 아이콘"
+    "icon" : "trip"
   },
   {
     "name" : "교육/학습",
-    "icon" : "교육/학습 아이콘"
+    "icon" : "study"
   },
   {
     "name" : "반려동물",
-    "icon" : "반려동물 아이콘"
+    "icon" : "animal"
   },
   {
     "name" : "경조/선물",
-    "icon" : "경조/선물 아이콘"
+    "icon" : "gift"
   },
   {
     "name" : "기타",
-    "icon" : "기타 아이콘"
+    "icon" : "etc"
   }
 ]

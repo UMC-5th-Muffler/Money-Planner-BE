@@ -3,8 +3,6 @@ name: CI
 
 # 2 워크플로가 시작될 조건 지정
 on:
-  pull_request:
-    branches: [ release ]
   push:
     branches: [ release ]
 jobs:
@@ -55,7 +53,6 @@ jobs:
           webhook: ${{ secrets.DISCORD_BE_WEB_HOOK_URL }}
           status: ${{ job.status }}
           title: "build"
-          description: "build fail"
           color: 0xff0000
           username: Github Actions
 
@@ -65,8 +62,7 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_BE_WEB_HOOK_URL }}
           status: ${{ job.status }}
-          title: "test"
-          description: "test success"
+          title: "build"
           color: 0x00ff00
           username: Github Actions
 
@@ -94,51 +90,44 @@ jobs:
           description: "test success"
           color: 0x00ff00
           username: Github Actions
+      # (4) AWS인증 (IAM사용자 Access Key, Secret Key활용)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+      # (5)빌드 결과물을 S3버킷에 업로드
+      - name: Upload to AWS S3
+        run: |
+          aws deploy push \
+           --application-name ${{ secrets.CODE_DEPLOY_APPLICATION_NAME }} \
+           --s3-location s3://${{secrets.S3_BUCKET_NAME}}/$GITHUB_SHA.zip \
+           --source .
+      # (6) S3버킷에 있는 파일을 대상으로 CodeDeploy실행
+      - name: Deploy to AWS EC2 from S3
+        run: |
+          aws deploy create-deployment --application-name ${{ secrets.CODE_DEPLOY_APPLICATION_NAME }} --deployment-config-name CodeDeployDefault.AllAtOnce \
+            --deployment-group-name ${{ secrets.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} --s3-location bucket=${{secrets.S3_BUCKET_NAME}},key=$GITHUB_SHA.zip,bundleType=zip
 
-  deploy:
-    needs: build-and-test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/release'
-    runs-on: ubuntu-22.04
+      - name: Discord Deploy Alarm when fail
+        uses: sarisia/actions-status-discord@v1
+        if: failure()
+        with:
+          webhook: ${{ secrets.DISCORD_BE_WEB_HOOK_URL }}
+          status: ${{ job.status }}
+          title: "deploy"
+          description: "deploy fail"
+          color: 0xff0000
+          username: Github Actions
 
-    steps:
-    # (4) AWS인증 (IAM사용자 Access Key, Secret Key활용)
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ap-northeast-2
-    # (5)빌드 결과물을 S3버킷에 업로드
-    - name: Upload to AWS S3
-      run: |
-        aws deploy push \
-         --application-name ${{ secrets.CODE_DEPLOY_APPLICATION_NAME }} \
-         --s3-location s3://${{secrets.S3_BUCKET_NAME}}/$GITHUB_SHA.zip \
-         --source .
-    # (6) S3버킷에 있는 파일을 대상으로 CodeDeploy실행
-    - name: Deploy to AWS EC2 from S3
-      run: |
-        aws deploy create-deployment --application-name ${{ secrets.CODE_DEPLOY_APPLICATION_NAME }} --deployment-config-name CodeDeployDefault.AllAtOnce \
-          --deployment-group-name ${{ secrets.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} --s3-location bucket=${{secrets.S3_BUCKET_NAME}},key=$GITHUB_SHA.zip,bundleType=zip
-
-    - name: Discord Deploy Alarm when fail
-      uses: sarisia/actions-status-discord@v1
-      if: failure()
-      with:
-        webhook: ${{ secrets.DISCORD_BE_WEB_HOOK_URL }}
-        status: ${{ job.status }}
-        title: "deploy"
-        description: "deploy fail"
-        color: 0xff0000
-        username: Github Actions
-
-    - name: Discord Deploy Alarm when success
-      uses: sarisia/actions-status-discord@v1
-      if: success()
-      with:
-        webhook: ${{ secrets.DISCORD_BE_WEB_HOOK_URL }}
-        status: ${{ job.status }}
-        title: "deploy"
-        description: "deploy success"
-        color: 0x00ff00
-        username: Github Action"
+      - name: Discord Deploy Alarm when success
+        uses: sarisia/actions-status-discord@v1
+        if: success()
+        with:
+          webhook: ${{ secrets.DISCORD_BE_WEB_HOOK_URL }}
+          status: ${{ job.status }}
+          title: "deploy"
+          description: "deploy success"
+          color: 0x00ff00
+          username: Github Action
