@@ -57,7 +57,7 @@ jobs:
           title: "build"
           description: "build fail"
           color: 0xff0000
-          username: Github Actions
+          username: "Github Actions"
 
       - name : Discord Build Alarm when success
         uses: sarisia/actions-status-discord@v1
@@ -68,7 +68,7 @@ jobs:
           title: "test"
           description: "test success"
           color: 0x00ff00
-          username: Github Actions
+          username: "Github Actions"
 
       - name : Test
         run: ./gradlew test
@@ -82,7 +82,7 @@ jobs:
           title: "test"
           description: "test fail"
           color: 0xff0000
-          username: Github Actions
+          username: "Github Actions"
 
       - name: Discord Test Alarm when success
         uses: sarisia/actions-status-discord@v1
@@ -93,7 +93,7 @@ jobs:
           title: "test"
           description: "test success"
           color: 0x00ff00
-          username: Github Actions
+          username: "Github Actions"
 
   deploy:
     needs: build-and-test
@@ -130,7 +130,7 @@ jobs:
         title: "deploy"
         description: "deploy fail"
         color: 0xff0000
-        username: Github Actions
+        username: "Github Actions"
 
     - name: Discord Deploy Alarm when success
       uses: sarisia/actions-status-discord@v1
@@ -141,4 +141,4 @@ jobs:
         title: "deploy"
         description: "deploy success"
         color: 0x00ff00
-      username: Github Actions
+      username: "Github Actions"
