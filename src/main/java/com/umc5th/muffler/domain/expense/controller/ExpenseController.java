@@ -1,13 +1,12 @@
 package com.umc5th.muffler.domain.expense.controller;
 
 import com.umc5th.muffler.domain.expense.dto.ExpenseCreateRequest;
-import com.umc5th.muffler.domain.expense.dto.ExpenseDto;
+import com.umc5th.muffler.domain.expense.dto.ExpenseOverview;
 import com.umc5th.muffler.domain.expense.dto.ExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.ExpenseUpdateRequest;
 import com.umc5th.muffler.domain.expense.dto.SearchResponse;
 import com.umc5th.muffler.domain.expense.service.ExpenseSearchService;
 import com.umc5th.muffler.domain.expense.service.ExpenseService;
-import com.umc5th.muffler.domain.expense.service.ExpenseViewService;
 import com.umc5th.muffler.global.response.Response;
 import com.umc5th.muffler.global.validation.ValidOrder;
 import java.security.Principal;
@@ -34,8 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RequestMapping("/api/expense")
 public class ExpenseController {
-    private final ExpenseSearchService expenseSearchService;
     private final ExpenseService expenseService;
+    private final ExpenseSearchService expenseSearchService;
 
     @PostMapping
     public Response<ExpenseResponse> create(Principal principal,
@@ -55,6 +54,10 @@ public class ExpenseController {
         return Response.success();
     }
 
+    @GetMapping("/overview/{yearMonth}")
+    public Response<ExpenseOverview> getExpenseOverview(Authentication authentication,
+                                                        @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
+        return Response.success(expenseService.getOverview(authentication.getName(), yearMonth));
     }
 
     @GetMapping("/search")
