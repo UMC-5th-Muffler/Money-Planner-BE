@@ -3,6 +3,7 @@ package com.umc5th.muffler.global.security;
 import com.umc5th.muffler.domain.category.repository.BatchUpdateCategoryRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
 import com.umc5th.muffler.entity.Member;
+import com.umc5th.muffler.entity.MemberAlarm;
 import com.umc5th.muffler.entity.constant.Role;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.MemberException;
@@ -60,8 +61,9 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
                     .socialType(userProfile.getSocialType())
                     .role(Role.USER)
                     .build();
-            memberRepository.save(member);
-            entityManager.flush(); // 캐시에 저장된 내용을 실제 db에 반영함, 트랜잭션은 유지.
+            member.setMemberAlarm(MemberAlarm.builder().build()); // member에서 memberAlarm과 연관관계 설정을 위해서 -- 리뷰 후 주석 삭제 예정
+            member = memberRepository.save(member);
+            entityManager.flush();
             batchUpdateCategoryRepository.insertDefaultCategories(memberId);
         }
         return member;

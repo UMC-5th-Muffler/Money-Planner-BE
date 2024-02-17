@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface MemberRepository extends JpaRepository<Member, String> {
+public interface MemberRepository extends JpaRepository<Member, String>, MemberRepositoryCustom {
     Optional<Member> findByRefreshToken(String refreshToken);
     @Query("select m from Member m join fetch m.memberAlarm where m.id = :memberId")
     Optional<Member> findMemberFetchAlarm(@Param("memberId") String memberId);

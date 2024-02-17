@@ -2,7 +2,6 @@ spring:
   profiles:
     group:
       "local": "local, common"
-      "test": "test, common"
       "prod" : "prod, common"
     active: local # Select profile
 ---
@@ -15,15 +14,6 @@ spring:
   jpa:
     properties:
       dialect: org.hibernate.dialect.MySQL8Dialect
----
-spring:
-  config:
-    activate:
-      on-profile: "test"
-  datasource:
-    driver-class-name: org.h2.Driver
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
 ---
 spring:
   config:
@@ -79,3 +69,19 @@ server:
       force: true
 logging.level:
   org.hibernate.SQL: debug
+  org.hibernate.type.descriptor.sql: trace
+
+thread:
+  pool:
+    size: 4
+
+firebase:
+  key:
+    path: "firebase-private-key.json"
+    scope: "https://www.googleapis.com/auth/firebase.messaging"
+
+alarm:
+  image-url:
+    daily-plan-remind: "daily-plan-remind"
+    expense-enroll-remind: "expense-enroll-remind"
+    goal-end-remind: "goal-end-remind"

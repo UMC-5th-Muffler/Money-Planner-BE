@@ -1,20 +1,8 @@
 spring:
   profiles:
     group:
-      "local": "local, common"
       "test": "test, common"
-      "prod" : "prod, common"
     active: test # Select profile
----
-spring:
-  config:
-    activate:
-      on-profile: "local"
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    properties:
-      dialect: org.hibernate.dialect.MySQL8Dialect
 ---
 spring:
   config:
@@ -22,30 +10,23 @@ spring:
       on-profile: "test"
   datasource:
     driver-class-name: org.h2.Driver
+    url:
+    username: root
+    password:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
 ---
 spring:
   config:
     activate:
-      on-profile: "prod"
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    properties:
-      dialect: org.hibernate.dialect.MySQL8Dialect
----
-spring:
-  config:
-    activate:
       on-profile: "common"
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:h2:mem:test
+    username: sa
+    password:
   jpa:
     hibernate:
-      ddl-auto: ${DB_DLL_MODE}
+      ddl-auto: create
     properties:
       hibernate:
         show_sql: false
@@ -70,7 +51,7 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 jwt:
-  secret: ${JWT_SECRET}
+  secret: testtesttesttesttesttesttesttest
 server:
   servlet:
     encoding:

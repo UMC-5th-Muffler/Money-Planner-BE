@@ -6,6 +6,7 @@ import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -44,9 +45,10 @@ public class Goal extends BaseTimeEntity {
     @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL)
     private List<CategoryGoal> categoryGoals;
 
+    @Builder.Default
     @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL)
     @BatchSize(size = 10)
-    private List<DailyPlan> dailyPlans;
+    private List<DailyPlan> dailyPlans = new ArrayList<>();
 
     public static Goal of(LocalDate startDate, LocalDate endDate, String title, String memo, String icon, Long totalBudget, Member member) {
         return Goal.builder()
@@ -72,5 +74,10 @@ public class Goal extends BaseTimeEntity {
 
     public Boolean isPossibleToAlarm(Long sum, Long addition) {
         return sum <= totalBudget && totalBudget < sum + addition;
+    }
+
+    public void addDailyPlan(DailyPlan dailyPlan) {
+        dailyPlans.add(dailyPlan);
+        dailyPlan.setGoal(this);
     }
 }

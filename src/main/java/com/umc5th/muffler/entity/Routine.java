@@ -3,6 +3,7 @@ package com.umc5th.muffler.entity;
 import com.umc5th.muffler.entity.base.BaseTimeEntity;
 import com.umc5th.muffler.entity.constant.RoutineType;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -60,9 +61,10 @@ public class Routine extends BaseTimeEntity {
     private Member member;
 
     // Weekly Column
+    @Builder.Default
     @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL)
     @BatchSize(size = 10)
-    private List<WeeklyRepeatDay> weeklyRepeatDays;
+    private List<WeeklyRepeatDay> weeklyRepeatDays = new ArrayList<>();
 
     @Column
     private Integer weeklyTerm;
@@ -98,5 +100,9 @@ public class Routine extends BaseTimeEntity {
 
     public void setWeeklyRepeatDays(List<WeeklyRepeatDay> weeklyRepeatDays) {
         this.weeklyRepeatDays = weeklyRepeatDays;
+    }
+
+    public void addRepeatDay(WeeklyRepeatDay weeklyRepeatDay) {
+        this.weeklyRepeatDays.add(weeklyRepeatDay);
     }
 }
