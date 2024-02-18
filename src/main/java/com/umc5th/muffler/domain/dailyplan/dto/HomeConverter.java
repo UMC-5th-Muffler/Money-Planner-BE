@@ -1,9 +1,9 @@
 package com.umc5th.muffler.domain.dailyplan.dto;
 
-import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.DailyPlan;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Goal;
+import com.umc5th.muffler.entity.constant.Rate;
 import com.umc5th.muffler.global.util.ExpenseUtils;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -20,8 +20,7 @@ public class HomeConverter {
                 .build();
     }
 
-    public static WholeCalendar toCategoryCalendar(Category category, Long categoryTotalCost, Long categoryBudget, List<DailyInfo> categoryDailies, List<DailyInfo> inactiveDailies) {
-        CalendarInfo categoryInfo = new CategoryInfo(category.getId(), category.getName(), categoryTotalCost, categoryBudget);
+    public static WholeCalendar toCategoryCalendar(CategoryInfo categoryInfo, List<DailyInfo> categoryDailies, List<DailyInfo> inactiveDailies) {
         List<DailyInfo> dailyList = new ArrayList<>(categoryDailies);
         dailyList.addAll(inactiveDailies);
         dailyList.sort(Comparator.comparing(DailyInfo::getDate));
@@ -70,12 +69,13 @@ public class HomeConverter {
                 .build();
     }
 
-    public static List<DailyInfo> toCategoryDaily(Map<LocalDate, List<Expense>> expenses, LocalDate startDate, LocalDate endDate) {
+    public static List<DailyInfo> toCategoryDaily(Map<LocalDate, List<Expense>> expenses, Map<LocalDate, Rate> rates, LocalDate startDate, LocalDate endDate) {
         return startDate.datesUntil(endDate.plusDays(1))
                 .map(date -> {
                     return (DailyInfo) new CategoryDaily(
                             date,
-                            ExpenseUtils.sumExpenseCosts(expenses.getOrDefault(date, Collections.emptyList()))
+                            ExpenseUtils.sumExpenseCosts(expenses.getOrDefault(date, Collections.emptyList())),
+                            rates.get(date)
                     );
                 }).collect(Collectors.toList());
     }

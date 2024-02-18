@@ -4,6 +4,7 @@ import static com.umc5th.muffler.entity.QDailyPlan.dailyPlan;
 
 import com.querydsl.core.Tuple;
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
+import com.umc5th.muffler.domain.dailyplan.dto.CategoryInfo;
 import com.umc5th.muffler.domain.dailyplan.dto.DailyInfo;
 import com.umc5th.muffler.domain.dailyplan.dto.GoalInfo;
 import com.umc5th.muffler.domain.dailyplan.dto.HomeConverter;
@@ -19,6 +20,7 @@ import com.umc5th.muffler.entity.DailyPlan;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.Member;
+import com.umc5th.muffler.entity.constant.Rate;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.CategoryException;
 import com.umc5th.muffler.global.response.exception.GoalException;
@@ -107,9 +109,7 @@ public class HomeService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        Long categoryTotalCost = expenseRepository.sumTotalCategoryCostByMemberAndDateBetween(
-                memberId, categoryId, activeGoal.getStartDate(), activeGoal.getEndDate()).orElse(0L);
-        Long categoryBudget = getCategoryBudget(activeGoal, category);
+        CategoryInfo categoryInfo = getCategoryInfo(activeGoal, category);
 
         List<DailyInfo> categoryDailies = getCategoryDailies(memberId, date, categoryId, activeGoal);
 
@@ -117,7 +117,17 @@ public class HomeService {
         inactiveGoals.remove(activeGoal);
         List<DailyInfo> inactiveDailies = getInactiveDailies(inactiveGoals, date);
 
-        return HomeConverter.toCategoryCalendar(category, categoryTotalCost, categoryBudget, categoryDailies, inactiveDailies);
+        return HomeConverter.toCategoryCalendar(categoryInfo, categoryDailies, inactiveDailies);
+    }
+
+    private CategoryInfo getCategoryInfo(Goal goal, Category category) {
+        Long categoryBudget = getCategoryBudget(goal, category);
+        Long categoryTotalCost = null;
+        if (categoryBudget != null) {
+            categoryTotalCost = expenseRepository.sumTotalCategoryCostByMemberAndDateBetween(
+                    category.getMember().getId(), category.getId(), goal.getStartDate(), goal.getEndDate()).orElse(0L);
+        }
+        return new CategoryInfo(category.getId(), category.getName(), categoryTotalCost, categoryBudget);
     }
 
     private WholeCalendar getGoalCalendar(String memberId, Goal activeGoal, YearMonth date) {
@@ -158,8 +168,7 @@ public class HomeService {
             LocalDate endDate = findEndDateWithinYearMonth(goal, date);
 
             List<Tuple> rates = dailyPlanRepository.findDateAndRateByGoalAndDateRange(goal.getId(), startDate, endDate);
-            rates.stream()
-                    .forEach(tuple -> {
+            rates.forEach(tuple -> {
                         inactiveDailies.add((DailyInfo)
                                 new InactiveDaily(tuple.get(dailyPlan.date), tuple.get(dailyPlan.rate)));
                     });
@@ -185,9 +194,11 @@ public class HomeService {
             LocalDate startDate = findStartDateWithinYearMonth(goal, date);
             LocalDate endDate = findEndDateWithinYearMonth(goal, date);
 
+            Map<LocalDate, Rate> rates = dailyPlanRepository
+                    .findByGoalAndDateRangeGroupedByDate(goal.getId(), startDate, endDate);
             Map<LocalDate, List<Expense>> expenses = expenseRepository
                     .findByMemberAndCategoryAndDateRangeGroupedByDate(memberId, categoryId, startDate, endDate);
-            return HomeConverter.toCategoryDaily(expenses, startDate, endDate);
+            return HomeConverter.toCategoryDaily(expenses, rates, startDate, endDate);
         }
         return new ArrayList<>();
     }
