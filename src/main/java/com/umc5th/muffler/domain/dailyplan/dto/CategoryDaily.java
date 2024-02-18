@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.dailyplan.dto;
 
+import com.umc5th.muffler.entity.constant.Rate;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,5 +9,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class CategoryDaily implements DailyInfo {
     private LocalDate date;
-    private Long dailyCost;
+    private Long dailyTotalCost;
+    private Rate dailyRate;
 }

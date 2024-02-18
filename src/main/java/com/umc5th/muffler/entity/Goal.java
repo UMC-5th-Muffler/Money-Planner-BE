@@ -29,9 +29,6 @@ public class Goal extends BaseTimeEntity {
     @Column(nullable = false)
     private String title;
 
-    @Column(length = 1024)
-    private String memo;
-
     @Column(nullable = false)
     private String icon;
 
@@ -50,12 +47,11 @@ public class Goal extends BaseTimeEntity {
     @BatchSize(size = 10)
     private List<DailyPlan> dailyPlans = new ArrayList<>();
 
-    public static Goal of(LocalDate startDate, LocalDate endDate, String title, String memo, String icon, Long totalBudget, Member member) {
+    public static Goal of(LocalDate startDate, LocalDate endDate, String title, String icon, Long totalBudget, Member member) {
         return Goal.builder()
                 .startDate(startDate)
                 .endDate(endDate)
                 .title(title)
-                .memo(memo)
                 .icon(icon)
                 .totalBudget(totalBudget)
                 .member(member)
@@ -70,6 +66,10 @@ public class Goal extends BaseTimeEntity {
     public void setCategoryGoals(List<CategoryGoal> categoryGoals) {
         this.categoryGoals = categoryGoals;
         categoryGoals.forEach(categoryGoal -> categoryGoal.setGoal(this));
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
     }
 
     public Boolean isPossibleToAlarm(Long sum, Long addition) {

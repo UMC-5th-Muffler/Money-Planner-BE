@@ -8,8 +8,11 @@ import com.umc5th.muffler.entity.QDailyPlan;
 import com.umc5th.muffler.entity.QGoal;
 import com.umc5th.muffler.entity.QMember;
 import com.umc5th.muffler.entity.QMemberAlarm;
+import com.umc5th.muffler.entity.constant.Rate;
 import java.time.LocalDate;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -27,6 +30,27 @@ public class DailyPlanRepositoryImpl implements DailyPlanRepositoryCustom {
                 .where(dailyPlan.goal.id.eq(goalId)
                         .and(dailyPlan.date.between(startDate, endDate))
                 ).fetch();
+    }
+
+    @Override
+    public Map<LocalDate, Rate> findByGoalAndDateRangeGroupedByDate(Long goalId, LocalDate startDate, LocalDate endDate) {
+        QDailyPlan dailyPlan = QDailyPlan.dailyPlan;
+
+        List<Tuple> result = queryFactory
+                .select(dailyPlan.date, dailyPlan.rate)
+                .from(dailyPlan)
+                .where(dailyPlan.goal.id.eq(goalId)
+                        .and(dailyPlan.date.between(startDate, endDate)))
+                .orderBy(dailyPlan.date.asc())
+                .fetch();
+
+        Map<LocalDate, Rate> map = new LinkedHashMap<>();
+        result.forEach(tuple -> {
+            LocalDate date = tuple.get(dailyPlan.date);
+            Rate rate = tuple.get(dailyPlan.rate);
+            map.put(date, rate);
+        });
+        return map;
     }
 
     @Override

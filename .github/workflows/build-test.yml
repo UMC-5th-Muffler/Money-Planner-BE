@@ -3,7 +3,7 @@ name: build-test
 
 # 2 워크플로가 시작될 조건 지정
 on:
-  pull-request:
+  pull_request:
     branches: [ develop ]
 jobs:
   build:
