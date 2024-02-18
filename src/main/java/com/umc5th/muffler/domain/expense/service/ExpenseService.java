@@ -5,6 +5,7 @@ import com.umc5th.muffler.domain.dailyplan.repository.DailyPlanRepository;
 import com.umc5th.muffler.domain.expense.dto.ExpenseAlarm;
 import com.umc5th.muffler.domain.expense.dto.ExpenseConverter;
 import com.umc5th.muffler.domain.expense.dto.ExpenseCreateRequest;
+import com.umc5th.muffler.domain.expense.dto.ExpenseOverview;
 import com.umc5th.muffler.domain.expense.dto.ExpenseResponse;
 import com.umc5th.muffler.domain.expense.dto.ExpenseUpdateRequest;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
@@ -18,6 +19,8 @@ import com.umc5th.muffler.entity.constant.Status;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.CategoryException;
 import com.umc5th.muffler.global.response.exception.ExpenseException;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -131,5 +134,16 @@ public class ExpenseService {
         dailyPlan.updateTotalCost(-expense.getCost());
         dailyPlanRepository.save(dailyPlan);
         expenseRepository.delete(expense);
+    }
+
+    public ExpenseOverview getOverview(String memberId, YearMonth yearMonth) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ExpenseException(ErrorCode.MEMBER_NOT_FOUND));
+
+        LocalDate startDate = yearMonth.atDay(1);
+        LocalDate endDate = yearMonth.atEndOfMonth();
+        List<DailyPlan> dailies = dailyPlanRepository.findByMemberIdAndDateBetween(memberId, startDate, endDate);
+
+        return ExpenseConverter.toExpenseOverview(dailies);
     }
 }
