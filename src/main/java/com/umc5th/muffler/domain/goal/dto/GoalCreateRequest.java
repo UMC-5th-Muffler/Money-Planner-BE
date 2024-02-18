@@ -19,8 +19,6 @@ public class GoalCreateRequest {
     @NotBlank
     private String title;
     @NotNull
-    private String detail;
-    @NotNull
     private LocalDate startDate;
     @NotNull
     private LocalDate endDate;
