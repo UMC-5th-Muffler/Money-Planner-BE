@@ -79,7 +79,7 @@ public class Routine extends BaseTimeEntity {
     private MonthlyRepeatType monthlyRepeatType;
 
     @Column
-    private Integer monthlyRepeatDay; // SPECIFIC_DAY_OF_MONTH에 해당하는 일
+    private Integer specificDay; // SPECIFIC_DAY_OF_MONTH에 해당하는 일
 
     public static Routine of(RoutineType type, LocalDate startDate, String title, String memo, Category category, Long cost, Member member) {
         return Routine.builder()
@@ -95,7 +95,7 @@ public class Routine extends BaseTimeEntity {
 
     public String monthlyRepeatAsString() {
         if (this.monthlyRepeatType == SPECIFIC_DAY_OF_MONTH) {
-            return String.format("매월 %d일", monthlyRepeatDay);
+            return String.format("매월 %d일", specificDay);
         }
         return this.monthlyRepeatType.toString();
     }
@@ -107,7 +107,7 @@ public class Routine extends BaseTimeEntity {
         if (this.monthlyRepeatType == LAST_DAY_OF_MONTH) {
             return YearMonth.from(date).lengthOfMonth();
         }
-        return this.monthlyRepeatDay;
+        return this.specificDay;
     }
 
     public void setWeeklyColumn(List<WeeklyRepeatDay> weeklyRepeatDays, Integer weeklyTerm) {
@@ -118,7 +118,7 @@ public class Routine extends BaseTimeEntity {
     public void setMonthlyColumn(MonthlyRepeatType monthlyRepeatType) {
         this.monthlyRepeatType = monthlyRepeatType;
         if (monthlyRepeatType == SPECIFIC_DAY_OF_MONTH) {
-            this.monthlyRepeatDay = startDate.getDayOfMonth();
+            this.specificDay = startDate.getDayOfMonth();
         }
     }
 
