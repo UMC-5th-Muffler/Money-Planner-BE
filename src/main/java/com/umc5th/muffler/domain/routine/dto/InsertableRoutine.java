@@ -35,7 +35,7 @@ public class InsertableRoutine {
     private Long dailyPlanId;
 
     private boolean isOutDated(LocalDate date) {
-        return (date.isBefore(routineStartDate)) || (routineEndDate != null && date.isAfter(routineEndDate));
+        return (!date.isAfter(routineStartDate)) || (routineEndDate != null && date.isAfter(routineEndDate));
     }
     public boolean isValid(LocalDate date) {
         if (isOutDated(date)) {

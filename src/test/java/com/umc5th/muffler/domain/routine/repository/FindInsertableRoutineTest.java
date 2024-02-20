@@ -418,7 +418,7 @@ class FindInsertableRoutineTest {
         goalRepository.save(goal);
 
         // when
-        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 1));
+        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 2, 1));
 
         // then
         assertEquals(1, routines.size());
