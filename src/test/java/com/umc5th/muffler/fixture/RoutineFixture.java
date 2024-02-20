@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class RoutineFixture {
-    public static Routine ROUTINE_PER_ONE_WEEK(Member member, Category category, LocalDate startDate, LocalDate endDate) {
+    public static Routine routinePerWeek(Member member, Category category, LocalDate startDate, LocalDate endDate) {
         return Routine.builder()
                 .type(RoutineType.WEEKLY)
                 .startDate(startDate)
@@ -27,7 +27,7 @@ public class RoutineFixture {
                 .build();
     }
 
-    public static Routine ROUTINE_PER_TWO_WEEK(Member member, Category category, LocalDate startDate, LocalDate endDate) {
+    public static Routine routinePerTwoWeek(Member member, Category category, LocalDate startDate, LocalDate endDate) {
         return Routine.builder()
                 .type(RoutineType.WEEKLY)
                 .startDate(startDate)
@@ -42,7 +42,7 @@ public class RoutineFixture {
                 .build();
     }
 
-    public static Routine ROUTINE_PER_THREE_WEEK(Member member, Category category, LocalDate startDate, LocalDate endDate) {
+    public static Routine routinePerThreeWeek(Member member, Category category, LocalDate startDate, LocalDate endDate) {
         return Routine.builder()
                 .type(RoutineType.WEEKLY)
                 .startDate(startDate)
@@ -57,7 +57,7 @@ public class RoutineFixture {
                 .build();
     }
 
-    public static Routine ROUTINE_PER_MONTH(Member member, Category category, LocalDate startDate, LocalDate endDate, Integer day) {
+    public static Routine routinePerMonth(Member member, Category category, LocalDate startDate, LocalDate endDate, Integer day) {
         return Routine.builder()
                 .type(RoutineType.MONTHLY)
                 .startDate(startDate)
@@ -71,6 +71,33 @@ public class RoutineFixture {
                 .monthlyRepeatDay(day)
                 .build();
     }
+    public static Routine routineLastDayOfMonth(Member member, Category category, LocalDate startDate, LocalDate endDate) {
+        return Routine.builder()
+                .type(RoutineType.MONTHLY)
+                .startDate(startDate)
+                .endDate(endDate)
+                .memo("memo")
+                .title("ROUTINE_PER_LAST_DAY_OF_MONTH")
+                .cost(100L)
+                .category(category)
+                .member(member)
+                .monthlyRepeatType(MonthlyRepeatType.LAST_DAY_OF_MONTH)
+                .build();
+    }
+    public static Routine routineFirstDayOfMonth(Member member, Category category, LocalDate startDate, LocalDate endDate) {
+        return Routine.builder()
+                .type(RoutineType.MONTHLY)
+                .startDate(startDate)
+                .endDate(endDate)
+                .memo("memo")
+                .title("ROUTINE_PER_FIRST_DAY_OF_MONTH")
+                .cost(100L)
+                .category(category)
+                .member(member)
+                .monthlyRepeatType(MonthlyRepeatType.FIRST_DAY_OF_MONTH)
+                .build();
+    }
+
     public static final Routine ROUTINE_ONE = Routine.builder()
             .id(1L)
             .type(RoutineType.MONTHLY)
