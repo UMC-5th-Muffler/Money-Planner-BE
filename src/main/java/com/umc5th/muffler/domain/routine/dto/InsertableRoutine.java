@@ -6,6 +6,7 @@ import com.umc5th.muffler.entity.constant.RoutineType;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,8 +43,10 @@ public class InsertableRoutine {
             return false;
         }
         if (routineType == RoutineType.WEEKLY) {
-            long between = ChronoUnit.WEEKS.between(routineStartDate, date);
-            return between % routineWeeklyTerm == 0;
+            LocalDate firstRepeatStartDate = routineStartDate.plusWeeks(routineWeeklyTerm)
+                    .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            long weeksSinceStart = ChronoUnit.WEEKS.between(firstRepeatStartDate, date);
+            return weeksSinceStart % routineWeeklyTerm == 0;
         }
         return true;
     }
