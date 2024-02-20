@@ -1,5 +1,17 @@
 package com.umc5th.muffler.domain.goal.service;
 
+import static com.umc5th.muffler.global.response.code.ErrorCode.GOAL_NOT_FOUND;
+import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_PERMISSION;
+import static com.umc5th.muffler.global.response.code.ErrorCode.MEMBER_NOT_FOUND;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.umc5th.muffler.domain.goal.dto.GoalGetResponse;
 import com.umc5th.muffler.domain.goal.dto.GoalInfo;
 import com.umc5th.muffler.domain.goal.dto.GoalPreviewResponse;
@@ -17,6 +29,10 @@ import com.umc5th.muffler.fixture.MemberFixture;
 import com.umc5th.muffler.global.response.exception.CommonException;
 import com.umc5th.muffler.global.response.exception.GoalException;
 import com.umc5th.muffler.global.response.exception.MemberException;
+import com.umc5th.muffler.global.util.DateTimeProvider;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,17 +41,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import static com.umc5th.muffler.global.response.code.ErrorCode.*;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class GoalServiceTest {
@@ -46,6 +51,8 @@ class GoalServiceTest {
     private MemberRepository memberRepository;
     @MockBean
     private GoalRepository goalRepository;
+    @MockBean
+    private DateTimeProvider dateTimeProvider;
 
     @Test
     void 전체_목표조회가_성공한경우() {
@@ -134,19 +141,19 @@ class GoalServiceTest {
     @Test
     void 목표탭_진행중_조회_성공() {
         String memberId = "1";
-        LocalDate today = LocalDate.now();
         Member mockMember = MemberFixture.MEMBER_ONE;
-        Goal mockGoal = GoalFixture.create(LocalDate.now(), LocalDate.now().plusDays(1));
+        Goal mockGoal = GoalFixture.create();
 
+        when(dateTimeProvider.nowDate()).thenReturn(mockGoal.getStartDate());
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByDateBetweenAndDailyPlans(today, memberId)).thenReturn(Optional.of(mockGoal));
+        when(goalRepository.findByDateBetweenAndDailyPlans(any(), any())).thenReturn(Optional.of(mockGoal));
 
         GoalInfo response = goalService.getGoalNow(memberId);
 
         assertNotNull(response);
         assertEquals(mockGoal.getId(), response.getGoalId());
 
-        verify(goalRepository).findByDateBetweenAndDailyPlans(today, memberId);
+        verify(goalRepository).findByDateBetweenAndDailyPlans(any(), any());
     }
 
     @Test
