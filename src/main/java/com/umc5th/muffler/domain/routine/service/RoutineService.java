@@ -2,14 +2,21 @@ package com.umc5th.muffler.domain.routine.service;
 
 import static com.umc5th.muffler.entity.constant.RoutineType.MONTHLY;
 import static com.umc5th.muffler.entity.constant.RoutineType.WEEKLY;
-import static com.umc5th.muffler.global.response.code.ErrorCode.*;
+import static com.umc5th.muffler.global.response.code.ErrorCode.EXPENSE_NOT_FOUND;
+import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_ROUTINE_INPUT;
+import static com.umc5th.muffler.global.response.code.ErrorCode.MEMBER_NOT_FOUND;
+import static com.umc5th.muffler.global.response.code.ErrorCode.ROUTINE_NOT_FOUND;
 
 import com.umc5th.muffler.domain.dailyplan.repository.JDBCDailyPlanRepository;
 import com.umc5th.muffler.domain.expense.repository.ExpenseRepository;
 import com.umc5th.muffler.domain.goal.dto.GoalTerm;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
-import com.umc5th.muffler.domain.routine.dto.*;
+import com.umc5th.muffler.domain.routine.dto.RoutineAll;
+import com.umc5th.muffler.domain.routine.dto.RoutineConverter;
+import com.umc5th.muffler.domain.routine.dto.RoutineDetail;
+import com.umc5th.muffler.domain.routine.dto.RoutineRequest;
+import com.umc5th.muffler.domain.routine.dto.RoutineResponse;
 import com.umc5th.muffler.domain.routine.repository.RoutineRepository;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Member;
@@ -23,11 +30,13 @@ import com.umc5th.muffler.global.response.exception.RoutineException;
 import com.umc5th.muffler.global.util.DateTimeProvider;
 import com.umc5th.muffler.global.util.RoutineProcessor;
 import com.umc5th.muffler.global.util.RoutineUtils;
-
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -77,8 +86,8 @@ public class RoutineService {
             );
             return;
         }
-        if (routine.getType() == MONTHLY && request.getMonthlyRepeatDay() != null) {
-            routine.setMonthlyColumn(Integer.parseInt(request.getMonthlyRepeatDay()));
+        if (routine.getType() == MONTHLY && request.getMonthlyRepeatType() != null) {
+            routine.setMonthlyColumn(request.getMonthlyRepeatType());
             return;
         }
         throw new RoutineException(INVALID_ROUTINE_INPUT, "반복 설정 값을 모두 입력하지 않았습니다.");

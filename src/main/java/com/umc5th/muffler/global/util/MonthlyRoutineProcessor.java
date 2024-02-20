@@ -8,20 +8,16 @@ import java.util.List;
 public class MonthlyRoutineProcessor implements RoutineProcessor {
     @Override
     public boolean isRoutineDay(LocalDate date, Routine routine) {
-        return date.getDayOfMonth() == routine.getMonthlyRepeatDay();
+        return date.getDayOfMonth() == routine.getMonthlyRepeatDay(date);
     }
 
     @Override
     public List<LocalDate> getRoutineDates(LocalDate startDate, LocalDate endDate, Routine routine) {
         List<LocalDate> result = new ArrayList<>();
-        Integer repeatDay = routine.getMonthlyRepeatDay();
         LocalDate date = startDate.plusMonths(1).withDayOfMonth(1);
 
         while (!date.isAfter(endDate)) {
-            if (date.lengthOfMonth() < repeatDay) {
-                date = date.plusMonths(1);
-                continue;
-            }
+            int repeatDay = routine.getMonthlyRepeatDay(date);
             LocalDate routineDate = date.withDayOfMonth(repeatDay);
             if (routineDate.isAfter(endDate)) {
                 break;

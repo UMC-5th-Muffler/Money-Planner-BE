@@ -3,6 +3,7 @@ package com.umc5th.muffler.fixture;
 import com.umc5th.muffler.entity.Category;
 import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.entity.Routine;
+import com.umc5th.muffler.entity.constant.MonthlyRepeatType;
 import com.umc5th.muffler.entity.constant.RoutineType;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -89,6 +90,17 @@ public class RoutineFixture {
             .category(CategoryFixture.CATEGORY_ONE)
             .build();
 
+    public static final Routine ROUTINE_THREE = Routine.builder()
+            .id(1L)
+            .type(RoutineType.MONTHLY)
+            .startDate(LocalDate.of(2024, 1, 1))
+            .title("루틴1")
+            .memo("루틴루틴")
+            .cost(1000L)
+            .category(CategoryFixture.CATEGORY_ONE)
+            .monthlyRepeatType(MonthlyRepeatType.FIRST_DAY_OF_MONTH)
+            .build();
+
     public static List<Routine> createList(int num, LocalDate date) {
 
         return IntStream.rangeClosed(0, num)
@@ -101,7 +113,7 @@ public class RoutineFixture {
                         .cost(1000L)
                         .member(MemberFixture.MEMBER_ONE)
                         .category(CategoryFixture.CATEGORY_ONE)
-                        .monthlyRepeatDay(i)
+                        .monthlyRepeatType(MonthlyRepeatType.FIRST_DAY_OF_MONTH)
                         .build())
                 .collect(Collectors.toList());
     }

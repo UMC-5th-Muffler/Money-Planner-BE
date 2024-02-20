@@ -131,7 +131,7 @@ class RoutineServiceTest {
         Routine saved = routineCaptor.getValue();
         assertThat(saved.getEndDate()).isEqualTo(request.getEndDate());
         assertThat(saved.getType()).isEqualTo(request.getType());
-        assertThat(saved.getMonthlyRepeatDay()).isEqualTo(Integer.parseInt(request.getMonthlyRepeatDay()));
+        assertThat(saved.getMonthlyRepeatType()).isEqualTo(request.getMonthlyRepeatType());
     }
 
     @Test
@@ -155,7 +155,7 @@ class RoutineServiceTest {
         Routine saved = routineCaptor.getValue();
         assertThat(saved.getEndDate()).isEqualTo(request.getEndDate());
         assertThat(saved.getType()).isEqualTo(request.getType());
-        assertThat(saved.getMonthlyRepeatDay()).isEqualTo(Integer.parseInt(request.getMonthlyRepeatDay()));
+        assertThat(saved.getMonthlyRepeatType()).isEqualTo(request.getMonthlyRepeatType());
     }
 
     @Test
@@ -166,7 +166,7 @@ class RoutineServiceTest {
         Pageable pageable = PageRequest.of(0, pageSize);
 
         Member mockMember = MemberFixture.MEMBER_ONE;
-        Routine mockRoutine = RoutineFixture.ROUTINE_ONE;
+        Routine mockRoutine = RoutineFixture.ROUTINE_THREE;
         List<Routine> routineList = List.of(mockRoutine);
         Slice<Routine> routineSlice = new SliceImpl<>(routineList, pageable, false);
 
@@ -181,7 +181,7 @@ class RoutineServiceTest {
         assertEquals(mockRoutine.getTitle(), responseRoutine.getRoutineTitle());
         assertEquals(mockRoutine.getCost(), responseRoutine.getRoutineCost());
         assertEquals(mockRoutine.getCategory().getIcon(), responseRoutine.getCategoryIcon());
-        assertEquals(mockRoutine.getMonthlyRepeatDay(), responseRoutine.getMonthlyRepeatDay());
+        assertEquals(mockRoutine.monthlyRepeatAsString(), responseRoutine.getMonthlyRepeatDay());
         assertEquals(routineSlice.hasNext(), response.isHasNext());
 
         verify(memberRepository).findById(memberId);

@@ -1,5 +1,7 @@
 package com.umc5th.muffler.domain.routine.repository;
 
+import static com.umc5th.muffler.entity.QRoutine.routine;
+
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -10,7 +12,6 @@ import com.umc5th.muffler.entity.QMember;
 import com.umc5th.muffler.entity.QWeeklyRepeatDay;
 import com.umc5th.muffler.entity.Routine;
 import com.umc5th.muffler.entity.WeeklyRepeatDay;
-import com.umc5th.muffler.entity.constant.RoutineType;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -21,8 +22,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-
-import static com.umc5th.muffler.entity.QRoutine.routine;
 
 @RequiredArgsConstructor
 public class RoutineRepositoryImpl implements RoutineRepositoryCustom{
@@ -63,9 +62,9 @@ public class RoutineRepositoryImpl implements RoutineRepositoryCustom{
                 .join(dailyPlan).on(dailyPlan.date.eq(today))
                 .leftJoin(weeklyRepeatDay).on(weeklyRepeatDay.routine.id.eq(routine.id))
                 .where(
-                        dailyPlan.date.eq(today),
-                        routine.type.eq(RoutineType.MONTHLY).and(routine.monthlyRepeatDay.eq(day))
-                                .or(routine.type.eq(RoutineType.WEEKLY).and(weeklyRepeatDay.dayOfWeek.eq(dayOfWeek)))
+                        dailyPlan.date.eq(today)
+//                        routine.type.eq(RoutineType.MONTHLY).and(routine.monthlyRepeatDay.eq(day))
+//                                .or(routine.type.eq(RoutineType.WEEKLY).and(weeklyRepeatDay.dayOfWeek.eq(dayOfWeek)))
                 )
                 .fetch();
         return insertableRoutines.stream()

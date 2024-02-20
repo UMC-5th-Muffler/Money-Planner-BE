@@ -11,6 +11,6 @@ public class RoutineAll {
     private String routineTitle;
     private Long routineCost;
     private String categoryIcon;
-    private Integer monthlyRepeatDay;
+    private String monthlyRepeatDay;
     private RoutineWeeklyDetailDto weeklyDetail;
 }

@@ -1,5 +1,6 @@
 package com.umc5th.muffler.domain.routine.dto;
 
+import com.umc5th.muffler.entity.constant.MonthlyRepeatType;
 import com.umc5th.muffler.entity.constant.RoutineType;
 import com.umc5th.muffler.global.validation.ValidDayOfWeekList;
 import com.umc5th.muffler.global.validation.ValidEnum;
@@ -28,6 +29,6 @@ public class RoutineRequest {
     @Pattern(regexp = "^([1-3])?$")
     private String weeklyTerm;
 
-    @Pattern(regexp = "^([1-9]|[12][0-9]|3[01])?$")
-    private String monthlyRepeatDay;
+    @ValidEnum(enumClass = MonthlyRepeatType.class)
+    private MonthlyRepeatType monthlyRepeatType;
 }
