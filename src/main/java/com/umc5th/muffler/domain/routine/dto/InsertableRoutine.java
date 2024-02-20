@@ -43,8 +43,14 @@ public class InsertableRoutine {
             return false;
         }
         if (routineType == RoutineType.WEEKLY) {
-            LocalDate firstRepeatStartDate = routineStartDate.plusWeeks(routineWeeklyTerm)
-                    .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            LocalDate firstRepeatStartDate;
+
+            if (routineStartDate.getDayOfWeek().getValue() < date.getDayOfWeek().getValue()) {
+                firstRepeatStartDate = routineStartDate;
+            } else {
+                firstRepeatStartDate = routineStartDate.plusWeeks(routineWeeklyTerm)
+                        .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            }
             long weeksSinceStart = ChronoUnit.WEEKS.between(firstRepeatStartDate, date);
             return weeksSinceStart % routineWeeklyTerm == 0;
         }

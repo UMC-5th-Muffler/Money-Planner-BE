@@ -17,11 +17,17 @@ public class WeeklyRoutineProcessor implements RoutineProcessor {
         if (!getDayOfWeeks(routine).contains(date.getDayOfWeek())) {
             return false;
         }
-
         LocalDate startDate = routine.getStartDate();
         int term = routine.getWeeklyTerm();
 
-        LocalDate firstRepeatStartDate = startDate.plusWeeks(term).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate firstRepeatStartDate;
+        if (startDate.getDayOfWeek().getValue() < date.getDayOfWeek().getValue()) {
+            firstRepeatStartDate = startDate;
+        } else {
+            firstRepeatStartDate = startDate.plusWeeks(term)
+                    .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        }
+        firstRepeatStartDate = startDate.plusWeeks(term).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         long weeksSinceStart = ChronoUnit.WEEKS.between(firstRepeatStartDate, date);
         return weeksSinceStart % term == 0;
     }

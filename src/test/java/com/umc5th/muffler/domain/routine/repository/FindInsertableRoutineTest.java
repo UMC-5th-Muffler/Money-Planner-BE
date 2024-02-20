@@ -285,6 +285,40 @@ class FindInsertableRoutineTest {
 
     @Test
     @Transactional
+    void 성공_2주반복_첫째주_이후_요일_등록() {
+        // given
+        Member member = MemberFixture.MEMBER_ONE;
+        Category category = CategoryFixture.CATEGORY_ONE;
+
+        member = memberRepository.save(member);
+        category = categoryRepository.save(category);
+
+        Routine routine = RoutineFixture.routinePerTwoWeek(member, category,
+                LocalDate.of(2024, 1, 3), LocalDate.of(2024, 1, 31));
+        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.of(routine, DayOfWeek.MONDAY);
+        WeeklyRepeatDay repeatDay2 = WeeklyRepeatDayFixture.of(routine, DayOfWeek.WEDNESDAY);
+        WeeklyRepeatDay repeatDay3 = WeeklyRepeatDayFixture.of(routine, DayOfWeek.SATURDAY);
+        routine.addRepeatDay(repeatDay);
+        routine.addRepeatDay(repeatDay2);
+        routine.addRepeatDay(repeatDay3);
+        routineRepository.save(routine);
+
+        Goal goal = GoalFixture.createGoalRegardlessOfBudget(member,
+                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 31));
+        goalRepository.save(goal);
+
+        // when
+        List<InsertableRoutine> routines_one = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 8));
+        List<InsertableRoutine> routines_two = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 6));
+        List<InsertableRoutine> routines_three = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 20));
+        // then
+        assertEquals(0, routines_one.size());
+        assertEquals(1, routines_two.size());
+        assertEquals(1, routines_three.size());
+    }
+
+    @Test
+    @Transactional
     void 성공_3주반복() {
         // given
         Member member = MemberFixture.MEMBER_ONE;
