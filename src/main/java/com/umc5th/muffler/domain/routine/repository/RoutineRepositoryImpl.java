@@ -51,7 +51,7 @@ public class RoutineRepositoryImpl implements RoutineRepositoryCustom{
                         routine.weeklyTerm.as("routineWeeklyTerm"),
                         weeklyRepeatDay.dayOfWeek.as("routineDayOfWeek"),
                         routine.monthlyRepeatType.as("routineMonthlyRepeatType"),
-                        routine.monthlyRepeatDay.as("routineDayOfMonth"),
+                        routine.specificDay.as("routineDayOfMonth"),
                         dailyPlan.totalCost.as("dailyPlanTotalCost"),
                         member.id.as("memberId"),
                         category.id.as("categoryId"),
@@ -76,7 +76,7 @@ public class RoutineRepositoryImpl implements RoutineRepositoryCustom{
 
     private BooleanExpression monthlyFilter(LocalDate today) {
         BooleanExpression expression = routine.monthlyRepeatType.eq(MonthlyRepeatType.SPECIFIC_DAY_OF_MONTH)
-                .and(routine.monthlyRepeatDay.eq(today.getDayOfMonth()));
+                .and(routine.specificDay.eq(today.getDayOfMonth()));
         if (today.getDayOfMonth() == today.lengthOfMonth()) {
             expression = expression.or(routine.monthlyRepeatType.eq(MonthlyRepeatType.LAST_DAY_OF_MONTH));
         }

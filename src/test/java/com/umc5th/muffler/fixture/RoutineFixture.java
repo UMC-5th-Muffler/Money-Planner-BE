@@ -68,7 +68,7 @@ public class RoutineFixture {
                 .category(category)
                 .member(member)
                 .monthlyRepeatType(MonthlyRepeatType.SPECIFIC_DAY_OF_MONTH)
-                .monthlyRepeatDay(day)
+                .specificDay(day)
                 .build();
     }
     public static Routine routineLastDayOfMonth(Member member, Category category, LocalDate startDate, LocalDate endDate) {
@@ -106,7 +106,7 @@ public class RoutineFixture {
             .memo("루틴루틴")
             .cost(1000L)
             .category(CategoryFixture.CATEGORY_ONE)
-            .monthlyRepeatDay(1)
+            .specificDay(1)
             .build();
 
     public static final Routine ROUTINE_TWO = Routine.builder()
