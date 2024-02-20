@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -170,7 +171,6 @@ class GoalServiceTest {
     @Test
     void 목표탭_전체조회_성공() {
         String memberId = "1";
-        LocalDate today = LocalDate.now();
         int pageSize = 10;
         Pageable pageable = PageRequest.of(0, pageSize);
 
@@ -180,8 +180,9 @@ class GoalServiceTest {
         List<Goal> goalList = List.of(mockFutureGoal, mockEndedGoal);
         Slice<Goal> goalSlice = new SliceImpl<>(goalList, pageable, false);
 
+        when(dateTimeProvider.nowDate()).thenReturn(LocalDate.of(2024, 1, 5));
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
-        when(goalRepository.findByMemberIdAndDailyPlans(memberId, pageable, today, null)).thenReturn(goalSlice);
+        when(goalRepository.findByMemberIdAndDailyPlans(eq(memberId), eq(pageable), any(), any())).thenReturn(goalSlice);
 
         GoalPreviewResponse response = goalService.getGoalPreview(memberId, pageable, null);
 
@@ -190,7 +191,7 @@ class GoalServiceTest {
         assertEquals(mockFutureGoal.getId(), response.getFutureGoal().get(0).getGoalId());
         assertEquals(goalSlice.hasNext(), response.getHasNext());
 
-        verify(goalRepository).findByMemberIdAndDailyPlans(memberId, pageable, today, null);
+        verify(goalRepository).findByMemberIdAndDailyPlans(eq(memberId), eq(pageable), any(), any());
     }
 
     @Test

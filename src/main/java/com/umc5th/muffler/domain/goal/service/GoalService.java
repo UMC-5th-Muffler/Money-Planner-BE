@@ -114,9 +114,10 @@ public class GoalService {
 
     @Transactional(readOnly = true)
     public GoalPreviewResponse getGoalPreview(String memberId, Pageable pageable, LocalDate endDate) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
+        LocalDate today = dateTimeProvider.nowDate();
 
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
-        LocalDate today = LocalDate.now();
         Slice<Goal> goalList = goalRepository.findByMemberIdAndDailyPlans(member.getId(), pageable, today, endDate);
         if (goalList.isEmpty()) {
             return new GoalPreviewResponse();
