@@ -67,6 +67,7 @@ public class RoutineFixture {
                 .cost(100L)
                 .category(category)
                 .member(member)
+                .monthlyRepeatType(MonthlyRepeatType.SPECIFIC_DAY_OF_MONTH)
                 .monthlyRepeatDay(day)
                 .build();
     }

@@ -1,6 +1,7 @@
 package com.umc5th.muffler.domain.routine.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
+import com.umc5th.muffler.entity.constant.MonthlyRepeatType;
 import com.umc5th.muffler.entity.constant.RoutineType;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class InsertableRoutine {
     private Long routineId;
@@ -23,6 +25,7 @@ public class InsertableRoutine {
     private LocalDate routineEndDate;
     private int routineWeeklyTerm;
     private DayOfWeek routineDayOfWeek;
+    private MonthlyRepeatType routineMonthlyRepeatType;
     private int routineDayOfMonth;
 
     private Long dailyPlanTotalCost;
@@ -30,39 +33,6 @@ public class InsertableRoutine {
     private String memberId;
     private Long categoryId;
     private Long dailyPlanId;
-
-    @QueryProjection
-    public InsertableRoutine(
-        Long routineId,
-        RoutineType routineType,
-        String routineTitle,
-        String routineMemo,
-        Long routineCost,
-        LocalDate routineStartDate,
-        LocalDate routineEndDate,
-        int routineWeeklyTerm,
-        DayOfWeek routineDayOfWeek,
-        int routineDayOfMonth,
-        Long dailyPlanTotalCost,
-        String memberId,
-        Long categoryId,
-        Long dailyPlanId
-    ) {
-        this.routineId = routineId;
-        this.routineType = routineType;
-        this.routineTitle = routineTitle;
-        this.routineMemo = routineMemo;
-        this.routineCost = routineCost;
-        this.routineStartDate = routineStartDate;
-        this.routineEndDate = routineEndDate;
-        this.routineWeeklyTerm = routineWeeklyTerm;
-        this.routineDayOfWeek = routineDayOfWeek;
-        this.routineDayOfMonth = routineDayOfMonth;
-        this.dailyPlanTotalCost = dailyPlanTotalCost;
-        this.memberId = memberId;
-        this.categoryId = categoryId;
-        this.dailyPlanId = dailyPlanId;
-    }
 
     private boolean isOutDated(LocalDate date) {
         return (date.isBefore(routineStartDate)) || (routineEndDate != null && date.isAfter(routineEndDate));

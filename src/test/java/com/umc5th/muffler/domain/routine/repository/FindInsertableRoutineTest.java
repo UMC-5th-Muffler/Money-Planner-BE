@@ -362,8 +362,6 @@ class FindInsertableRoutineTest {
 
         Routine routine = RoutineFixture.ROUTINE_PER_MONTH(member, category,
                 LocalDate.of(2024, 1, 1), null, 10);
-        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.MONDAY_REPEAT(routine);
-        routine.addRepeatDay(repeatDay);
         routineRepository.save(routine);
 
         Goal goal = GoalFixture.createGoalRegardlessOfBudget(member,
@@ -375,5 +373,11 @@ class FindInsertableRoutineTest {
 
         // then
         assertEquals(1, routines.size());
+    }
+
+    @Test
+    @Transactional
+    void 성공_월별_마지막() {
+
     }
 }

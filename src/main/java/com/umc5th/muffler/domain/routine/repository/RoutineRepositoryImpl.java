@@ -12,6 +12,8 @@ import com.umc5th.muffler.entity.QMember;
 import com.umc5th.muffler.entity.QWeeklyRepeatDay;
 import com.umc5th.muffler.entity.Routine;
 import com.umc5th.muffler.entity.WeeklyRepeatDay;
+import com.umc5th.muffler.entity.constant.MonthlyRepeatType;
+import com.umc5th.muffler.entity.constant.RoutineType;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -49,6 +51,7 @@ public class RoutineRepositoryImpl implements RoutineRepositoryCustom{
                         routine.endDate.as("routineEndDate"),
                         routine.weeklyTerm.as("routineWeeklyTerm"),
                         weeklyRepeatDay.dayOfWeek.as("routineDayOfWeek"),
+                        routine.monthlyRepeatType.as("routineMonthlyRepeatType"),
                         routine.monthlyRepeatDay.as("routineDayOfMonth"),
                         dailyPlan.totalCost.as("dailyPlanTotalCost"),
                         member.id.as("memberId"),
@@ -62,14 +65,26 @@ public class RoutineRepositoryImpl implements RoutineRepositoryCustom{
                 .join(dailyPlan).on(dailyPlan.date.eq(today))
                 .leftJoin(weeklyRepeatDay).on(weeklyRepeatDay.routine.id.eq(routine.id))
                 .where(
-                        dailyPlan.date.eq(today)
-//                        routine.type.eq(RoutineType.MONTHLY).and(routine.monthlyRepeatDay.eq(day))
-//                                .or(routine.type.eq(RoutineType.WEEKLY).and(weeklyRepeatDay.dayOfWeek.eq(dayOfWeek)))
+                        dailyPlan.date.eq(today),
+                        routine.type.eq(RoutineType.MONTHLY).and(monthlyFilter(today))
+                                .or(routine.type.eq(RoutineType.WEEKLY).and(weeklyRepeatDay.dayOfWeek.eq(dayOfWeek)))
                 )
                 .fetch();
         return insertableRoutines.stream()
                 .filter((insertableRoutine) -> insertableRoutine.isValid(today))
                 .collect(Collectors.toList());
+    }
+
+    private BooleanExpression monthlyFilter(LocalDate today) {
+        BooleanExpression expression = routine.monthlyRepeatType.eq(MonthlyRepeatType.SPECIFIC_DAY_OF_MONTH)
+                .and(routine.monthlyRepeatDay.eq(today.getDayOfMonth()));
+        if (today.getDayOfMonth() == today.lengthOfMonth()) {
+            expression = expression.or(routine.monthlyRepeatType.eq(MonthlyRepeatType.LAST_DAY_OF_MONTH));
+        }
+        if (today.getDayOfMonth() == 1) {
+            expression = expression.or(routine.monthlyRepeatType.eq(MonthlyRepeatType.FIRST_DAY_OF_MONTH));
+        }
+        return expression;
     }
 
     @Override
