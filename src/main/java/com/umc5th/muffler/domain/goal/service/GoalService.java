@@ -21,13 +21,14 @@ import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.global.response.exception.CommonException;
 import com.umc5th.muffler.global.response.exception.GoalException;
 import com.umc5th.muffler.global.response.exception.MemberException;
+import com.umc5th.muffler.global.util.CalcUtils;
+import com.umc5th.muffler.global.util.DateTimeProvider;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class GoalService {
 
+    private final DateTimeProvider dateTimeProvider;
     private final MemberRepository memberRepository;
     private final GoalRepository goalRepository;
     private final ExpenseRepository expenseRepository;
@@ -98,17 +100,16 @@ public class GoalService {
 
     @Transactional(readOnly = true)
     public GoalInfo getGoalNow(String memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
 
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
-        Optional<Goal> goal = goalRepository.findByDateBetweenAndDailyPlans(LocalDate.now(), member.getId());
-        if (!goal.isPresent()) {
+        Goal goal = goalRepository.findByDateBetweenAndDailyPlans(dateTimeProvider.nowDate(), memberId).orElse(null);
+        if (goal == null) {
             return new GoalInfo();
         }
 
-        Goal progress = goal.get();
-        Long totalCost = progress.getDailyPlans().stream().mapToLong(DailyPlan::getTotalCost).sum();
-
-        return GoalConverter.getNowGoalResponse(progress, totalCost);
+        Long totalCost = CalcUtils.sumDailyPlanTotalCost(goal.getDailyPlans());
+        return GoalConverter.getNowGoalResponse(goal, totalCost);
     }
 
     @Transactional(readOnly = true)
