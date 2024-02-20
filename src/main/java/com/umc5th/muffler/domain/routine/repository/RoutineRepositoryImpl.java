@@ -36,7 +36,6 @@ public class RoutineRepositoryImpl implements RoutineRepositoryCustom{
         QDailyPlan dailyPlan = QDailyPlan.dailyPlan;
         QWeeklyRepeatDay weeklyRepeatDay = QWeeklyRepeatDay.weeklyRepeatDay;
 
-        int day = today.getDayOfMonth();
         DayOfWeek dayOfWeek = today.getDayOfWeek();
 
         List<InsertableRoutine> insertableRoutines = queryFactory

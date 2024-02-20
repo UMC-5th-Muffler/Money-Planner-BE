@@ -377,6 +377,50 @@ class FindInsertableRoutineTest {
     @Test
     @Transactional
     void 성공_월별_마지막() {
+        // given
+        Member member = MemberFixture.MEMBER_ONE;
+        Category category = CategoryFixture.CATEGORY_ONE;
 
+        member = memberRepository.save(member);
+        category = categoryRepository.save(category);
+
+        Routine routine = RoutineFixture.routineLastDayOfMonth(member, category,
+                LocalDate.of(2024, 1, 1), null);
+        routineRepository.save(routine);
+
+        Goal goal = GoalFixture.createGoalRegardlessOfBudget(member,
+                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 31));
+        goalRepository.save(goal);
+
+        // when
+        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 31));
+
+        // then
+        assertEquals(1, routines.size());
+    }
+
+    @Test
+    @Transactional
+    void 성공_월별_첫번째_날() {
+        // given
+        Member member = MemberFixture.MEMBER_ONE;
+        Category category = CategoryFixture.CATEGORY_ONE;
+
+        member = memberRepository.save(member);
+        category = categoryRepository.save(category);
+
+        Routine routine = RoutineFixture.routineFirstDayOfMonth(member, category,
+                LocalDate.of(2024, 1, 1), null);
+        routineRepository.save(routine);
+
+        Goal goal = GoalFixture.createGoalRegardlessOfBudget(member,
+                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 3, 31));
+        goalRepository.save(goal);
+
+        // when
+        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 1));
+
+        // then
+        assertEquals(1, routines.size());
     }
 }
