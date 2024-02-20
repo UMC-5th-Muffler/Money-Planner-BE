@@ -1,21 +1,36 @@
 package com.umc5th.muffler.domain.goal.controller;
 
-import com.umc5th.muffler.domain.goal.dto.*;
+import com.umc5th.muffler.domain.goal.dto.GoalConverter;
+import com.umc5th.muffler.domain.goal.dto.GoalCreateRequest;
+import com.umc5th.muffler.domain.goal.dto.GoalGetResponse;
+import com.umc5th.muffler.domain.goal.dto.GoalInfo;
+import com.umc5th.muffler.domain.goal.dto.GoalListResponse;
+import com.umc5th.muffler.domain.goal.dto.GoalPreviewResponse;
+import com.umc5th.muffler.domain.goal.dto.GoalPreviousResponse;
+import com.umc5th.muffler.domain.goal.dto.GoalReportResponse;
+import com.umc5th.muffler.domain.goal.dto.GoalTitleRequest;
 import com.umc5th.muffler.domain.goal.service.GoalCreateService;
 import com.umc5th.muffler.domain.goal.service.GoalService;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.global.response.Response;
+import java.time.LocalDate;
+import java.util.List;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.List;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -36,6 +51,12 @@ public class GoalController {
     public Response<GoalPreviousResponse> getPrevious(Authentication authentication) {
         List<Goal> goals = goalService.getGoals(authentication.getName());
         return Response.success(GoalConverter.getGoalPreviousResponse(goals));
+    }
+
+    @PatchMapping("/{goalId}")
+    public Response<Void> updateTitle(@PathVariable Long goalId, @RequestBody @Valid GoalTitleRequest request, Authentication authentication) {
+        goalService.updateTitle(goalId, request.getTitle(), authentication.getName());
+        return Response.success();
     }
 
     @DeleteMapping("/{goalId}")

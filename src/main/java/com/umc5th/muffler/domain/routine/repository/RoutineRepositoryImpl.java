@@ -1,5 +1,7 @@
 package com.umc5th.muffler.domain.routine.repository;
 
+import static com.umc5th.muffler.entity.QRoutine.routine;
+
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -10,6 +12,7 @@ import com.umc5th.muffler.entity.QMember;
 import com.umc5th.muffler.entity.QWeeklyRepeatDay;
 import com.umc5th.muffler.entity.Routine;
 import com.umc5th.muffler.entity.WeeklyRepeatDay;
+import com.umc5th.muffler.entity.constant.MonthlyRepeatType;
 import com.umc5th.muffler.entity.constant.RoutineType;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -22,8 +25,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
-import static com.umc5th.muffler.entity.QRoutine.routine;
-
 @RequiredArgsConstructor
 public class RoutineRepositoryImpl implements RoutineRepositoryCustom{
     private final JPAQueryFactory queryFactory;
@@ -35,7 +36,6 @@ public class RoutineRepositoryImpl implements RoutineRepositoryCustom{
         QDailyPlan dailyPlan = QDailyPlan.dailyPlan;
         QWeeklyRepeatDay weeklyRepeatDay = QWeeklyRepeatDay.weeklyRepeatDay;
 
-        int day = today.getDayOfMonth();
         DayOfWeek dayOfWeek = today.getDayOfWeek();
 
         List<InsertableRoutine> insertableRoutines = queryFactory
@@ -50,7 +50,8 @@ public class RoutineRepositoryImpl implements RoutineRepositoryCustom{
                         routine.endDate.as("routineEndDate"),
                         routine.weeklyTerm.as("routineWeeklyTerm"),
                         weeklyRepeatDay.dayOfWeek.as("routineDayOfWeek"),
-                        routine.monthlyRepeatDay.as("routineDayOfMonth"),
+                        routine.monthlyRepeatType.as("routineMonthlyRepeatType"),
+                        routine.specificDay.as("routineDayOfMonth"),
                         dailyPlan.totalCost.as("dailyPlanTotalCost"),
                         member.id.as("memberId"),
                         category.id.as("categoryId"),
@@ -64,13 +65,25 @@ public class RoutineRepositoryImpl implements RoutineRepositoryCustom{
                 .leftJoin(weeklyRepeatDay).on(weeklyRepeatDay.routine.id.eq(routine.id))
                 .where(
                         dailyPlan.date.eq(today),
-                        routine.type.eq(RoutineType.MONTHLY).and(routine.monthlyRepeatDay.eq(day))
+                        routine.type.eq(RoutineType.MONTHLY).and(monthlyFilter(today))
                                 .or(routine.type.eq(RoutineType.WEEKLY).and(weeklyRepeatDay.dayOfWeek.eq(dayOfWeek)))
                 )
                 .fetch();
         return insertableRoutines.stream()
                 .filter((insertableRoutine) -> insertableRoutine.isValid(today))
                 .collect(Collectors.toList());
+    }
+
+    private BooleanExpression monthlyFilter(LocalDate today) {
+        BooleanExpression expression = routine.monthlyRepeatType.eq(MonthlyRepeatType.SPECIFIC_DAY_OF_MONTH)
+                .and(routine.specificDay.eq(today.getDayOfMonth()));
+        if (today.getDayOfMonth() == today.lengthOfMonth()) {
+            expression = expression.or(routine.monthlyRepeatType.eq(MonthlyRepeatType.LAST_DAY_OF_MONTH));
+        }
+        if (today.getDayOfMonth() == 1) {
+            expression = expression.or(routine.monthlyRepeatType.eq(MonthlyRepeatType.FIRST_DAY_OF_MONTH));
+        }
+        return expression;
     }
 
     @Override

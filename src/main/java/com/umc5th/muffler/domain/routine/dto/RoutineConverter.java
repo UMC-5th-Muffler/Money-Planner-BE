@@ -36,7 +36,7 @@ public class RoutineConverter {
                             .routineTitle(routine.getTitle())
                             .routineCost(routine.getCost())
                             .categoryIcon(routine.getCategory().getIcon())
-                            .monthlyRepeatDay(routine.getType() == RoutineType.MONTHLY ? routine.getMonthlyRepeatDay() : null)
+                            .monthlyRepeatDay(routine.getType() == RoutineType.MONTHLY ? routine.monthlyRepeatAsString() : null)
                             .weeklyDetail(weeklyDetail)
                             .build();
                 })

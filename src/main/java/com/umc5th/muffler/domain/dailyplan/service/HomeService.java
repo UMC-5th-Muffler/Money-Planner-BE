@@ -4,7 +4,7 @@ import static com.umc5th.muffler.entity.QDailyPlan.dailyPlan;
 
 import com.querydsl.core.Tuple;
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
-import com.umc5th.muffler.domain.dailyplan.dto.CategoryCalendar;
+import com.umc5th.muffler.domain.dailyplan.dto.CategoryInfo;
 import com.umc5th.muffler.domain.dailyplan.dto.DailyInfo;
 import com.umc5th.muffler.domain.dailyplan.dto.GoalInfo;
 import com.umc5th.muffler.domain.dailyplan.dto.HomeConverter;
@@ -20,6 +20,7 @@ import com.umc5th.muffler.entity.DailyPlan;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.Member;
+import com.umc5th.muffler.entity.constant.Rate;
 import com.umc5th.muffler.global.response.code.ErrorCode;
 import com.umc5th.muffler.global.response.exception.CategoryException;
 import com.umc5th.muffler.global.response.exception.GoalException;
@@ -59,12 +60,12 @@ public class HomeService {
     }
 
     @Transactional(readOnly = true)
-    public WholeCalendar getBasicCalendar(String memberId, YearMonth yearMonth) {
+    public WholeCalendar getBasicCalendar(String memberId, YearMonth date) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        List<Goal> inactiveGoals = goalRepository.findGoalsByYearMonth(member.getId(), yearMonth);
-        List<DailyInfo> inactiveDailies = getInactiveDailies(inactiveGoals, yearMonth);
+        List<Goal> inactiveGoals = goalRepository.findGoalsByYearMonth(member.getId(), date);
+        List<DailyInfo> inactiveDailies = getInactiveDailies(inactiveGoals, date);
 
         return HomeConverter.toBasicCalendar(inactiveDailies);
     }
@@ -100,73 +101,79 @@ public class HomeService {
     }
 
     @Transactional(readOnly = true)
-    public CategoryCalendar getCategoryCalendar(String memberId, Long goalId, YearMonth yearMonth, Long categoryId) {
+    public WholeCalendar getCategoryCalendar(String memberId, Long goalId, YearMonth date, Long categoryId) {
+        Goal activeGoal = goalRepository.findById(goalId)
+                .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-        Goal goal = goalRepository.findById(goalId)
-                .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CategoryException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        LocalDate startDate = findStartDateWithinYearMonth(goal, yearMonth);
-        LocalDate endDate = findEndDateWithinYearMonth(goal, yearMonth);
-        Long categoryTotalCost = expenseRepository.sumTotalCategoryCostByMemberAndDateBetween(memberId, categoryId, goal.getStartDate(), goal.getEndDate()).orElse(0L);
-        List<Long> categoryDailyCost = getCategoryDailyCost(memberId, categoryId, startDate, endDate);
-        Long categoryBudget = getCategoryBudget(goal, category);
+        CategoryInfo categoryInfo = getCategoryInfo(activeGoal, category);
 
-        return HomeConverter.toCategoryCalendar(category, startDate, endDate, categoryTotalCost, categoryDailyCost, categoryBudget);
+        List<DailyInfo> categoryDailies = getCategoryDailies(memberId, date, categoryId, activeGoal);
+
+        List<Goal> inactiveGoals = goalRepository.findGoalsByYearMonth(member.getId(), date);
+        inactiveGoals.remove(activeGoal);
+        List<DailyInfo> inactiveDailies = getInactiveDailies(inactiveGoals, date);
+
+        return HomeConverter.toCategoryCalendar(categoryInfo, categoryDailies, inactiveDailies);
     }
 
-    private WholeCalendar getGoalCalendar(String memberId, Goal activeGoal, YearMonth yearMonth) {
+    private CategoryInfo getCategoryInfo(Goal goal, Category category) {
+        Long categoryBudget = getCategoryBudget(goal, category);
+        Long categoryTotalCost = null;
+        if (categoryBudget != null) {
+            categoryTotalCost = expenseRepository.sumTotalCategoryCostByMemberAndDateBetween(
+                    category.getMember().getId(), category.getId(), goal.getStartDate(), goal.getEndDate()).orElse(0L);
+        }
+        return new CategoryInfo(category.getId(), category.getName(), categoryTotalCost, categoryBudget);
+    }
+
+    private WholeCalendar getGoalCalendar(String memberId, Goal activeGoal, YearMonth date) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-        LocalDate startDate = findStartDateWithinYearMonth(activeGoal, yearMonth);
-        LocalDate endDate = findEndDateWithinYearMonth(activeGoal, yearMonth);
+        LocalDate startDate = findStartDateWithinYearMonth(activeGoal, date);
+        LocalDate endDate = findEndDateWithinYearMonth(activeGoal, date);
 
-        GoalInfo goalInfo = getGoalInfo(activeGoal, startDate, endDate);
+        GoalInfo goalInfo = getGoalInfo(activeGoal);
         List<DailyInfo> activeDailies = getActiveDailies(activeGoal, startDate, endDate);
 
-        List<Goal> inactiveGoals = goalRepository.findGoalsByYearMonth(member.getId(), yearMonth);
+        List<Goal> inactiveGoals = goalRepository.findGoalsByYearMonth(member.getId(), date);
         inactiveGoals.remove(activeGoal);
-        List<DailyInfo> inactiveDailies = getInactiveDailies(inactiveGoals, yearMonth);
+        List<DailyInfo> inactiveDailies = getInactiveDailies(inactiveGoals, date);
 
         return HomeConverter.toGoalCalendar(goalInfo, activeDailies, inactiveDailies);
     }
 
-    private GoalInfo getGoalInfo(Goal activeGoal, LocalDate startDate, LocalDate endDate) {
+    private GoalInfo getGoalInfo(Goal activeGoal) {
         String memberId = activeGoal.getMember().getId();
         Long totalCost = expenseRepository.sumCostByMemberAndDateBetween(
                 memberId, activeGoal.getStartDate(), activeGoal.getEndDate());
 
-        return HomeConverter.toGoalInfo(activeGoal, startDate, endDate, totalCost);
+        return HomeConverter.toGoalInfo(activeGoal, totalCost);
     }
 
     private List<DailyInfo> getActiveDailies(Goal activeGoal, LocalDate startDate, LocalDate endDate) {
         List<DailyPlan> dailyPlans = dailyPlanRepository
                 .findByGoalIdAndDateBetween(activeGoal.getId(), startDate, endDate);
 
-        return HomeConverter.toDailyList(dailyPlans);
+        return HomeConverter.toActiveDailies(dailyPlans);
     }
 
-    private List<DailyInfo> getInactiveDailies(List<Goal> inactiveGoals, YearMonth yearMonth) {
+    private List<DailyInfo> getInactiveDailies(List<Goal> inactiveGoals, YearMonth date) {
         List<DailyInfo> inactiveDailies = new ArrayList<>();
         for (Goal goal : inactiveGoals) {
-            LocalDate startDate = findStartDateWithinYearMonth(goal, yearMonth);
-            LocalDate endDate = findEndDateWithinYearMonth(goal, yearMonth);
+            LocalDate startDate = findStartDateWithinYearMonth(goal, date);
+            LocalDate endDate = findEndDateWithinYearMonth(goal, date);
 
             List<Tuple> rates = dailyPlanRepository.findDateAndRateByGoalAndDateRange(goal.getId(), startDate, endDate);
-            rates.stream()
-                    .forEach(tuple -> {
+            rates.forEach(tuple -> {
                         inactiveDailies.add((DailyInfo)
                                 new InactiveDaily(tuple.get(dailyPlan.date), tuple.get(dailyPlan.rate)));
                     });
         }
         return inactiveDailies;
-    }
-
-    private List<Long> getCategoryDailyCost(String memberId, Long categoryId, LocalDate startDate, LocalDate endDate) {
-        Map<LocalDate, List<Expense>> expenses = expenseRepository.findByMemberAndCategoryAndDateRangeGroupedByDate(memberId, categoryId, startDate, endDate);
-        return HomeConverter.toCategoryDailyCost(expenses, startDate, endDate);
     }
 
     private Long getCategoryBudget(Goal goal, Category category) {
@@ -179,16 +186,33 @@ public class HomeService {
         return null;
     }
 
-    private LocalDate findStartDateWithinYearMonth(Goal goal, YearMonth yearMonth) {
-        LocalDate startOfMonth = yearMonth.atDay(1);
+    private List<DailyInfo> getCategoryDailies(String memberId, YearMonth date, Long categoryId, Goal goal) {
+        // 선택한 날짜가 선택한 goal 기간 안일 때만 존재
+        LocalDate startOfMonth = date.atDay(1);
+        LocalDate endOfMonth = date.atEndOfMonth();
+        if (!startOfMonth.isAfter(goal.getEndDate()) && !endOfMonth.isBefore(goal.getStartDate())) {
+            LocalDate startDate = findStartDateWithinYearMonth(goal, date);
+            LocalDate endDate = findEndDateWithinYearMonth(goal, date);
+
+            Map<LocalDate, Rate> rates = dailyPlanRepository
+                    .findByGoalAndDateRangeGroupedByDate(goal.getId(), startDate, endDate);
+            Map<LocalDate, List<Expense>> expenses = expenseRepository
+                    .findByMemberAndCategoryAndDateRangeGroupedByDate(memberId, categoryId, startDate, endDate);
+            return HomeConverter.toCategoryDaily(expenses, rates, startDate, endDate);
+        }
+        return new ArrayList<>();
+    }
+
+    private LocalDate findStartDateWithinYearMonth(Goal goal, YearMonth date) {
+        LocalDate startOfMonth = date.atDay(1);
         if (goal.getStartDate().isBefore(startOfMonth)) {
             return startOfMonth;
         }
         return goal.getStartDate();
     }
 
-    private LocalDate findEndDateWithinYearMonth(Goal goal, YearMonth yearMonth) {
-        LocalDate endOfMonth = yearMonth.atEndOfMonth();
+    private LocalDate findEndDateWithinYearMonth(Goal goal, YearMonth date) {
+        LocalDate endOfMonth = date.atEndOfMonth();
         if (goal.getEndDate().isAfter(endOfMonth)) {
             return endOfMonth;
         }

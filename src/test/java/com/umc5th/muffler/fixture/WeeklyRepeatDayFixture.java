@@ -5,10 +5,10 @@ import com.umc5th.muffler.entity.WeeklyRepeatDay;
 import java.time.DayOfWeek;
 
 public class WeeklyRepeatDayFixture {
-    public static WeeklyRepeatDay MONDAY_REPEAT(Routine routine) {
+    public static WeeklyRepeatDay of(Routine routine, DayOfWeek dayOfWeek) {
         return WeeklyRepeatDay.builder()
-                .dayOfWeek(DayOfWeek.MONDAY)
                 .routine(routine)
+                .dayOfWeek(dayOfWeek)
                 .build();
     }
 }

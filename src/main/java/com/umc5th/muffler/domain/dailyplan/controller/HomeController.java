@@ -1,6 +1,5 @@
 package com.umc5th.muffler.domain.dailyplan.controller;
 
-import com.umc5th.muffler.domain.dailyplan.dto.CategoryCalendar;
 import com.umc5th.muffler.domain.dailyplan.dto.WholeCalendar;
 import com.umc5th.muffler.domain.dailyplan.service.HomeService;
 import com.umc5th.muffler.global.response.Response;
@@ -44,7 +43,7 @@ public class HomeController {
     }
 
     @GetMapping("/goal/{goalId}/category/{categoryId}")
-    public Response<CategoryCalendar> getCategoryGoalCalendar(
+    public Response<WholeCalendar> getCategoryGoalCalendar(
             @PathVariable Long goalId, @RequestParam @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth, @PathVariable Long categoryId, Authentication authentication
     ) {
         return Response.success(homeService.getCategoryCalendar(authentication.getName(), goalId, yearMonth, categoryId));

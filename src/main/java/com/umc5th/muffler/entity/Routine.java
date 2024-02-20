@@ -1,8 +1,12 @@
 package com.umc5th.muffler.entity;
 
+import static com.umc5th.muffler.entity.constant.MonthlyRepeatType.*;
+
 import com.umc5th.muffler.entity.base.BaseTimeEntity;
+import com.umc5th.muffler.entity.constant.MonthlyRepeatType;
 import com.umc5th.muffler.entity.constant.RoutineType;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -71,7 +75,11 @@ public class Routine extends BaseTimeEntity {
 
     // Monthly Column
     @Column
-    private Integer monthlyRepeatDay;
+    @Enumerated(EnumType.STRING)
+    private MonthlyRepeatType monthlyRepeatType;
+
+    @Column
+    private Integer specificDay; // SPECIFIC_DAY_OF_MONTH에 해당하는 일
 
     public static Routine of(RoutineType type, LocalDate startDate, String title, String memo, Category category, Long cost, Member member) {
         return Routine.builder()
@@ -85,21 +93,37 @@ public class Routine extends BaseTimeEntity {
                 .build();
     }
 
+    public String monthlyRepeatAsString() {
+        if (this.monthlyRepeatType == SPECIFIC_DAY_OF_MONTH) {
+            return String.format("매월 %d일", specificDay);
+        }
+        return this.monthlyRepeatType.toString();
+    }
+
+    public int getMonthlyRepeatDay(LocalDate date) {
+        if (this.monthlyRepeatType == FIRST_DAY_OF_MONTH) {
+            return 1;
+        }
+        if (this.monthlyRepeatType == LAST_DAY_OF_MONTH) {
+            return YearMonth.from(date).lengthOfMonth();
+        }
+        return this.specificDay;
+    }
+
     public void setWeeklyColumn(List<WeeklyRepeatDay> weeklyRepeatDays, Integer weeklyTerm) {
         this.weeklyRepeatDays = weeklyRepeatDays;
         this.weeklyTerm = weeklyTerm;
     }
 
-    public void setMonthlyColumn(int monthlyRepeatDay) {
-        this.monthlyRepeatDay = monthlyRepeatDay;
+    public void setMonthlyColumn(MonthlyRepeatType monthlyRepeatType) {
+        this.monthlyRepeatType = monthlyRepeatType;
+        if (monthlyRepeatType == SPECIFIC_DAY_OF_MONTH) {
+            this.specificDay = startDate.getDayOfMonth();
+        }
     }
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
-    }
-
-    public void setWeeklyRepeatDays(List<WeeklyRepeatDay> weeklyRepeatDays) {
-        this.weeklyRepeatDays = weeklyRepeatDays;
     }
 
     public void addRepeatDay(WeeklyRepeatDay weeklyRepeatDay) {

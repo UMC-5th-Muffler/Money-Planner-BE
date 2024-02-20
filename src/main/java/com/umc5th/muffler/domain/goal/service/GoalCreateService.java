@@ -1,18 +1,22 @@
 package com.umc5th.muffler.domain.goal.service;
 
+import static com.umc5th.muffler.global.response.code.ErrorCode.CATEGORY_NOT_FOUND;
+import static com.umc5th.muffler.global.response.code.ErrorCode.INVALID_GOAL_INPUT;
+import static com.umc5th.muffler.global.response.code.ErrorCode.MEMBER_NOT_FOUND;
+
 import com.umc5th.muffler.domain.category.repository.CategoryRepository;
 import com.umc5th.muffler.domain.goal.dto.CategoryGoalRequest;
 import com.umc5th.muffler.domain.goal.dto.GoalCreateRequest;
 import com.umc5th.muffler.domain.goal.repository.GoalRepository;
 import com.umc5th.muffler.domain.member.repository.MemberRepository;
-import com.umc5th.muffler.entity.*;
+import com.umc5th.muffler.entity.Category;
+import com.umc5th.muffler.entity.CategoryGoal;
+import com.umc5th.muffler.entity.DailyPlan;
+import com.umc5th.muffler.entity.Goal;
+import com.umc5th.muffler.entity.Member;
 import com.umc5th.muffler.global.response.exception.CategoryException;
 import com.umc5th.muffler.global.response.exception.GoalException;
 import com.umc5th.muffler.global.response.exception.MemberException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -20,8 +24,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static com.umc5th.muffler.global.response.code.ErrorCode.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +45,7 @@ public class GoalCreateService {
         List<CategoryGoal> categoryGoals = createCategoryGoals(request.getCategoryGoals());
         List<DailyPlan> dailyPlans = createDailyPlans(request.getStartDate(), request.getDailyBudgets());
 
-        Goal goal = Goal.of(request.getStartDate(), request.getEndDate(), request.getTitle(), request.getDetail(), request.getIcon(), request.getTotalBudget(), member);
+        Goal goal = Goal.of(request.getStartDate(), request.getEndDate(), request.getTitle(), request.getIcon(), request.getTotalBudget(), member);
         goal.setCategoryGoals(categoryGoals);
         goal.setDailyPlans(dailyPlans);
 

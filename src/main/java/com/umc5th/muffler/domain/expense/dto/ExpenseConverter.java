@@ -1,16 +1,15 @@
 package com.umc5th.muffler.domain.expense.dto;
 
 import com.umc5th.muffler.entity.Category;
+import com.umc5th.muffler.entity.DailyPlan;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Member;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Slice;
-
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import org.springframework.data.domain.Slice;
 
 public class ExpenseConverter {
 
@@ -135,4 +134,12 @@ public class ExpenseConverter {
                 .collect(Collectors.toList());
     }
 
+    public static ExpenseOverview toExpenseOverview(List<DailyPlan> dailies) {
+        List<ZeroDayInfo> overview = dailies.stream()
+                .map(daily ->
+                        new ZeroDayInfo(daily.getDate(), daily.getIsZeroDay()))
+                .sorted(Comparator.comparing(ZeroDayInfo::getDate))
+                .collect(Collectors.toList());
+        return new ExpenseOverview(overview);
+    }
 }

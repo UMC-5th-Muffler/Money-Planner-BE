@@ -16,12 +16,12 @@ import com.umc5th.muffler.fixture.GoalFixture;
 import com.umc5th.muffler.fixture.MemberFixture;
 import com.umc5th.muffler.fixture.RoutineFixture;
 import com.umc5th.muffler.fixture.WeeklyRepeatDayFixture;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -45,9 +45,9 @@ class FindInsertableRoutineTest {
         member = memberRepository.save(member);
         category = categoryRepository.save(category);
 
-        Routine routine = RoutineFixture.ROUTINE_PER_ONE_WEEK(member, category,
+        Routine routine = RoutineFixture.routinePerWeek(member, category,
                 LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 31));
-        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.MONDAY_REPEAT(routine);
+        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.of(routine, DayOfWeek.MONDAY);
         routine.addRepeatDay(repeatDay);
         routineRepository.save(routine);
 
@@ -71,9 +71,9 @@ class FindInsertableRoutineTest {
         member = memberRepository.save(member);
         category = categoryRepository.save(category);
 
-        Routine routine = RoutineFixture.ROUTINE_PER_ONE_WEEK(member, category,
+        Routine routine = RoutineFixture.routinePerWeek(member, category,
                 LocalDate.of(2024, 1, 1), null);
-        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.MONDAY_REPEAT(routine);
+        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.of(routine, DayOfWeek.MONDAY);
         routine.addRepeatDay(repeatDay);
         routineRepository.save(routine);
 
@@ -97,9 +97,9 @@ class FindInsertableRoutineTest {
         member = memberRepository.save(member);
         category = categoryRepository.save(category);
 
-        Routine routine = RoutineFixture.ROUTINE_PER_ONE_WEEK(member, category,
+        Routine routine = RoutineFixture.routinePerWeek(member, category,
                 LocalDate.of(2024, 1, 1), null);
-        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.MONDAY_REPEAT(routine);
+        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.of(routine, DayOfWeek.MONDAY);
         routine.addRepeatDay(repeatDay);
         routineRepository.save(routine);
 
@@ -124,9 +124,9 @@ class FindInsertableRoutineTest {
         member = memberRepository.save(member);
         category = categoryRepository.save(category);
 
-        Routine routine = RoutineFixture.ROUTINE_PER_ONE_WEEK(member, category,
+        Routine routine = RoutineFixture.routinePerWeek(member, category,
                 LocalDate.of(2024, 1, 1), null);
-        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.MONDAY_REPEAT(routine);
+        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.of(routine, DayOfWeek.MONDAY);
         routine.addRepeatDay(repeatDay);
         routineRepository.save(routine);
 
@@ -151,9 +151,9 @@ class FindInsertableRoutineTest {
         member = memberRepository.save(member);
         category = categoryRepository.save(category);
 
-        Routine routine = RoutineFixture.ROUTINE_PER_ONE_WEEK(member, category,
+        Routine routine = RoutineFixture.routinePerWeek(member, category,
                 LocalDate.of(2024, 1, 1), null);
-        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.MONDAY_REPEAT(routine);
+        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.of(routine, DayOfWeek.MONDAY);
         routine.addRepeatDay(repeatDay);
         routineRepository.save(routine);
 
@@ -178,9 +178,9 @@ class FindInsertableRoutineTest {
         member = memberRepository.save(member);
         category = categoryRepository.save(category);
 
-        Routine routine = RoutineFixture.ROUTINE_PER_ONE_WEEK(member, category,
+        Routine routine = RoutineFixture.routinePerWeek(member, category,
                 LocalDate.of(2024, 2, 7), null);
-        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.MONDAY_REPEAT(routine);
+        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.of(routine, DayOfWeek.MONDAY);
         routine.addRepeatDay(repeatDay);
         routineRepository.save(routine);
 
@@ -205,9 +205,9 @@ class FindInsertableRoutineTest {
         member = memberRepository.save(member);
         category = categoryRepository.save(category);
 
-        Routine routine = RoutineFixture.ROUTINE_PER_ONE_WEEK(member, category,
+        Routine routine = RoutineFixture.routinePerWeek(member, category,
                 LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 15));
-        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.MONDAY_REPEAT(routine);
+        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.of(routine, DayOfWeek.MONDAY);
         routine.addRepeatDay(repeatDay);
         routineRepository.save(routine);
 
@@ -233,9 +233,9 @@ class FindInsertableRoutineTest {
         member = memberRepository.save(member);
         category = categoryRepository.save(category);
 
-        Routine routine = RoutineFixture.ROUTINE_PER_TWO_WEEK(member, category,
+        Routine routine = RoutineFixture.routinePerTwoWeek(member, category,
                 LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 31));
-        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.MONDAY_REPEAT(routine);
+        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.of(routine, DayOfWeek.MONDAY);
         routine.addRepeatDay(repeatDay);
         routineRepository.save(routine);
 
@@ -263,9 +263,9 @@ class FindInsertableRoutineTest {
         member = memberRepository.save(member);
         category = categoryRepository.save(category);
 
-        Routine routine = RoutineFixture.ROUTINE_PER_TWO_WEEK(member, category,
+        Routine routine = RoutineFixture.routinePerTwoWeek(member, category,
                 LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 31));
-        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.MONDAY_REPEAT(routine);
+        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.of(routine, DayOfWeek.MONDAY);
         routine.addRepeatDay(repeatDay);
         routineRepository.save(routine);
 
@@ -285,6 +285,40 @@ class FindInsertableRoutineTest {
 
     @Test
     @Transactional
+    void 성공_2주반복_첫째주_이후_요일_등록() {
+        // given
+        Member member = MemberFixture.MEMBER_ONE;
+        Category category = CategoryFixture.CATEGORY_ONE;
+
+        member = memberRepository.save(member);
+        category = categoryRepository.save(category);
+
+        Routine routine = RoutineFixture.routinePerTwoWeek(member, category,
+                LocalDate.of(2024, 1, 3), LocalDate.of(2024, 1, 31));
+        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.of(routine, DayOfWeek.MONDAY);
+        WeeklyRepeatDay repeatDay2 = WeeklyRepeatDayFixture.of(routine, DayOfWeek.WEDNESDAY);
+        WeeklyRepeatDay repeatDay3 = WeeklyRepeatDayFixture.of(routine, DayOfWeek.SATURDAY);
+        routine.addRepeatDay(repeatDay);
+        routine.addRepeatDay(repeatDay2);
+        routine.addRepeatDay(repeatDay3);
+        routineRepository.save(routine);
+
+        Goal goal = GoalFixture.createGoalRegardlessOfBudget(member,
+                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 31));
+        goalRepository.save(goal);
+
+        // when
+        List<InsertableRoutine> routines_one = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 8));
+        List<InsertableRoutine> routines_two = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 6));
+        List<InsertableRoutine> routines_three = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 20));
+        // then
+        assertEquals(0, routines_one.size());
+        assertEquals(1, routines_two.size());
+        assertEquals(1, routines_three.size());
+    }
+
+    @Test
+    @Transactional
     void 성공_3주반복() {
         // given
         Member member = MemberFixture.MEMBER_ONE;
@@ -293,9 +327,9 @@ class FindInsertableRoutineTest {
         member = memberRepository.save(member);
         category = categoryRepository.save(category);
 
-        Routine routine = RoutineFixture.ROUTINE_PER_THREE_WEEK(member, category,
+        Routine routine = RoutineFixture.routinePerThreeWeek(member, category,
                 LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 31));
-        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.MONDAY_REPEAT(routine);
+        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.of(routine, DayOfWeek.MONDAY);
         routine.addRepeatDay(repeatDay);
         routineRepository.save(routine);
 
@@ -323,15 +357,15 @@ class FindInsertableRoutineTest {
         member = memberRepository.save(member);
         category = categoryRepository.save(category);
 
-        Routine routine = RoutineFixture.ROUTINE_PER_THREE_WEEK(member, category,
+        Routine routine = RoutineFixture.routinePerThreeWeek(member, category,
                 LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 31));
-        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.MONDAY_REPEAT(routine);
+        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.of(routine, DayOfWeek.MONDAY);
         routine.addRepeatDay(repeatDay);
         routineRepository.save(routine);
 
-        Routine routine2 = RoutineFixture.ROUTINE_PER_THREE_WEEK(member, category,
+        Routine routine2 = RoutineFixture.routinePerThreeWeek(member, category,
                 LocalDate.of(2024, 1, 8), LocalDate.of(2024, 2, 5));
-        WeeklyRepeatDay repeatDay2 = WeeklyRepeatDayFixture.MONDAY_REPEAT(routine);
+        WeeklyRepeatDay repeatDay2 = WeeklyRepeatDayFixture.of(routine, DayOfWeek.MONDAY);
         routine2.addRepeatDay(repeatDay2);
         routineRepository.save(routine2);
 
@@ -360,10 +394,8 @@ class FindInsertableRoutineTest {
         member = memberRepository.save(member);
         category = categoryRepository.save(category);
 
-        Routine routine = RoutineFixture.ROUTINE_PER_MONTH(member, category,
+        Routine routine = RoutineFixture.routinePerMonth(member, category,
                 LocalDate.of(2024, 1, 1), null, 10);
-        WeeklyRepeatDay repeatDay = WeeklyRepeatDayFixture.MONDAY_REPEAT(routine);
-        routine.addRepeatDay(repeatDay);
         routineRepository.save(routine);
 
         Goal goal = GoalFixture.createGoalRegardlessOfBudget(member,
@@ -372,6 +404,56 @@ class FindInsertableRoutineTest {
 
         // when
         List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 10));
+
+        // then
+        assertEquals(1, routines.size());
+    }
+
+    @Test
+    @Transactional
+    void 성공_월별_마지막() {
+        // given
+        Member member = MemberFixture.MEMBER_ONE;
+        Category category = CategoryFixture.CATEGORY_ONE;
+
+        member = memberRepository.save(member);
+        category = categoryRepository.save(category);
+
+        Routine routine = RoutineFixture.routineLastDayOfMonth(member, category,
+                LocalDate.of(2024, 1, 1), null);
+        routineRepository.save(routine);
+
+        Goal goal = GoalFixture.createGoalRegardlessOfBudget(member,
+                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 31));
+        goalRepository.save(goal);
+
+        // when
+        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 1, 31));
+
+        // then
+        assertEquals(1, routines.size());
+    }
+
+    @Test
+    @Transactional
+    void 성공_월별_첫번째_날() {
+        // given
+        Member member = MemberFixture.MEMBER_ONE;
+        Category category = CategoryFixture.CATEGORY_ONE;
+
+        member = memberRepository.save(member);
+        category = categoryRepository.save(category);
+
+        Routine routine = RoutineFixture.routineFirstDayOfMonth(member, category,
+                LocalDate.of(2024, 1, 1), null);
+        routineRepository.save(routine);
+
+        Goal goal = GoalFixture.createGoalRegardlessOfBudget(member,
+                LocalDate.of(2024, 1, 1), LocalDate.of(2024, 3, 31));
+        goalRepository.save(goal);
+
+        // when
+        List<InsertableRoutine> routines = this.routineRepository.findInsertableRoutines(LocalDate.of(2024, 2, 1));
 
         // then
         assertEquals(1, routines.size());
