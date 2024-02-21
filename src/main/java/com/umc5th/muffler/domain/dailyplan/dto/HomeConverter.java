@@ -46,6 +46,7 @@ public class HomeConverter {
         return GoalInfo.builder()
                 .goalId(goal.getId())
                 .goalTitle(goal.getTitle())
+                .icon(goal.getIcon())
                 .goalBudget(goal.getTotalBudget())
                 .startDate(goal.getStartDate())
                 .endDate(goal.getEndDate())

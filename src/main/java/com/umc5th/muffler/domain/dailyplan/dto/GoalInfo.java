@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class GoalInfo implements CalendarInfo {
     private Long goalId;
     private String goalTitle;
+    private String icon;
     private Long goalBudget;
     private LocalDate startDate;
     private LocalDate endDate;
