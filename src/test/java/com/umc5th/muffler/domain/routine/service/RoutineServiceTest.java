@@ -102,7 +102,7 @@ class RoutineServiceTest {
         routineService.create(expenseId, request);
 
         verify(routineRepository).save(routineCaptor.capture());
-        verify(expenseRepository, times(1)).save(any());
+        verify(expenseRepository, times(2)).save(any());
         verify(goalRepository).findGoalsWithinDateRange(any(), any());
         verify(jdbcDailyPlanRepository).updateTotalCostForDailyPlans(anyString(), anyList(), anyLong());
 

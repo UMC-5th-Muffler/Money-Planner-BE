@@ -4,7 +4,7 @@ import com.umc5th.muffler.entity.DailyPlan;
 import com.umc5th.muffler.entity.Expense;
 import com.umc5th.muffler.entity.Goal;
 import com.umc5th.muffler.entity.constant.Rate;
-import com.umc5th.muffler.global.util.ExpenseUtils;
+import com.umc5th.muffler.global.util.CalcUtils;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,6 +46,7 @@ public class HomeConverter {
         return GoalInfo.builder()
                 .goalId(goal.getId())
                 .goalTitle(goal.getTitle())
+                .icon(goal.getIcon())
                 .goalBudget(goal.getTotalBudget())
                 .startDate(goal.getStartDate())
                 .endDate(goal.getEndDate())
@@ -74,7 +75,7 @@ public class HomeConverter {
                 .map(date -> {
                     return (DailyInfo) new CategoryDaily(
                             date,
-                            ExpenseUtils.sumExpenseCosts(expenses.getOrDefault(date, Collections.emptyList())),
+                            CalcUtils.sumExpenseCosts(expenses.getOrDefault(date, Collections.emptyList())),
                             rates.get(date)
                     );
                 }).collect(Collectors.toList());

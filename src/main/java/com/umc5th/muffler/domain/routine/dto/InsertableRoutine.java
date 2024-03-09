@@ -1,6 +1,5 @@
 package com.umc5th.muffler.domain.routine.dto;
 
-import com.querydsl.core.annotations.QueryProjection;
 import com.umc5th.muffler.entity.constant.MonthlyRepeatType;
 import com.umc5th.muffler.entity.constant.RoutineType;
 import java.time.DayOfWeek;
@@ -43,16 +42,11 @@ public class InsertableRoutine {
             return false;
         }
         if (routineType == RoutineType.WEEKLY) {
-            LocalDate firstRepeatStartDate;
+            LocalDate startDate = this.routineStartDate;
+            LocalDate startWeek = startDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
-            if (routineStartDate.getDayOfWeek().getValue() < date.getDayOfWeek().getValue()) {
-                firstRepeatStartDate = routineStartDate;
-            } else {
-                firstRepeatStartDate = routineStartDate.plusWeeks(routineWeeklyTerm)
-                        .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-            }
-            long weeksSinceStart = ChronoUnit.WEEKS.between(firstRepeatStartDate, date);
-            return weeksSinceStart % routineWeeklyTerm == 0;
+            long weeksSinceStart = ChronoUnit.WEEKS.between(startWeek, date);
+            return weeksSinceStart % this.routineWeeklyTerm == 0;
         }
         return true;
     }
