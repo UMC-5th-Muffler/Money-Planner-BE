@@ -10,41 +10,36 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class WeeklyRoutineProcessor implements RoutineProcessor {
     @Override
     public boolean isRoutineDay(LocalDate date, Routine routine) {
         if (!getDayOfWeeks(routine).contains(date.getDayOfWeek())) {
             return false;
         }
-        LocalDate startDate = routine.getStartDate();
-        int term = routine.getWeeklyTerm();
 
-        LocalDate firstRepeatStartDate;
-        if (startDate.getDayOfWeek().getValue() < date.getDayOfWeek().getValue()) {
-            firstRepeatStartDate = startDate;
-        } else {
-            firstRepeatStartDate = startDate.plusWeeks(term)
-                    .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        }
-        firstRepeatStartDate = startDate.plusWeeks(term).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        long weeksSinceStart = ChronoUnit.WEEKS.between(firstRepeatStartDate, date);
-        return weeksSinceStart % term == 0;
+        LocalDate startDate = routine.getStartDate();
+        LocalDate startWeek = startDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+        long weeksSinceStart = ChronoUnit.WEEKS.between(startWeek, date);
+        return weeksSinceStart % routine.getWeeklyTerm() == 0;
     }
 
     @Override
     public List<LocalDate> getRoutineDates(LocalDate startDate, LocalDate endDate, Routine routine) {
         List<LocalDate> result = new ArrayList<>();
+        long numberOfDays = ChronoUnit.DAYS.between(startDate, endDate);
         int weeklyTerm = routine.getWeeklyTerm();
         List<DayOfWeek> routineDayOfWeeks = getDayOfWeeks(routine);
 
-        LocalDate firstRepeatStartDate = startDate.plusWeeks(weeklyTerm).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        long numberOfDays = ChronoUnit.DAYS.between(firstRepeatStartDate, endDate) + 1;
+        LocalDate startWeek = startDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
-        Stream.iterate(firstRepeatStartDate, date -> date.plusDays(1))
-                .limit(numberOfDays)
+        Stream.iterate(startDate, date -> date.plusDays(1))
+                .limit(numberOfDays + 1)
                 .forEach(date -> {
-                    if (isRoutineDay(firstRepeatStartDate, weeklyTerm, date, routineDayOfWeeks)) {
+                    if (isRoutineDay(startWeek, weeklyTerm, date, routineDayOfWeeks)) {
                         result.add(date);
                     }
                 });
@@ -58,12 +53,12 @@ public class WeeklyRoutineProcessor implements RoutineProcessor {
                 .collect(Collectors.toList());
     }
 
-    private boolean isRoutineDay(LocalDate startDate, int term, LocalDate date, List<DayOfWeek> routineDayOfWeeks) {
+    private boolean isRoutineDay(LocalDate startWeek, int term, LocalDate date, List<DayOfWeek> routineDayOfWeeks) {
         if (!routineDayOfWeeks.contains(date.getDayOfWeek())) {
             return false;
         }
 
-        long weeksSinceStart = ChronoUnit.WEEKS.between(startDate, date);
+        long weeksSinceStart = ChronoUnit.WEEKS.between(startWeek, date);
         return weeksSinceStart % term == 0;
     }
 }
