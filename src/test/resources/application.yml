@@ -37,11 +37,11 @@ spring:
       client:
         registration:
           kakao:
-            client-id: ${KAKAO_CLIENT_ID}
-            client-secret: ${KAKAO_CLIENT_SECRET}
+            client-id: ci
+            client-secret: cs
             client-authentication-method: POST
             authorization-grant-type: authorization_code
-            redirect-uri: ${KAKAO_REDIRECT_URI}
+            redirect-uri: ku
             scope: account_email
             client-name: Kakao
         provider:
