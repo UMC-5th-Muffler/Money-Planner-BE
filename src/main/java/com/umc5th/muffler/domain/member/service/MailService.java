@@ -28,7 +28,7 @@ public class MailService {
     private final MemberRepository memberRepository;
     private final InquiryRepository inquiryRepository;
 
-    @Value("${EMAIL_USERNAME}")
+    @Value("${spring.mail.username}")
     private String mufflerEmail;
 
     @Transactional
