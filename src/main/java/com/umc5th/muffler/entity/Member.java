@@ -44,6 +44,8 @@ public class Member extends BaseTimeEntity implements Persistable<String>, UserD
     @Column(length = 20)
     private String name;
 
+    private String profileImg;
+
     @Enumerated(EnumType.STRING)
     private SocialType socialType;
 
@@ -72,6 +74,11 @@ public class Member extends BaseTimeEntity implements Persistable<String>, UserD
         this.refreshToken = refreshToken;
     }
 
+    public void setNameAndProfile(String name, String profileImg) {
+        this.name = name;
+        this.profileImg = profileImg;
+    }
+
     public void addGoal(Goal goal) {
         this.goals.add(goal);
     }
@@ -79,7 +86,6 @@ public class Member extends BaseTimeEntity implements Persistable<String>, UserD
     public void removeGoal(Goal goal) {
         this.goals.remove(goal);
     }
-
     public void addCategory(Category category) {
         category.setMember(this);
         this.categories.add(category);
@@ -91,6 +97,7 @@ public class Member extends BaseTimeEntity implements Persistable<String>, UserD
         memberAlarm.enrollToken(token);
     }
     public void deleteToken() {memberAlarm.deleteToken();}
+
     @Override
     public boolean isNew() {
         return getCreatedAt() == null;
