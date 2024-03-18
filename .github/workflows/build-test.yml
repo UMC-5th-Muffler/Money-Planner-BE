@@ -21,7 +21,6 @@ jobs:
         run: |
           echo "$ENV" >> .env
           echo "$FIREBASE_PRIVATE_KEY" >> ./src/main/resources/firebase-private-key.json
-
         env:
           ENV: ${{ secrets.ENV }}
           FIREBASE_PRIVATE_KEY : ${{ secrets.FIREBASE_PRIVATE_KEY }}
