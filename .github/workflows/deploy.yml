@@ -19,25 +19,11 @@ jobs:
 
       - name: Generate Envirvonment Variables File for Production
         run: |
-          echo "DB_URL=$DB_URL" >> .env
-          echo "DB_USERNAME=$DB_USERNAME" >> .env
-          echo "DB_PASSWORD=$DB_PASSWORD" >> .env
-          echo "DB_DLL_MODE=$DB_DLL_MODE" >> .env
-          echo "JWT_SECRET=$JWT_SECRET" >> .env
-          echo "KAKAO_CLIENT_SECRET=$KAKAO_CLIENT_SECRET" >> .env
-          echo "KAKAO_CLIENT_ID=$KAKAO_CLIENT_ID" >> .env
-          echo "KAKAO_REDIRECT_URI=$KAKAO_REDIRECT_URI" >> .env
+          echo "$ENV" >> .env
           echo "$FIREBASE_PRIVATE_KEY" >> ./src/main/resources/firebase-private-key.json
 
         env:
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_DLL_MODE: ${{ secrets.DB_DLL_MODE }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          KAKAO_CLIENT_SECRET : ${{ secrets.KAKAO_CLIENT_SECRET }}
-          KAKAO_CLIENT_ID : ${{ secrets.KAKAO_CLIENT_ID }}
-          KAKAO_REDIRECT_URI: ${{ secrets.KAKAO_REDIRECT_URI }}
+          ENV: ${{ secrets.ENV }}
           FIREBASE_PRIVATE_KEY : ${{ secrets.FIREBASE_PRIVATE_KEY }}
 
       - name: Grant execute permission for gradlew
