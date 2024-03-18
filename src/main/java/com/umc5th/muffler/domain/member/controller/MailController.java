@@ -16,7 +16,7 @@ public class MailController {
     private final MailService mailService;
 
     @PostMapping("/inquiry")
-    private Response<Void> inquiryEmail(@RequestBody @Valid InquiryRequest request, Authentication authentication){
+    public Response<Void> inquiryEmail(@RequestBody @Valid InquiryRequest request, Authentication authentication){
         mailService.sendInquiryEmail(request, authentication.getName());
         return Response.success();
     }
