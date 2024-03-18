@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .antMatchers(
                         "/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/health-check",
                         "/swagger-ui.html", "/swagger-ui/**", "/*/api-docs/**", "/swagger-resources/**", "/webjars/**",
-                        "/api/member/refresh-token");
+                        "/api/member/refresh-token", "/api/member/login");
     }
 
     @Bean
