@@ -56,6 +56,9 @@ public enum ErrorCode {
     INVALID_ROUTINE_INPUT(HttpStatus.BAD_REQUEST, "올바르지 않은 루틴 입력입니다."),
     ROUTINE_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "루틴 타입이 없거나 유효하지 않습니다."),
     ROUTINE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 루틴입니다."),
+
+    // Mail 에러
+    FAIL_SEND_EMAIL(HttpStatus.BAD_REQUEST, "이메일 전송에 실패했습니다."),
     ;
 
     private final HttpStatus httpStatus;
