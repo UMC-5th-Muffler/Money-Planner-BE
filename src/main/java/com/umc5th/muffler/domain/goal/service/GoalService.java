@@ -46,10 +46,28 @@ public class GoalService {
     private final GoalRepository goalRepository;
     private final ExpenseRepository expenseRepository;
 
+    @Transactional(readOnly = true)
     public List<Goal> getGoals(String memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
         return member.getGoals();
+    }
+
+    @Transactional(readOnly = true)
+    public boolean checkRestore(String memberId, LocalDate startDate, LocalDate endDate) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
+        return expenseRepository.existsExpense(memberId, startDate, endDate);
+    }
+
+    public void restore(String memberId, LocalDate startDate, LocalDate endDate, boolean restore) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
+        if (restore) {
+            return;
+        }
+        List<Long> expenseIds = expenseRepository.findByMemberIdAndDateRange(memberId, startDate, endDate);
+        expenseRepository.deleteByIds(expenseIds);
     }
 
     public void updateTitle(Long goalId, String title, String memberId) {

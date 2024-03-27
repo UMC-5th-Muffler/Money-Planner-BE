@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,6 +52,26 @@ public class GoalController {
     public Response<GoalPreviousResponse> getPrevious(Authentication authentication) {
         List<Goal> goals = goalService.getGoals(authentication.getName());
         return Response.success(GoalConverter.getGoalPreviousResponse(goals));
+    }
+
+    @GetMapping("/restore")
+    public ResponseEntity<Void> checkRestore(Authentication authentication,
+                                             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+                                             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
+        boolean isExists = goalService.checkRestore(authentication.getName(), startDate, endDate);
+        if (isExists) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/restore")
+    public Response<Void> restore(Authentication authentication,
+                                        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+                                        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+                                        @RequestParam boolean restore) {
+        goalService.restore(authentication.getName(), startDate, endDate, restore);
+        return Response.success();
     }
 
     @PatchMapping("/{goalId}")
